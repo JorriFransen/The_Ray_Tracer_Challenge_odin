@@ -2,10 +2,12 @@ package graphics
 
 import m "../rtmath"
 
-Color :: distinct m.Tuple;
+Color :: struct {
+    using t : m.Tuple,
+}
 
 color :: proc(r: f32, g: f32, b: f32) -> Color {
-    return Color { r, g, b, 0.0};
+    return Color{ m.Tuple{ r, g, b, 0.0 } };
 }
 
 eq :: proc(a: Color, b: Color) -> bool {
@@ -13,19 +15,19 @@ eq :: proc(a: Color, b: Color) -> bool {
 }
 
 add :: proc(a: Color, b: Color) -> Color {
-    return Color(m.add(m.Tuple(a), m.Tuple(b)));
+    return Color { m.add(a, b) };
 }
 
 sub :: proc(a: Color, b: Color) -> Color {
-    return Color(m.sub(m.Tuple(a), m.Tuple(b)));
+    return Color { m.sub(a, b) };
 }
 
 color_mul_scalar :: proc(c: Color, s: f32) -> Color {
-    return Color(m.mul(m.Tuple(c), s));
+    return Color { m.mul(c, s) };
 }
 
 color_mul :: proc(a: Color, b: Color) -> Color {
-    return a * b;
+    return Color { a.t * b.t };
 }
 
 mul :: proc { color_mul_scalar, color_mul };
