@@ -3,22 +3,20 @@ package rtmath
 import "core:fmt"
 import cm "core:math"
 
-Tuple :: struct {
-    x: f32,
-    y: f32,
-    z: f32,
-    w: f32,
-};
-
+Tuple :: distinct [4]f32;
 Point :: distinct Tuple;
 Vector :: distinct Tuple;
 
+tuple :: proc(x: f32, y: f32, z: f32, w: f32) -> Tuple {
+    return Tuple { x, y, z, w };
+}
+
 point :: proc(x: f32, y: f32, z: f32) -> Point {
-    return Point(Tuple {x, y, z, 1.0});
+    return Point { x, y, z, 1.0 };
 }
 
 vector :: proc(x: f32, y: f32, z: f32) -> Vector {
-    return Vector(Tuple {x, y, z, 0.0});
+    return Vector { x, y, z, 0.0 };
 }
 
 tuple_eq :: proc(a: Tuple, b: Tuple) -> bool {
@@ -72,7 +70,7 @@ vector_is_vector :: proc(v: Vector) -> bool {
 is_vector :: proc { tuple_is_vector, point_is_vector, vector_is_vector };
 
 tuple_add :: proc(a: Tuple, b: Tuple) -> Tuple {
-    return Tuple { a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w };
+    return a + b;
 }
 
 point_vector_add :: proc(p: Point, v: Vector) -> Point {
@@ -108,7 +106,7 @@ vector_add :: proc(a: Vector, b: Vector) -> Vector {
 add :: proc { tuple_add, point_vector_add, vector_point_add, vector_add };
 
 tuple_sub :: proc(a: Tuple, b: Tuple) -> Tuple {
-    return Tuple { a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w };
+    return a - b;
 }
 
 point_sub :: proc(a: Point, b: Point) -> Vector {
@@ -144,7 +142,7 @@ Vector_Sub :: proc(a: Vector, b: Vector) -> Vector {
 sub :: proc { tuple_sub, point_sub, point_sub_vector, Vector_Sub };
 
 tuple_negate :: proc(t: Tuple) -> Tuple {
-    return Tuple { -t.x, -t.y, -t.z, -t.w };
+    return -t;
 }
 
 vector_negate :: proc(v: Vector) -> Vector {
@@ -159,13 +157,13 @@ vector_negate :: proc(v: Vector) -> Vector {
 negate :: proc { tuple_negate, vector_negate };
 
 tuple_mul :: proc(t: Tuple, s: f32) -> Tuple {
-    return Tuple { t.x * s, t.y * s, t.z * s, t.w * s };
+    return t * s;
 }
 
 mul :: proc { tuple_mul };
 
 tuple_div :: proc(t: Tuple, s: f32) -> Tuple {
-    return Tuple { t.x / s, t.y / s, t.z / s, t.w / s };
+    return t / s;
 }
 
 div :: proc { tuple_div };
@@ -177,7 +175,8 @@ magnitude :: proc(v: Vector) -> f32 {
 normalize :: proc(v: Vector) -> Vector {
     magnitude := magnitude(v);
 
-    result := Tuple { v.x / magnitude, v.y / magnitude, v.z / magnitude, v.w / magnitude };
+    result := v / magnitude;
+
     assert(is_vector(result));
     return Vector(result);
 }

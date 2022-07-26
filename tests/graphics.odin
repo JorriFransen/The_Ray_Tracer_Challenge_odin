@@ -40,8 +40,7 @@ Color_Layout_Matches_Tuple :: proc(t: ^testing.T) {
 
     expected := m.Tuple { -0.5, 0.4, 1.7, 0.0 };
 
-    expect(t, c.t == expected);
-    expect(t, c == transmute(g.Color)expected)
+    expect(t, c == g.Color(expected));
 }
 
 @test
