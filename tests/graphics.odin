@@ -20,7 +20,7 @@ all_graphics_tests :: proc(t: ^testing.T) {
 Color_Constructor :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    c := g.color(-0.5, 0.4, 1.7);
+    c := g.color(f32, -0.5, 0.4, 1.7);
 
     expected_r := f32(-0.5);
     expected_g := f32(0.4);
@@ -36,23 +36,23 @@ Color_Constructor :: proc(t: ^testing.T) {
 Color_Layout_Matches_Tuple :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    c := g.color(-0.5, 0.4, 1.7);
+    c := g.color(f32, -0.5, 0.4, 1.7);
 
-    expected := m.Tuple { -0.5, 0.4, 1.7, 0.0 };
+    expected := m.tuple(f32, -0.5, 0.4, 1.7, 0.0);
 
     expect(t, c.t == expected);
-    expect(t, c == g.Color { expected });
-    expect(t, c == transmute(g.Color)expected);
+    expect(t, c == g.Color(f32) { expected });
+    expect(t, c == transmute(g.Color(f32))expected);
 }
 
 @test
 Color_Add :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    c1 := g.color(0.9, 0.6, 0.75);
-    c2 := g.color(0.7, 0.1, 0.25);
+    c1 := g.color(f32, 0.9, 0.6, 0.75);
+    c2 := g.color(f32, 0.7, 0.1, 0.25);
 
-    expected := g.color(1.6, 0.7, 1.0);
+    expected := g.color(f32, 1.6, 0.7, 1.0);
     result := g.add(c1, c2);
 
     expect(t, g.eq(result, expected));
@@ -62,10 +62,10 @@ Color_Add :: proc(t: ^testing.T) {
 Color_Sub :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    c1 := g.color(0.9, 0.6, 0.75);
-    c2 := g.color(0.7, 0.1, 0.25);
+    c1 := g.color(f32, 0.9, 0.6, 0.75);
+    c2 := g.color(f32, 0.7, 0.1, 0.25);
 
-    expected := g.color(0.2, 0.5, 0.5);
+    expected := g.color(f32, 0.2, 0.5, 0.5);
     result := g.sub(c1, c2);
 
     expect(t, g.eq(result, expected));
@@ -75,9 +75,9 @@ Color_Sub :: proc(t: ^testing.T) {
 Color_Mul_Scalar :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    c := g.color(0.2, 0.3, 0.4);
+    c := g.color(f32, 0.2, 0.3, 0.4);
 
-    expected := g.color(0.4, 0.6, 0.8);
+    expected := g.color(f32, 0.4, 0.6, 0.8);
     result := g.mul(c, 2);
 
     expect(t, g.eq(result, expected));
@@ -87,10 +87,10 @@ Color_Mul_Scalar :: proc(t: ^testing.T) {
 Color_Mul :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    c1 := g.color(1, 0.2, 0.4);
-    c2 := g.color(0.9, 1, 0.1);
+    c1 := g.color(f32, 1.0, 0.2, 0.4);
+    c2 := g.color(f32, 0.9, 1, 0.1);
 
-    expected := g.color(0.9, 0.2, 0.04);
+    expected := g.color(f32, 0.9, 0.2, 0.04);
     result := g.mul(c1, c2);
 
     expect(t, g.eq(result, expected));

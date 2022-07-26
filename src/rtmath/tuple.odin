@@ -1,91 +1,149 @@
 package rtmath
 
 import "core:fmt"
+import "core:intrinsics"
 import cm "core:math"
 
-Tuple :: distinct [4]f32;
-
-Point :: struct {
-    using t : Tuple,
+Tuple :: struct($T: typeid) where intrinsics.type_is_float(T) {
+    using data : [4]T,
 }
 
-Vector :: struct {
-    using t : Tuple,
+Point :: struct($T: typeid) where intrinsics.type_is_float(T) {
+    using t : Tuple(T),
 }
 
-tuple :: proc(x: f32, y: f32, z: f32, w: f32) -> Tuple {
-    return Tuple { x, y, z, w };
+Vector :: struct($T: typeid) where intrinsics.type_is_float(T) {
+    using t : Tuple(T),
 }
 
-point :: proc(x: f32, y: f32, z: f32) -> Point {
-    return Point { Tuple { x, y, z, 1.0 } };
+tuple :: proc($T: typeid, x, y, z, w: T) -> Tuple(T) where intrinsics.type_is_float(T) {
+    return Tuple(T) { data = { x, y, z, w } };
 }
 
-vector :: proc(x: f32, y: f32, z: f32) -> Vector {
-    return Vector { Tuple { x, y, z, 0.0 } };
+point :: proc($T: typeid, x, y, z: T) -> Point(T) where intrinsics.type_is_float(T) {
+    return Point(T) { t = { data = { x, y, z, 1.0 } } };
 }
 
-eq :: proc(a: Tuple, b: Tuple) -> bool {
-    return float_eq(a.x, b.x) &&
-           float_eq(a.y, b.y) &&
-           float_eq(a.z, b.z) &&
-           float_eq(a.w, b.w);
+vector :: proc($T: typeid, x, y, z: T) -> Vector(T) where intrinsics.type_is_float(T) {
+    return Vector(T) { t = tuple(T, x, y, z, 0.0 ) };
 }
 
-is_point :: proc(t: Tuple) -> bool {
+
+eq :: proc(a, b: $T) -> bool
+    where intrinsics.type_is_specialization_of(T, Tuple) ||
+          (intrinsics.type_polymorphic_record_parameter_count(T) == 1 &&
+          intrinsics.type_is_subtype_of(T, Tuple(intrinsics.type_polymorphic_record_parameter_value(T, 0))))
+{
+    return eq_internal(a.data, b.data);
+}
+
+eq_internal :: proc (v1, v2: $V/[$N]$A) -> bool {
+
+    r := v1 - v2;
+    r = transmute(V)intrinsics.simd_abs(transmute(#simd[N]A)r);
+
+    for e in r {
+        if (e >= FLOAT_EPSILON) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+is_point :: proc(t: $T) -> bool {
     return t.w == 1.0;
 }
 
-is_vector :: proc(t: Tuple) -> bool {
+is_vector :: proc(t: $T) -> bool {
     return t.w == 0.0;
 }
 
-add :: proc(a: Tuple, b: Tuple) -> Tuple {
-    return a + b;
+add_poly :: proc(a: $T/Tuple, b: T) -> T {
+    return T { data = a.data + b.data };
 }
 
-sub :: proc(a: Tuple, b: Tuple) -> Tuple {
-    return a - b;
+add_point_vector :: proc(a: Point($T), b: Vector(T)) -> Point(T) {
+    return Point(T) { add(a.t, b.t) };
 }
 
-negate :: proc(t: Tuple) -> Tuple {
-    return -t;
+add_vector_point :: proc(a: Vector($T), b: Point(T)) -> Point(T) {
+    return Point(T) { add(a.t, b.t) };
 }
 
-tuple_mul :: proc(t: Tuple, s: f32) -> Tuple {
-    return t * s;
+add_vector_vector :: proc(a: $T/Vector($K), b: T) -> T {
+    return T { add(a.t, b.t) };
+}
+
+add :: proc { add_poly, add_point_vector, add_vector_point, add_vector_vector };
+
+sub_tuple :: proc(a: $T/Tuple, b: T) -> T {
+    return T { a.data - b.data };
+}
+
+sub_point :: proc(a: Point($T), b: Point(T)) -> Vector(T) {
+    return Vector(T) { sub(a.t, b.t) };
+}
+
+sub_point_vector :: proc(a: Point($T), b: Vector(T)) -> Point(T) {
+    return Point(T) { sub(a.t, b.t) };
+}
+
+sub_vector :: proc(a: $T/Vector, b: T) -> T {
+    return T { sub(a.t, b.t) };
+}
+
+sub :: proc { sub_tuple, sub_point, sub_point_vector, sub_vector };
+
+negate :: proc(t: $T) -> T
+    where intrinsics.type_is_specialization_of(T, Tuple) ||
+          intrinsics.type_is_specialization_of(T, Vector){
+
+    // This should just be 2 overloads?
+    when intrinsics.type_is_specialization_of(T, Tuple) {
+        return T { -t.data };
+    } else when intrinsics.type_is_specialization_of(T, Vector) {
+        return T { t = { -t.data } };
+    } else {
+        #assert(false);
+    }
+}
+
+tuple_mul :: proc(t: Tuple($T), s: T) -> Tuple(T) {
+    return Tuple(T) { t.data * s } ;
 }
 
 mul :: proc { tuple_mul };
 
-tuple_div :: proc(t: Tuple, s: f32) -> Tuple {
-    return t / s;
+tuple_div :: proc(t: Tuple($T), s: T) -> Tuple(T) {
+    return Tuple(T) { t.data / s } ;
 }
 
 div :: proc { tuple_div };
 
-magnitude :: proc(v: Vector) -> f32 {
+magnitude :: proc(v: Vector($T)) -> T {
     return cm.sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
 }
 
-normalize :: proc(v: Vector) -> Vector {
+normalize :: proc(v: $T/Vector) -> T {
     magnitude := magnitude(v);
 
-    result := v.t / magnitude;
+    result := v.t.data / magnitude;
 
     assert(is_vector(result));
-    return Vector { result };
+    return T { t = { data = result } };
 }
 
-dot :: proc(a: Vector, b: Vector) -> f32 {
+dot :: proc(a: Vector($T), b: Vector(T)) -> T {
     return a.x * b.x +
            a.y * b.y +
            a.z * b.z +
            a.w + b.w;
 }
 
-cross :: proc(a: Vector, b: Vector) -> Vector {
-    return vector(a.y * b.z - a.z * b.y,
-                  a.z * b.x - a.x * b.z,
-                  a.x * b.y - a.y * b.x);
+// Lookat odin's getting started for a possibly faster (simd) approach
+cross :: proc(a: $T/Vector($K), b: T) -> T {
+    return vector(K, a.y * b.z - a.z * b.y,
+                     a.z * b.x - a.x * b.z,
+                     a.x * b.y - a.y * b.x);
 }
