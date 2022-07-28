@@ -3,32 +3,30 @@ package graphics
 import "core:intrinsics"
 import m "../rtmath"
 
-Color :: struct($T: typeid) where intrinsics.type_is_float(T) {
-    using t: m.Tuple(T),
+Color :: distinct m.Tuple;
+
+color :: proc(r, g, b: intrinsics.type_field_type(Color, "r")) -> Color {
+    return Color  { r, g, b, 0.0 };
 }
 
-color :: proc($T: typeid, r, g, b: T) -> Color(T) where intrinsics.type_is_float(T) {
-    return Color(T) { m.tuple(T, r, g, b, 0.0) };
-}
-
-eq :: proc(a: $T/Color, b: T) -> bool {
+eq :: #force_inline proc(a, b: Color) -> bool {
     return m.eq(a, b);
 }
 
-add :: proc(a: $T/Color, b: T) -> T {
-    return T { m.add(a.t, b.t) };
+add :: #force_inline proc(a, b: Color) -> Color {
+    return a + b;
 }
 
-sub :: proc(a: $T/Color, b: T) -> T {
-    return T { m.sub(a.t, b.t) };
+sub :: #force_inline proc(a, b: Color) -> Color {
+    return a - b;
 }
 
-color_mul_scalar :: proc(c: $T/Color($K) s: K) -> T {
-    return T { m.mul(c.t, s) };
+mul_c :: #force_inline proc(a, b: Color) -> Color {
+    return a * b;
 }
 
-color_mul :: proc(a: $T/Color, b: T) -> T {
-    return T { t = { a.t.data * b.t.data } };
+mul_s :: #force_inline proc(c: Color, s: intrinsics.type_field_type(Color, "r")) -> Color {
+    return Color(m.mul_t(m.Tuple(c), s));
 }
 
-mul :: proc { color_mul_scalar, color_mul };
+mul :: proc { mul_c, mul_s };

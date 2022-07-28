@@ -2,7 +2,7 @@ ODIN=odin
 
 ODINFLAGS := -debug
 
-default: debug
+default: test
 
 all: raytracer odin_test custom_test putting_it_together_CH01
 
@@ -24,10 +24,10 @@ putting_it_together_CH01: builddir
 test: custom_test
 
 odin_test: builddir
-	$(ODIN) test tests
+	$(ODIN) test tests $(ODINFLAGS)
 
 custom_test: builddir
-	$(ODIN) build tests -out:build/tests.bin
+	$(ODIN) build tests -out:build/tests.bin $(ODINFLAGS)
 	build/tests.bin
 
 

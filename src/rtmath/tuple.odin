@@ -2,148 +2,148 @@ package rtmath
 
 import "core:fmt"
 import "core:intrinsics"
+import "core:simd"
 import cm "core:math"
 
-Tuple :: struct($T: typeid) where intrinsics.type_is_float(T) {
-    using data : [4]T,
+Tuple :: distinct [4]f32;
+Point :: distinct Tuple;
+Vector :: distinct Tuple;
+
+tuple :: proc(x, y, z, w: intrinsics.type_field_type(Tuple, "x")) -> Tuple {
+    return Tuple { x, y, z, w };
 }
 
-Point :: struct($T: typeid) where intrinsics.type_is_float(T) {
-    using t : Tuple(T),
+point :: proc(x, y, z: intrinsics.type_field_type(Tuple, "x")) -> Point {
+    return Point { x, y, z, 1.0 };
 }
 
-Vector :: struct($T: typeid) where intrinsics.type_is_float(T) {
-    using t : Tuple(T),
+vector :: proc(x, y, z: intrinsics.type_field_type(Tuple, "x")) -> Vector {
+    return Vector { x, y, z, 0.0 };
 }
 
-tuple :: proc($T: typeid, x, y, z, w: T) -> Tuple(T) where intrinsics.type_is_float(T) {
-    return Tuple(T) { data = { x, y, z, w } };
-}
-
-point :: proc($T: typeid, x, y, z: T) -> Point(T) where intrinsics.type_is_float(T) {
-    return Point(T) { t = { data = { x, y, z, 1.0 } } };
-}
-
-vector :: proc($T: typeid, x, y, z: T) -> Vector(T) where intrinsics.type_is_float(T) {
-    return Vector(T) { t = tuple(T, x, y, z, 0.0 ) };
-}
-
-
-eq :: proc(a, b: $T) -> bool
-    where intrinsics.type_is_specialization_of(T, Tuple) ||
-          (intrinsics.type_polymorphic_record_parameter_count(T) == 1 &&
-          intrinsics.type_is_subtype_of(T, Tuple(intrinsics.type_polymorphic_record_parameter_value(T, 0))))
-{
-    return eq_internal(a.data, b.data);
-}
-
-eq_internal :: proc (v1, v2: $V/[$N]$A) -> bool {
-
-    r := v1 - v2;
-    r = transmute(V)intrinsics.simd_abs(transmute(#simd[N]A)r);
-
-    for e in r {
-        if (e >= FLOAT_EPSILON) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-is_point :: proc(t: $T) -> bool {
+is_point :: proc(t: $T/Tuple) -> bool {
     return t.w == 1.0;
 }
 
-is_vector :: proc(t: $T) -> bool {
+is_vector :: proc(t: $T/Tuple) -> bool {
     return t.w == 0.0;
 }
 
-add_poly :: proc(a: $T/Tuple, b: T) -> T {
-    return T { data = a.data + b.data };
+eq_internal :: proc(a, b: $T/[4]$E) -> bool {
+    simd_diff := simd.abs(simd.from_array(a) - simd.from_array(b));
+    simd_epsilon : #simd[4]E : { FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON };
+
+    simd_neq := simd.lanes_ge(simd_diff, simd_epsilon);
+    res := simd.reduce_max(simd_neq);
+    return res == 0;
 }
 
-add_point_vector :: proc(a: Point($T), b: Vector(T)) -> Point(T) {
-    return Point(T) { add(a.t, b.t) };
+eq_pt :: #force_inline proc(a: Point, b: Tuple) -> bool {
+    return eq_internal(Tuple(a), b);
 }
 
-add_vector_point :: proc(a: Vector($T), b: Point(T)) -> Point(T) {
-    return Point(T) { add(a.t, b.t) };
+eq_vt :: #force_inline proc(a: Vector, b: Tuple) -> bool {
+    return eq_internal(Tuple(a), b);
 }
 
-add_vector_vector :: proc(a: $T/Vector($K), b: T) -> T {
-    return T { add(a.t, b.t) };
+eq :: proc { eq_internal, eq_pt, eq_vt };
+
+add_t :: #force_inline proc(a, b: Tuple) -> Tuple {
+    return a + b;
 }
 
-add :: proc { add_poly, add_point_vector, add_vector_point, add_vector_vector };
-
-sub_tuple :: proc(a: $T/Tuple, b: T) -> T {
-    return T { a.data - b.data };
+add_v :: #force_inline proc(a, b: Vector) -> Vector {
+    return a + b;
 }
 
-sub_point :: proc(a: Point($T), b: Point(T)) -> Vector(T) {
-    return Vector(T) { sub(a.t, b.t) };
+add_pv :: #force_inline proc(a: Point, b: Vector) -> Point {
+    assert(is_point(a));
+    assert(is_vector(b));
+
+    result := a + Point(b);
+
+    assert(is_point(result));
+
+    return result;
 }
 
-sub_point_vector :: proc(a: Point($T), b: Vector(T)) -> Point(T) {
-    return Point(T) { sub(a.t, b.t) };
+add_vp :: #force_inline proc(a: Vector, b: Point) -> Point {
+    return add_pv(b, a);
 }
 
-sub_vector :: proc(a: $T/Vector, b: T) -> T {
-    return T { sub(a.t, b.t) };
+add :: proc { add_t, add_v, add_pv, add_vp };
+
+sub_t :: #force_inline proc(a, b: Tuple) -> Tuple  {
+    return a - b;
 }
 
-sub :: proc { sub_tuple, sub_point, sub_point_vector, sub_vector };
+sub_p :: #force_inline proc(a, b: Point) -> Vector {
+    assert(is_point(a));
+    assert(is_point(b));
 
-negate :: proc(t: $T) -> T
-    where intrinsics.type_is_specialization_of(T, Tuple) ||
-          intrinsics.type_is_specialization_of(T, Vector){
-
-    // This should just be 2 overloads?
-    when intrinsics.type_is_specialization_of(T, Tuple) {
-        return T { -t.data };
-    } else when intrinsics.type_is_specialization_of(T, Vector) {
-        return T { t = { -t.data } };
-    } else {
-        #assert(false);
-    }
-}
-
-tuple_mul :: proc(t: Tuple($T), s: T) -> Tuple(T) {
-    return Tuple(T) { t.data * s } ;
-}
-
-mul :: proc { tuple_mul };
-
-tuple_div :: proc(t: Tuple($T), s: T) -> Tuple(T) {
-    return Tuple(T) { t.data / s } ;
-}
-
-div :: proc { tuple_div };
-
-magnitude :: proc(v: Vector($T)) -> T {
-    return cm.sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
-}
-
-normalize :: proc(v: $T/Vector) -> T {
-    magnitude := magnitude(v);
-
-    result := v.t.data / magnitude;
+    result := Vector(a - b);
 
     assert(is_vector(result));
-    return T { t = { data = result } };
+
+    return result;
 }
 
-dot :: proc(a: Vector($T), b: Vector(T)) -> T {
-    return a.x * b.x +
-           a.y * b.y +
-           a.z * b.z +
-           a.w + b.w;
+sub_v :: #force_inline proc(a, b: Vector) -> Vector {
+    return a - b;
 }
 
-// Lookat odin's getting started for a possibly faster (simd) approach
-cross :: proc(a: $T/Vector($K), b: T) -> T {
-    return vector(K, a.y * b.z - a.z * b.y,
-                     a.z * b.x - a.x * b.z,
-                     a.x * b.y - a.y * b.x);
+sub_pv :: #force_inline proc(a: Point, b: Vector) -> Point {
+    assert(is_point(a));
+    assert(is_vector(b));
+
+    result := Point(a - Point(b));
+
+    assert(is_point(result));
+
+    return result;
+}
+
+sub :: proc { sub_t, sub_p, sub_v, sub_pv };
+
+negate_t :: #force_inline proc(t: Tuple) -> Tuple {
+    return -t;
+}
+
+negate_v :: #force_inline proc(t: Vector) -> Vector {
+    return -t;
+}
+
+negate :: proc { negate_t, negate_v };
+
+mul_t :: #force_inline proc(t: Tuple, s: intrinsics.type_field_type(Tuple, "x")) -> Tuple {
+    return t * s;
+}
+
+mul :: proc { mul_t };
+
+div_t :: #force_inline proc(t: Tuple, s: intrinsics.type_field_type(Tuple, "x")) -> Tuple {
+    return t / s;
+}
+
+div :: proc { div_t };
+
+magnitude :: proc(v: Vector) -> intrinsics.type_field_type(Vector, "x") {
+
+    sum := simd.reduce_add_ordered(simd.from_array(v * v));
+    return cm.sqrt(sum);
+
+    /*return cm.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);*/
+}
+
+normalize :: proc(v: Vector) -> Vector {
+    m := magnitude(v);
+    return v / m;
+}
+
+dot :: proc(a, b: Vector) -> intrinsics.type_field_type(Vector, "x") {
+    return simd.reduce_add_ordered(simd.from_array(a * b));
+}
+
+cross :: proc(a, b: Vector) -> Vector {
+    return a.yzxw * b.zxyw - a.zxyw * b.yzxw;
 }
