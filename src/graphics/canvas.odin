@@ -2,6 +2,7 @@
 package graphics;
 
 import "core:fmt"
+import "core:mem"
 import "core:strings"
 
 Canvas :: struct {
@@ -10,18 +11,17 @@ Canvas :: struct {
     pixels: []Color,
 }
 
-canvas :: proc(width, height: uint) -> Canvas {
+canvas :: proc(width, height: uint, allocator := context.allocator) -> Canvas {
     return Canvas {
         width, height,
-        make([]Color, width * height),
+        make([]Color, width * height, allocator),
     };
 }
 
 canvas_destroy :: proc(c: ^Canvas) {
-    delete(c.pixels);
     c.width = 0;
     c.height = 0;
-    c.pixels = nil;
+    delete(c.pixels);
 }
 
 write_pixel :: proc(c: Canvas, x, y: uint, pixel: Color) {
@@ -38,11 +38,14 @@ pixel_at :: proc(c: Canvas, x, y: uint) -> Color {
     return c.pixels[x + y * c.width];
 }
 
-canvas_to_ppm :: proc(c: Canvas) -> string {
-    sb := strings.builder_make_none();
+canvas_to_ppm :: proc(c: Canvas, allocator := context.allocator) -> string {
+
+    sb := strings.builder_make_none(allocator);
     defer strings.builder_destroy(&sb);
 
-    fmt.sbprintf(&sb, "P3\n%d %d\n255", c.width, c.height);
+    fmt.sbprintln(&sb, "P3");
+    fmt.sbprintf(&sb, "%d %d\n", c.width, c.height);
+    fmt.sbprintln(&sb, "255");
 
-    return strings.clone(strings.to_string(sb));
+    return strings.clone(strings.to_string(sb), allocator);
 }

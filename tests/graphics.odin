@@ -106,11 +106,12 @@ Color_Mul :: proc(t: ^testing.T) {
 Canvas_Constructor :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
+    free_all(context.temp_allocator);
+
     width : uint = 10;
     height : uint = 20;
 
-    c := g.canvas(width, height);
-    defer g.canvas_destroy(&c);
+    c := g.canvas(width, height, context.temp_allocator);
 
     expect(t, c.width == width);
     expect(t, c.height == height);
@@ -128,8 +129,9 @@ Canvas_Constructor :: proc(t: ^testing.T) {
 Canvas_Write_Pixel :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    c := g.canvas(10, 20);
-    defer g.canvas_destroy(&c);
+    free_all(context.temp_allocator);
+
+    c := g.canvas(10, 20, context.temp_allocator);
 
     red := g.color(1, 0, 0);
 
@@ -143,14 +145,13 @@ Canvas_Write_Pixel :: proc(t: ^testing.T) {
 Canvas_PPM_Header :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
+    free_all(context.temp_allocator);
+
     c := g.canvas(5, 3);
-    defer g.canvas_destroy(&c);
 
-    ppm := g.canvas_to_ppm(c);
-    defer delete(ppm);
+    ppm := g.canvas_to_ppm(c, context.temp_allocator);
 
-    ppm_lines := strings.split_lines(ppm);
-    defer delete(ppm_lines);
+    ppm_lines := strings.split_lines(ppm, context.temp_allocator);
 
     expect(t, ppm_lines[0] == "P3");
     expect(t, ppm_lines[1] == "5 3");
