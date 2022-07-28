@@ -2,6 +2,7 @@ package tests;
 
 import "core:fmt"
 import "core:testing"
+import "core:strings"
 
 import g "../src/graphics"
 import m "../src/rtmath"
@@ -15,6 +16,10 @@ all_graphics_tests :: proc(t: ^testing.T) {
     Color_Sub(t);
     Color_Mul_Scalar(t);
     Color_Mul(t);
+
+    Canvas_Constructor(t);
+    Canvas_Write_Pixel(t);
+    Canvas_PPM_Header(t);
 }
 
 @test
@@ -97,3 +102,57 @@ Color_Mul :: proc(t: ^testing.T) {
     expect(t, g.eq(result, expected));
 }
 
+@test
+Canvas_Constructor :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    width : uint = 10;
+    height : uint = 20;
+
+    c := g.canvas(width, height);
+    defer g.canvas_destroy(&c);
+
+    expect(t, c.width == width);
+    expect(t, c.height == height);
+
+    black := g.color(0, 0, 0);
+
+    for pixel in c.pixels {
+        expect(t, pixel == black);
+        expect(t, m.eq(pixel, black));
+    }
+}
+
+
+@test
+Canvas_Write_Pixel :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    c := g.canvas(10, 20);
+    defer g.canvas_destroy(&c);
+
+    red := g.color(1, 0, 0);
+
+    g.write_pixel(c, 2, 3, red);
+
+    expect(t, g.pixel_at(c, 2, 3) == red);
+    expect(t, g.eq(g.pixel_at(c, 2, 3), red));
+}
+
+@test
+Canvas_PPM_Header :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    c := g.canvas(5, 3);
+    defer g.canvas_destroy(&c);
+
+    ppm := g.canvas_to_ppm(c);
+    defer delete(ppm);
+
+    ppm_lines := strings.split_lines(ppm);
+    defer delete(ppm_lines);
+
+    expect(t, ppm_lines[0] == "P3");
+    expect(t, ppm_lines[1] == "5 3");
+    expect(t, ppm_lines[2] == "255");
+}
