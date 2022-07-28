@@ -105,15 +105,9 @@ sub_pv :: #force_inline proc(a: Point, b: Vector) -> Point {
 
 sub :: proc { sub_t, sub_p, sub_v, sub_pv };
 
-negate_t :: #force_inline proc(t: Tuple) -> Tuple {
+negate :: #force_inline proc(t: $T/Tuple) -> T {
     return -t;
 }
-
-negate_v :: #force_inline proc(t: Vector) -> Vector {
-    return -t;
-}
-
-negate :: proc { negate_t, negate_v };
 
 mul_t :: #force_inline proc(t: Tuple, s: intrinsics.type_field_type(Tuple, "x")) -> Tuple {
     return t * s;
