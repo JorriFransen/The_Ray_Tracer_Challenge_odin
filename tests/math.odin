@@ -50,6 +50,8 @@ all_math_tests :: proc(t: ^testing.T) {
     Matrix2_Inequality(t);
     Matrix4_Multiply(t);
     Matrix4_Multiply_Tuple(t);
+    Matrix4_Multiply_Identity(t);
+    Matrix4_Multiply_Identity_Tuple(t);
 }
 
 @test
@@ -657,4 +659,41 @@ Matrix4_Multiply_Tuple :: proc(t: ^testing.T) {
     expect(t, result2 == expected);
     expect(t, m.eq(result2, expected));
 
+}
+
+@test
+Matrix4_Multiply_Identity :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    A :: m.Matrix4 {
+        0, 1,  2,  4,
+        1, 2,  4,  8,
+        2, 4,  8, 16,
+        4, 8, 16, 32,
+    };
+
+    result1 := A * m.matrix4_identity;
+    result2 := m.mul(A, m.matrix4_identity);
+
+    expect(t, result1 == A);
+    expect(t, m.eq(result1, A));
+
+    expect(t, result2 == A);
+    expect(t, m.eq(result2, A));
+}
+
+@test
+Matrix4_Multiply_Identity_Tuple :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    a := m.Tuple { 1, 2, 3, 4 };
+
+    result1 := m.matrix4_identity * a;
+    result2 := m.mul(m.matrix4_identity, a);
+
+    expect(t, result1 == a);
+    expect(t, m.eq(result1, a));
+
+    expect(t, result2 == a);
+    expect(t, m.eq(result2, a));
 }

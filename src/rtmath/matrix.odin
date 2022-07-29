@@ -10,6 +10,11 @@ Matrix4 :: distinct matrix[4, 4]Matrix_Element_Type;
 Matrix3 :: distinct matrix[3, 3]Matrix_Element_Type;
 Matrix2 :: distinct matrix[2, 2]Matrix_Element_Type;
 
+matrix4_identity :: Matrix4 { 1, 0, 0, 0,
+                              0, 1, 0, 0,
+                              0, 0, 1, 0,
+                              0, 0, 0, 1 };
+
 matrix4 :: proc(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33: Matrix_Element_Type) -> Matrix4 {
     return Matrix4 { m00, m01, m02, m03,
                      m10, m11, m12, m13,
@@ -26,7 +31,7 @@ matrix3 :: proc(m00, m01, m02, m10, m11, m12, m20, m21, m22: Matrix_Element_Type
 matrix2 :: proc(m00, m01, m10, m11: Matrix_Element_Type) -> Matrix2 {
     return Matrix2 { m00, m01,
                      m10, m11 };
-}
+                 }
 
 matrix4_eq :: proc(a, b: Matrix4) -> bool {
     Flat_Type :: [16]Matrix_Element_Type;
