@@ -1,4 +1,4 @@
-package putting_it_together_CH01
+package putting_it_together
 
 import "core:fmt"
 
@@ -20,7 +20,7 @@ tick :: proc(env: ^Environment, proj: Projectile) -> Projectile {
     return Projectile { position = p, velocity = v };
 }
 
-main :: proc() {
+putting_it_together_CH01 :: proc() {
     fmt.println("Putting it together for chapter 1...");
 
     using m;
@@ -46,4 +46,5 @@ main :: proc() {
     }
 
     fmt.printf("The projectile took %v ticks to hit the ground.\n", tick_count);
+
 }

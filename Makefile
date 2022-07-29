@@ -2,9 +2,9 @@ ODIN=odin
 
 ODINFLAGS := -debug
 
-default: test
+default: putting_it_together
 
-all: raytracer odin_test custom_test putting_it_together_CH01
+all: raytracer odin_test custom_test putting_it_together
 
 debug: raytracer
 
@@ -18,8 +18,8 @@ run: raytracer
 	build/raytracer.bin
 
 
-putting_it_together_CH01: builddir
-	$(ODIN) build src/putting_it_together_CH01 -out:build/putting_it_together_CH01.bin $(ODINFLAGS)
+putting_it_together: builddir
+	$(ODIN) build src/putting_it_together -out:build/putting_it_together.bin $(ODINFLAGS) && build/putting_it_together.bin && feh images/putting_it_together_ch02.ppm --force-aliasing --fullscreen --auto-zoom
 
 test: custom_test
 

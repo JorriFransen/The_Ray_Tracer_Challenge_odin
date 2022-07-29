@@ -113,7 +113,11 @@ mul_t :: #force_inline proc(t: Tuple, s: intrinsics.type_field_type(Tuple, "x"))
     return t * s;
 }
 
-mul :: proc { mul_t };
+mul_v :: #force_inline proc(v: Vector, s: intrinsics.type_field_type(Vector, "x")) -> Vector {
+    return Vector(mul_t(Tuple(v), s));
+}
+
+mul :: proc { mul_t, mul_v };
 
 div_t :: #force_inline proc(t: Tuple, s: intrinsics.type_field_type(Tuple, "x")) -> Tuple {
     return t / s;

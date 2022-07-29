@@ -156,7 +156,7 @@ Canvas_PPM_Header :: proc(t: ^testing.T) {
 
     c := g.canvas(5, 3);
 
-    ppm := g.canvas_to_ppm(c, context.temp_allocator);
+    ppm := g.ppm_from_canvas(c, context.temp_allocator);
 
     ppm_lines := strings.split_lines(ppm, context.temp_allocator);
 
@@ -181,7 +181,7 @@ Canvas_PPM_Pixel_Data_Construction :: proc(t: ^testing.T) {
     g.canvas_write_pixel(c, 2, 1, c2);
     g.canvas_write_pixel(c, 4, 2, c3);
 
-    ppm := g.canvas_to_ppm(c);
+    ppm := g.ppm_from_canvas(c);
 
     ppm_lines := strings.split_lines(ppm);
 
@@ -227,7 +227,7 @@ Canvas_PPM_Line_Splitting :: proc(t: ^testing.T) {
 
     g.canvas_clear(c, g.color(1, 0.8, 0.6));
 
-    ppm := g.canvas_to_ppm(c);
+    ppm := g.ppm_from_canvas(c);
 
     ppm_lines := strings.split_lines(ppm);
 
@@ -251,7 +251,7 @@ Canvas_PPM_Ends_With_Newline :: proc(t: ^testing.T) {
 
     c := g.canvas(5, 3);
 
-    ppm := g.canvas_to_ppm(c);
+    ppm := g.ppm_from_canvas(c);
 
     expect(t, ppm[len(ppm) - 1] == '\n');
 }
