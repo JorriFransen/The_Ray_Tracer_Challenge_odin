@@ -21,3 +21,11 @@ eq :: proc {
     matrix2_eq,
 }
 
+mul :: proc {
+    mul_t,
+    mul_v,
+
+    matrix4_mul,
+    matrix4_mul_tuple,
+};
+

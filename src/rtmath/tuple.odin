@@ -11,15 +11,15 @@ Tuple :: distinct [4]Tuple_Element_Type;
 Point :: distinct Tuple;
 Vector :: distinct Tuple;
 
-tuple :: proc(x, y, z, w: intrinsics.type_field_type(Tuple, "x")) -> Tuple {
+tuple :: proc(x, y, z, w: Tuple_Element_Type) -> Tuple {
     return Tuple { x, y, z, w };
 }
 
-point :: proc(x, y, z: intrinsics.type_field_type(Tuple, "x")) -> Point {
+point :: proc(x, y, z: Tuple_Element_Type) -> Point {
     return Point { x, y, z, 1.0 };
 }
 
-vector :: proc(x, y, z: intrinsics.type_field_type(Tuple, "x")) -> Vector {
+vector :: proc(x, y, z: Tuple_Element_Type) -> Vector {
     return Vector { x, y, z, 0.0 };
 }
 
@@ -110,23 +110,22 @@ negate :: #force_inline proc(t: $T/Tuple) -> T {
     return -t;
 }
 
-mul_t :: #force_inline proc(t: Tuple, s: intrinsics.type_field_type(Tuple, "x")) -> Tuple {
+mul_t :: #force_inline proc(t: Tuple, s: Tuple_Element_Type) -> Tuple {
     return t * s;
 }
 
-mul_v :: #force_inline proc(v: Vector, s: intrinsics.type_field_type(Vector, "x")) -> Vector {
+mul_v :: #force_inline proc(v: Vector, s: Tuple_Element_Type) -> Vector {
     return Vector(mul_t(Tuple(v), s));
 }
 
-mul :: proc { mul_t, mul_v };
 
-div_t :: #force_inline proc(t: Tuple, s: intrinsics.type_field_type(Tuple, "x")) -> Tuple {
+div_t :: #force_inline proc(t: Tuple, s: Tuple_Element_Type) -> Tuple {
     return t / s;
 }
 
 div :: proc { div_t };
 
-magnitude :: proc(v: Vector) -> intrinsics.type_field_type(Vector, "x") {
+magnitude :: proc(v: Vector) -> Tuple_Element_Type {
 
     sum := simd.reduce_add_ordered(simd.from_array(v * v));
     return cm.sqrt(sum);
@@ -139,7 +138,7 @@ normalize :: proc(v: Vector) -> Vector {
     return v / m;
 }
 
-dot :: proc(a, b: Vector) -> intrinsics.type_field_type(Vector, "x") {
+dot :: proc(a, b: Vector) -> Tuple_Element_Type {
     return simd.reduce_add_ordered(simd.from_array(a * b));
 }
 

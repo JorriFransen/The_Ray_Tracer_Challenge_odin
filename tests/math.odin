@@ -48,6 +48,8 @@ all_math_tests :: proc(t: ^testing.T) {
     Matrix3_Inequality(t);
     Matrix2_Equality(t);
     Matrix2_Inequality(t);
+    Matrix4_Multiply(t);
+    Matrix4_Multiply_Tuple(t);
 }
 
 @test
@@ -438,7 +440,7 @@ Vector_Cross :: proc(t: ^testing.T) {
 Matrix4_Construction :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    M := m.Matrix4 { 1,    2,    3,    4,
+    M :: m.Matrix4 { 1,    2,    3,    4,
                      5.5,  6.5,  7.5,  8.5,
                      9,    10,   11,   12,
                      13.5, 14.5, 15.5, 16.5 };
@@ -469,7 +471,7 @@ Matrix4_Construction :: proc(t: ^testing.T) {
 Matrix3_Construction :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    M := m.Matrix3 { -3,  5,  0,
+    M :: m.Matrix3 { -3,  5,  0,
                       1, -2, -7,
                       0,  1,  1 };
 
@@ -490,7 +492,7 @@ Matrix3_Construction :: proc(t: ^testing.T) {
 Matrix2_Construction :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    M := m.Matrix2 { -3,  5,
+    M :: m.Matrix2 { -3,  5,
                       1, -2 };
 
     expect(t, M[0, 0] == -3);
@@ -511,12 +513,12 @@ Matrix2_Construction :: proc(t: ^testing.T) {
 Matrix4_Equality :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    A := m.Matrix4 { 1, 2, 3, 4,
+    A :: m.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
                      9, 8, 7, 6,
                      5, 4, 3, 2 };
 
-    B := m.Matrix4 { 1, 2, 3, 4,
+    B :: m.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
                      9, 8, 7, 6,
                      5, 4, 3, 2 };
@@ -529,12 +531,12 @@ Matrix4_Equality :: proc(t: ^testing.T) {
 Matrix4_Inequality :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    A := m.Matrix4 { 1, 2, 3, 4,
+    A :: m.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
                      9, 8, 7, 6,
                      5, 4, 3, 2 };
 
-    B := m.Matrix4 { 2, 3, 4, 5,
+    B :: m.Matrix4 { 2, 3, 4, 5,
                      6, 7, 8, 9,
                      8, 7, 6, 5,
                      4, 3, 2, 1 };
@@ -547,11 +549,11 @@ Matrix4_Inequality :: proc(t: ^testing.T) {
 Matrix3_Equality :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    A := m.Matrix3 { 1, 2, 3,
+    A :: m.Matrix3 { 1, 2, 3,
                      5, 6, 7,
                      9, 8, 7 };
 
-    B := m.Matrix3 { 1, 2, 3,
+    B :: m.Matrix3 { 1, 2, 3,
                      5, 6, 7,
                      9, 8, 7 };
 
@@ -563,11 +565,11 @@ Matrix3_Equality :: proc(t: ^testing.T) {
 Matrix3_Inequality :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    A := m.Matrix3 { 1, 2, 3,
+    A :: m.Matrix3 { 1, 2, 3,
                      5, 6, 7,
                      9, 8, 7 };
 
-    B := m.Matrix3 { 2, 3, 4,
+    B :: m.Matrix3 { 2, 3, 4,
                      6, 7, 8,
                      8, 7, 6 };
 
@@ -579,10 +581,10 @@ Matrix3_Inequality :: proc(t: ^testing.T) {
 Matrix2_Equality :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    A := m.Matrix2 { 1, 2,
+    A :: m.Matrix2 { 1, 2,
                      5, 6 };
 
-    B := m.Matrix2 { 1, 2,
+    B :: m.Matrix2 { 1, 2,
                      5, 6 };
 
     expect(t, A == B);
@@ -593,12 +595,66 @@ Matrix2_Equality :: proc(t: ^testing.T) {
 Matrix2_Inequality :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
-    A := m.Matrix2 { 1, 2,
+    A :: m.Matrix2 { 1, 2,
                      5, 6 };
 
-    B := m.Matrix2 { 2, 3,
+    B :: m.Matrix2 { 2, 3,
                      6, 7 };
 
     expect(t, A != B);
     expect(t, !m.eq(A, B));
+}
+
+@test
+Matrix4_Multiply :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    A :: m.Matrix4 { 1, 2, 3, 4,
+                     5, 6, 7, 8,
+                     9, 8, 7, 6,
+                     5, 4, 3, 2 };
+
+    B :: m.Matrix4 { -2, 1, 2,  3,
+                      3, 2, 1, -1,
+                      4, 3, 6,  5,
+                      1, 2, 7,  8 };
+
+    expected :: m.Matrix4 { 20, 22,  50,  48,
+                            44, 54, 114, 108,
+                            40, 58, 110, 102,
+                            16, 26,  46,  42 };
+
+    result1 := A * B;
+
+    result2 := m.mul(A, B);
+
+    expect(t, result1 == expected);
+    expect(t, m.eq(result1, expected));
+
+    expect(t, result2 == expected);
+    expect(t, m.eq(result2, expected));
+}
+
+@test
+Matrix4_Multiply_Tuple :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    A :: m.Matrix4 { 1, 2, 3, 4,
+                     2, 4, 4, 2,
+                     8, 6, 4, 1,
+                     0, 0, 0, 1 };
+
+    b :: m.Tuple { 1, 2, 3, 1 };
+
+    expected :: m.Tuple { 18, 24, 33, 1 };
+
+    result1 := A * b;
+    result2 := m.mul(A, b);
+
+    expect(t, result1 == expected);
+    expect(t, m.eq(result1, expected));
+
+    expect(t, result2 == expected);
+    expect(t, m.eq(result2, expected));
+
 }
