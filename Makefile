@@ -2,7 +2,7 @@ ODIN=odin
 
 ODINFLAGS := -debug
 
-default: putting_it_together
+default: test
 
 all: raytracer odin_test custom_test putting_it_together
 

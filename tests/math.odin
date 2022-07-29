@@ -265,7 +265,6 @@ Vector_Negate :: proc(t: ^testing.T) {
     result : m.Vector = m.negate(v);
 
     expect(t, m.is_vector(result));
-    expect(t, result == expected);
     expect(t, m.eq(result, expected));
 }
 
@@ -314,7 +313,7 @@ Vector_Magnitude_X1 :: proc(t: ^testing.T) {
 
     v := m.vector(1, 0, 0);
 
-    expected : f32 = 1.0;
+    expected :: 1.0;
     result := m.magnitude(v);
 
     expect(t, result == expected);
@@ -326,7 +325,7 @@ Vector_Magnitude_Y1 :: proc(t: ^testing.T) {
 
     v := m.vector(0, 1, 0);
 
-    expected : f32 = 1.0;
+    expected :: 1.0;
     result := m.magnitude(v);
 
     expect(t, result == expected);
@@ -338,7 +337,7 @@ Vector_Magnitude_Z1 :: proc(t: ^testing.T) {
 
     v := m.vector(0, 0, 1);
 
-    expected : f32 = 1.0;
+    expected :: 1.0;
     result := m.magnitude(v);
 
     expect(t, result == expected);
@@ -350,7 +349,7 @@ Vector_Magnitude_X1_Y2_Z3 :: proc(t: ^testing.T) {
 
     v := m.vector(1, 2, 3);
 
-    expected := cm.sqrt(f32(14));
+    expected := cm.sqrt(intrinsics.type_field_type(m.Vector, "x")(14));
     result := m.magnitude(v);
 
     expect(t, result == expected);
@@ -362,7 +361,7 @@ Vector_Magnitude_X1_Y2_Z3_Neg :: proc(t: ^testing.T) {
 
     v := m.vector(-1, -2, -3);
 
-    expected := cm.sqrt(f32(14));
+    expected := cm.sqrt(intrinsics.type_field_type(m.Vector, "x")(14));
     result := m.magnitude(v);
 
     expect(t, result == expected);
@@ -403,7 +402,7 @@ Vector_Dot :: proc(t: ^testing.T) {
     a := m.vector(1, 2, 3);
     b := m.vector(2, 3, 4);
 
-    expected : f32 = 20.0;
+    expected :: 20.0;
     result := m.dot(a, b);
 
     expect(t, result == expected);

@@ -32,9 +32,9 @@ Color_Constructor :: proc(t: ^testing.T) {
 
     c := g.color(-0.5, 0.4, 1.7);
 
-    expected_r := f32(-0.5);
-    expected_g := f32(0.4);
-    expected_b := f32(1.7);
+    expected_r :: -0.5;
+    expected_g :: 0.4;
+    expected_b :: 1.7;
 
     expect(t, c.r == expected_r);
     expect(t, c.g == expected_g);
@@ -113,8 +113,8 @@ Canvas_Constructor :: proc(t: ^testing.T) {
     free_all(context.temp_allocator);
     context.allocator = context.temp_allocator;
 
-    width : uint = 10;
-    height : uint = 20;
+    width := 10;
+    height := 20;
 
     c := g.canvas(width, height, context.temp_allocator);
 
@@ -201,8 +201,8 @@ Canvas_Clear :: proc(t: ^testing.T) {
     free_all(context.temp_allocator);
     context.allocator = context.temp_allocator;
 
-    width : uint = 2;
-    height : uint = 2;
+    width := 2;
+    height := 2;
 
     c := g.canvas(width, height);
 
