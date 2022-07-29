@@ -125,7 +125,7 @@ Canvas_Constructor :: proc(t: ^testing.T) {
 
     for pixel in c.pixels {
         expect(t, pixel == black);
-        expect(t, m.eq(pixel, black));
+        expect(t, g.eq(pixel, black));
     }
 }
 

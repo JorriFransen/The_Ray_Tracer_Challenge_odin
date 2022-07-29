@@ -5,7 +5,9 @@ import "core:intrinsics"
 import "core:simd"
 import cm "core:math"
 
-Tuple :: distinct [4]f32;
+Tuple_Element_Type :: f32;
+
+Tuple :: distinct [4]Tuple_Element_Type;
 Point :: distinct Tuple;
 Vector :: distinct Tuple;
 
@@ -29,24 +31,23 @@ is_vector :: proc(t: $T/Tuple) -> bool {
     return t.w == 0.0;
 }
 
-eq_internal :: proc(a, b: $T/[4]$E) -> bool {
+tuple_eq :: proc(a, b: $T/[4]Tuple_Element_Type) -> bool {
     simd_diff := simd.abs(simd.from_array(a) - simd.from_array(b));
-    simd_epsilon : #simd[4]E : { FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON };
+    simd_epsilon : #simd[4]Tuple_Element_Type : { FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON };
 
     simd_neq := simd.lanes_ge(simd_diff, simd_epsilon);
     res := simd.reduce_max(simd_neq);
     return res == 0;
 }
 
-eq_pt :: #force_inline proc(a: Point, b: Tuple) -> bool {
-    return eq_internal(Tuple(a), b);
+tuple_eq_pt :: #force_inline proc(a: Point, b: Tuple) -> bool {
+    return tuple_eq(Tuple(a), b);
 }
 
-eq_vt :: #force_inline proc(a: Vector, b: Tuple) -> bool {
-    return eq_internal(Tuple(a), b);
+tuple_eq_vt :: #force_inline proc(a: Vector, b: Tuple) -> bool {
+    return tuple_eq(Tuple(a), b);
 }
 
-eq :: proc { eq_internal, eq_pt, eq_vt };
 
 add_t :: #force_inline proc(a, b: Tuple) -> Tuple {
     return a + b;
