@@ -4,30 +4,31 @@ import "core:fmt"
 
 import m "../rtmath"
 
+Projectile :: struct {
+    position: m.Point,
+    velocity: m.Vector,
+};
+
+Environment :: struct {
+    gravity: m.Vector,
+    wind: m.Vector,
+};
+
+tick :: proc(env: ^Environment, proj: Projectile) -> Projectile {
+    p := m.add(proj.position, proj.velocity);
+    v := m.add(m.add(proj.velocity, env.gravity), env.wind);
+    return Projectile { position = p, velocity = v };
+}
+
 main :: proc() {
     fmt.println("Putting it together for chapter 1...");
 
     using m;
 
-    Projectile :: struct {
-        position: m.Point,
-        velocity: m.Vector,
-    };
-
-    Environment :: struct {
-        gravity: m.Vector,
-        wind: m.Vector,
-    };
-
-    tick :: proc(env: ^Environment, proj: Projectile) -> Projectile {
-        p := add(proj.position, proj.velocity);
-        v := add(add(proj.velocity, env.gravity), env.wind);
-        return Projectile { position = p, velocity = v };
-    }
 
     p := Projectile {
         position = point(0, 1, 0),
-        velocity = normalize(vector(1, 1, 0))
+        velocity = normalize(vector(1, 1, 0)),
     };
     e := Environment {
         gravity = vector(0, -0.1, 0),

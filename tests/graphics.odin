@@ -20,6 +20,10 @@ all_graphics_tests :: proc(t: ^testing.T) {
     Canvas_Constructor(t);
     Canvas_Write_Pixel(t);
     Canvas_PPM_Header(t);
+    Canvas_PPM_Pixel_Data_Construction(t);
+    Canvas_Clear(t);
+    Canvas_PPM_Line_Splitting(t);
+    Canvas_PPM_Ends_With_Newline(t);
 }
 
 @test
@@ -107,6 +111,7 @@ Canvas_Constructor :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
     free_all(context.temp_allocator);
+    context.allocator = context.temp_allocator;
 
     width : uint = 10;
     height : uint = 20;
@@ -130,15 +135,16 @@ Canvas_Write_Pixel :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
     free_all(context.temp_allocator);
+    context.allocator = context.temp_allocator;
 
     c := g.canvas(10, 20, context.temp_allocator);
 
     red := g.color(1, 0, 0);
 
-    g.write_pixel(c, 2, 3, red);
+    g.canvas_write_pixel(c, 2, 3, red);
 
-    expect(t, g.pixel_at(c, 2, 3) == red);
-    expect(t, g.eq(g.pixel_at(c, 2, 3), red));
+    expect(t, g.canvas_get_pixel(c, 2, 3) == red);
+    expect(t, g.eq(g.canvas_get_pixel(c, 2, 3), red));
 }
 
 @test
@@ -146,6 +152,7 @@ Canvas_PPM_Header :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }
 
     free_all(context.temp_allocator);
+    context.allocator = context.temp_allocator;
 
     c := g.canvas(5, 3);
 
@@ -156,4 +163,95 @@ Canvas_PPM_Header :: proc(t: ^testing.T) {
     expect(t, ppm_lines[0] == "P3");
     expect(t, ppm_lines[1] == "5 3");
     expect(t, ppm_lines[2] == "255");
+}
+
+@test
+Canvas_PPM_Pixel_Data_Construction :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    free_all(context.temp_allocator);
+    context.allocator = context.temp_allocator;
+
+    c := g.canvas(5, 3);
+    c1 := g.color(1.5, 0, 0);
+    c2 := g.color(0, 0.5, 0);
+    c3 := g.color(-0.5, 0, 1);
+
+    g.canvas_write_pixel(c, 0, 0, c1);
+    g.canvas_write_pixel(c, 2, 1, c2);
+    g.canvas_write_pixel(c, 4, 2, c3);
+
+    ppm := g.canvas_to_ppm(c);
+
+    ppm_lines := strings.split_lines(ppm);
+
+    expect(t, len(ppm_lines) == 7);
+
+    expect(t, ppm_lines[0] == "P3");
+    expect(t, ppm_lines[1] == "5 3");
+    expect(t, ppm_lines[2] == "255");
+    expect(t, ppm_lines[3] == "255 0 0 0 0 0 0 0 0 0 0 0 0 0 0");
+    expect(t, ppm_lines[4] == "0 0 0 0 0 0 0 128 0 0 0 0 0 0 0");
+    expect(t, ppm_lines[5] == "0 0 0 0 0 0 0 0 0 0 0 0 0 0 255");
+}
+@test
+Canvas_Clear :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    free_all(context.temp_allocator);
+    context.allocator = context.temp_allocator;
+
+    width : uint = 2;
+    height : uint = 2;
+
+    c := g.canvas(width, height);
+
+    clear_color := g.color(1, 2, 3);
+
+    g.canvas_clear(c, clear_color);
+
+    expect(t, g.canvas_get_pixel(c, 0, 0) == clear_color);
+    expect(t, g.canvas_get_pixel(c, 1, 0) == clear_color);
+    expect(t, g.canvas_get_pixel(c, 0, 1) == clear_color);
+    expect(t, g.canvas_get_pixel(c, 1, 1) == clear_color);
+}
+
+@test
+Canvas_PPM_Line_Splitting :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    free_all(context.temp_allocator);
+    context.allocator = context.temp_allocator;
+
+    c := g.canvas(10, 2);
+
+    g.canvas_clear(c, g.color(1, 0.8, 0.6));
+
+    ppm := g.canvas_to_ppm(c);
+
+    ppm_lines := strings.split_lines(ppm);
+
+    expect(t, len(ppm_lines) == 8);
+
+    expect(t, ppm_lines[0] == "P3");
+    expect(t, ppm_lines[1] == "10 2");
+    expect(t, ppm_lines[2] == "255");
+    expect(t, ppm_lines[3] == "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204");
+    expect(t, ppm_lines[4] == "153 255 204 153 255 204 153 255 204 153 255 204 153");
+    expect(t, ppm_lines[5] == "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204");
+    expect(t, ppm_lines[6] == "153 255 204 153 255 204 153 255 204 153 255 204 153");
+}
+
+@test
+Canvas_PPM_Ends_With_Newline :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    free_all(context.temp_allocator);
+    context.allocator = context.temp_allocator;
+
+    c := g.canvas(5, 3);
+
+    ppm := g.canvas_to_ppm(c);
+
+    expect(t, ppm[len(ppm) - 1] == '\n');
 }

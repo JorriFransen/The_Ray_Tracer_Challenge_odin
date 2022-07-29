@@ -19,7 +19,7 @@ run: raytracer
 
 
 putting_it_together_CH01: builddir
-	$(ODIN) build src/putting_it_together_CH01 -out:build/putting_it_together_CH01.bin $(ODINFLAGS) && build/putting_it_together_CH01.bin
+	$(ODIN) build src/putting_it_together_CH01 -out:build/putting_it_together_CH01.bin $(ODINFLAGS)
 
 test: custom_test
 
