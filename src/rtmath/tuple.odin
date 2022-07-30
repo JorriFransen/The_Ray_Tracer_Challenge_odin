@@ -31,7 +31,8 @@ is_vector :: proc(t: $T/Tuple) -> bool {
     return t.w == 0.0;
 }
 
-tuple_eq :: proc(a, b: $T/[4]Tuple_Element_Type) -> bool {
+tuple_eq :: proc(a_, b_: $T/[4]Tuple_Element_Type) -> bool {
+    a, b := a_, b_; // @HACK: Cant use array arithmatic on arguments directly
     simd_diff := simd.abs(simd.from_array(a - b));
     simd_epsilon : #simd[4]Tuple_Element_Type : { FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON };
 

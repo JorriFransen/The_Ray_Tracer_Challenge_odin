@@ -52,6 +52,13 @@ all_math_tests :: proc(t: ^testing.T) {
     Matrix4_Multiply_Tuple(t);
     Matrix4_Multiply_Identity(t);
     Matrix4_Multiply_Identity_Tuple(t);
+    Matrix4_Transpose(t);
+    Matrix4_Transpose_Identity(t);
+    Matrix2_Determinant(t);
+    Matrix3_Submatrix(t);
+    Matrix4_Submatrix(t);
+    Matrix3_Minor(t);
+    Matrix3_Cofactor(t);
 }
 
 @test
@@ -696,4 +703,170 @@ Matrix4_Multiply_Identity_Tuple :: proc(t: ^testing.T) {
 
     expect(t, result2 == a);
     expect(t, m.eq(result2, a));
+}
+
+@test
+Matrix4_Transpose :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    A :: m.Matrix4 {
+        0, 9, 3, 0,
+        9, 8, 0, 8,
+        1, 8, 5, 3,
+        0, 0, 5, 8
+    };
+
+    expected :: m.Matrix4 {
+        0, 9, 1, 0,
+        9, 8, 8, 0,
+        3, 0, 5, 5,
+        0, 8, 3, 8
+    };
+
+    result1 := m.Matrix4(transpose(A));
+    result2 := m.matrix_transpose(A);
+
+    expect(t, result1 == expected);
+    expect(t, m.eq(result1, expected));
+
+    expect(t, result2 == expected);
+    expect(t, m.eq(result2, expected));
+}
+
+@test
+Matrix4_Transpose_Identity :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    A := m.matrix_transpose(m.matrix4_identity);
+
+    expect(t, A == m.matrix4_identity);
+    expect(t, m.eq(A, m.matrix4_identity));
+}
+
+@test
+Matrix2_Determinant :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    A :: m.Matrix2 {
+         1, 5,
+        -3, 2
+    };
+
+    expected :: 17;
+
+    result1 := determinant(A);
+    result2 := m.matrix_determinant(A);
+
+    expect(t, result1 == expected);
+    expect(t, m.eq(result1, expected));
+
+    expect(t, result2 == expected);
+    expect(t, m.eq(result2, expected));
+}
+
+
+@test
+Matrix3_Submatrix :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    A :: m.Matrix3 {
+         1, 5, 0,
+        -3, 2, 7,
+         0, 6, 3
+    };
+
+    expected1 :: m.Matrix2 {
+        -3, 2,
+         0, 6,
+    };
+
+    expected2 :: m.Matrix2 {
+         1, 5,
+        -3, 2,
+    };
+
+    result1 := m.matrix_submatrix(A, 0, 2);
+    result2 := m.matrix_submatrix(A, 2, 2);
+
+    expect(t, result1 == expected1);
+    expect(t, m.eq(result1, expected1));
+
+    expect(t, result2 == expected2);
+    expect(t, m.eq(result2, expected2));
+}
+
+@test
+Matrix4_Submatrix :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    A :: m.Matrix4 {
+        -6, 1,  1, 6,
+        -8, 5,  8, 6,
+        -1, 0,  8, 2,
+        -7, 1, -1, 1,
+    };
+
+    expected1 :: m.Matrix3 {
+        -6,  1, 6,
+        -8,  8, 6,
+        -7, -1, 1,
+    };
+
+    expected2 :: m.Matrix3 {
+        -6, 1, 1,
+        -8, 5, 8,
+        -1, 0, 8,
+    };
+
+    result1 := m.matrix_submatrix(A, 2, 1);
+    result2 := m.matrix_submatrix(A, 3, 3);
+
+    expect(t, result1 == expected1);
+    expect(t, m.eq(result1, expected1));
+
+    expect(t, result2 == expected2);
+    expect(t, m.eq(result2, expected2));
+}
+
+@test
+Matrix3_Minor :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    A :: m.Matrix3 {
+        3,  5,  0,
+        2, -1, -7,
+        6, -1,  5,
+    };
+
+    row, col :: 1, 0;
+
+    B := m.matrix_submatrix(A, row, col);
+
+    expected_determinant : m.Matrix_Element_Type : 25;
+    result_determinant := m.matrix_determinant(B);
+
+    expect(t, result_determinant == expected_determinant);
+
+
+    expected_minor :: 25;
+    result_minor := m.matrix_minor(A, row, col);
+
+    expect(t, expected_minor == result_minor);
+
+}
+
+@test
+Matrix3_Cofactor :: proc(t: ^testing.T) {
+    when !ODIN_TEST { fmt.println(#procedure); }
+
+    A :: m.Matrix3 {
+        3,  5,  0,
+        2, -1, -7,
+        6, -1,  5
+    };
+
+    expect(t, m.matrix_minor(A, 0, 0) == -12);
+    expect(t, m.matrix_cofactor(A, 0, 0) == -12);
+    expect(t, m.matrix_minor(A, 1, 0) == 25);
+    expect(t, m.matrix_cofactor(A, 1, 0) == -25);
 }

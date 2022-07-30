@@ -10,6 +10,8 @@ eq_arr :: proc(a, b: $T/[$N]$E) -> bool where N != 4 {
 }
 
 eq :: proc {
+    float_eq,
+
     eq_arr,
 
     tuple_eq,
