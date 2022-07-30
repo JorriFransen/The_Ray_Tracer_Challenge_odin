@@ -32,7 +32,7 @@ is_vector :: proc(t: $T/Tuple) -> bool {
 }
 
 tuple_eq :: proc(a, b: $T/[4]Tuple_Element_Type) -> bool {
-    simd_diff := simd.abs(simd.from_array(a) - simd.from_array(b));
+    simd_diff := simd.abs(simd.from_array(a - b));
     simd_epsilon : #simd[4]Tuple_Element_Type : { FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON };
 
     simd_neq := simd.lanes_ge(simd_diff, simd_epsilon);
@@ -49,15 +49,18 @@ tuple_eq_vt :: #force_inline proc(a: Vector, b: Tuple) -> bool {
 }
 
 
-add_t :: #force_inline proc(a, b: Tuple) -> Tuple {
+add_t :: #force_inline proc(a_, b_: Tuple) -> Tuple {
+    a, b := a_, b_; // @HACK: Cant use array arithmatic on arguments directly
     return a + b;
 }
 
-add_v :: #force_inline proc(a, b: Vector) -> Vector {
+add_v :: #force_inline proc(a_, b_: Vector) -> Vector {
+    a, b := a_, b_; // @HACK: Cant use array arithmatic on arguments directly
     return a + b;
 }
 
-add_pv :: #force_inline proc(a: Point, b: Vector) -> Point {
+add_pv :: #force_inline proc(a_: Point, b_: Vector) -> Point {
+    a, b := a_, b_; // @HACK: Cant use array arithmatic on arguments directly
     assert(is_point(a));
     assert(is_vector(b));
 
@@ -74,11 +77,13 @@ add_vp :: #force_inline proc(a: Vector, b: Point) -> Point {
 
 add :: proc { add_t, add_v, add_pv, add_vp };
 
-sub_t :: #force_inline proc(a, b: Tuple) -> Tuple  {
+sub_t :: #force_inline proc(a_, b_: Tuple) -> Tuple  {
+    a, b := a_, b_; // @HACK: Cant use array arithmatic on arguments directly
     return a - b;
 }
 
-sub_p :: #force_inline proc(a, b: Point) -> Vector {
+sub_p :: #force_inline proc(a_, b_: Point) -> Vector {
+    a, b := a_, b_; // @HACK: Cant use array arithmatic on arguments directly
     assert(is_point(a));
     assert(is_point(b));
 
@@ -89,11 +94,13 @@ sub_p :: #force_inline proc(a, b: Point) -> Vector {
     return result;
 }
 
-sub_v :: #force_inline proc(a, b: Vector) -> Vector {
+sub_v :: #force_inline proc(a_, b_: Vector) -> Vector {
+    a, b := a_, b_; // @HACK: Cant use array arithmatic on arguments directly
     return a - b;
 }
 
-sub_pv :: #force_inline proc(a: Point, b: Vector) -> Point {
+sub_pv :: #force_inline proc(a_: Point, b_: Vector) -> Point {
+    a, b := a_, b_; // @HACK: Cant use array arithmatic on arguments directly
     assert(is_point(a));
     assert(is_vector(b));
 
@@ -106,42 +113,49 @@ sub_pv :: #force_inline proc(a: Point, b: Vector) -> Point {
 
 sub :: proc { sub_t, sub_p, sub_v, sub_pv };
 
-negate :: #force_inline proc(t: $T/Tuple) -> T {
+negate :: #force_inline proc(t_: $T/Tuple) -> T {
+    t := t_; // @HACK: Cant use array arithmatic on arguments directly
     return -t;
 }
 
-mul_t :: #force_inline proc(t: Tuple, s: Tuple_Element_Type) -> Tuple {
+mul_t :: #force_inline proc(t_: Tuple, s: Tuple_Element_Type) -> Tuple {
+    t := t_; // @HACK: Cant use array arithmatic on arguments directly
     return t * s;
 }
 
-mul_v :: #force_inline proc(v: Vector, s: Tuple_Element_Type) -> Vector {
+mul_v :: #force_inline proc(v_: Vector, s: Tuple_Element_Type) -> Vector {
+    v := v_; // @HACK: Cant use array arithmatic on arguments directly
     return Vector(mul_t(Tuple(v), s));
 }
 
 
-div_t :: #force_inline proc(t: Tuple, s: Tuple_Element_Type) -> Tuple {
+div_t :: #force_inline proc(t_: Tuple, s: Tuple_Element_Type) -> Tuple {
+    t := t_; // @HACK: Cant use array arithmatic on arguments directly
     return t / s;
 }
 
 div :: proc { div_t };
 
-magnitude :: proc(v: Vector) -> Tuple_Element_Type {
-
+magnitude :: proc(v_: Vector) -> Tuple_Element_Type {
+    v := v_; // @HACK: Cant use array arithmatic on arguments directly
     sum := simd.reduce_add_ordered(simd.from_array(v * v));
     return cm.sqrt(sum);
 
     /*return cm.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);*/
 }
 
-normalize :: proc(v: Vector) -> Vector {
+normalize :: proc(v_: Vector) -> Vector {
+    v := v_; // @HACK: Can't use array arithmatic on arguments directly
     m := magnitude(v);
     return v / m;
 }
 
-dot :: proc(a, b: Vector) -> Tuple_Element_Type {
+dot :: proc(a_, b_: Vector) -> Tuple_Element_Type {
+    a, b := a_, b_; // @HACK: Can't use array arithmatic on arguments directly
     return simd.reduce_add_ordered(simd.from_array(a * b));
 }
 
-cross :: proc(a, b: Vector) -> Vector {
+cross :: proc(a_, b_: Vector) -> Vector {
+    a, b := a_, b_; // @HACK: Can't use array arithmatic on arguments directly
     return a.yzxw * b.zxyw - a.zxyw * b.yzxw;
 }
