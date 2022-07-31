@@ -65,7 +65,8 @@ math_suite := &Test_Suite {
 @test
 failing_test :: proc(t: ^testing.T) {
     // expect(t, false, "dummy failing test...");
-    // expect(t, false, "another failing condition in the same test...");
+    expect(t, false, "another failing condition in the same test...");
+    log(t, "This test is meant to fail");
 }
 
 @test

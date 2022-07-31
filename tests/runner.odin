@@ -26,35 +26,29 @@ Test_Context :: struct {
 
     total_test_count, test_fail_count, assert_fail_count: int,
 
-    current_writer : io.Writer,
+    test_writer : io.Writer,
+    stdout_writer: io.Writer,
 }
 
 execute_test_suite_s :: proc(s: ^Test_Suite) {
-    c := Test_Context { {}, s, 0, 0, 0, {} };
+    c := Test_Context { {}, s, 0, 0, 0, {}, io.to_writer(os.stream_from_handle(os.stdout)) };
     execute_test_suite(&c, s);
 
     success_count := c.total_test_count - c.test_fail_count;
     percentage := f32(success_count) / f32(c.total_test_count) * 100;
-    fmt.printf("{0:d} of {1:d} ({2:.2f}%%) tests succesful\n", success_count, c.total_test_count, percentage);
+    precision := 2 if c.test_fail_count != 0 else 0;
+    fmt.printf("{:d} of {:d} ({:.*f}%%) tests succesful\n", success_count, c.total_test_count, precision, percentage);
 }
 
 execute_test_suite_csp :: proc(c: ^Test_Context, s: ^Test_Suite, prefix: string = "") {
 
     c.total_test_count += len(s.tests);
 
-    current_prefix := prefix;
-    modified_prefix := false;
-
-    if len(s.name) > 0 {
-        current_prefix = strings.concatenate({ prefix, s.name });
-        modified_prefix = true;
-    }
+    current_prefix := strings.concatenate({prefix, s.name}, context.temp_allocator);
 
     for _,i in s.tests {
         execute_test(c, &s.tests[i], current_prefix);
     }
-
-    if modified_prefix do delete(current_prefix);
 }
 
 execute_test_suite :: proc {
@@ -63,8 +57,6 @@ execute_test_suite :: proc {
 }
 
 execute_test :: proc(c: ^Test_Context, test: ^Test, prefix: string = "") {
-    fmt.printf("%s%s\t", prefix, test.name);
-
 
     fd := tmpfile();
     defer os.close(fd);
@@ -73,17 +65,28 @@ execute_test :: proc(c: ^Test_Context, test: ^Test, prefix: string = "") {
     w := io.to_writer(tmpstream);
 
 
-    c.current_writer = w;
+    c.test_writer = w;
     old_fail_count := c.assert_fail_count;
 
     test.p(c);
 
     test_ok := old_fail_count == c.assert_fail_count;
-    c.current_writer = {};
+    c.test_writer = {};
 
 
-    status := "OK" if test_ok else "FAIL";
-    fmt.println(status);
+    status: string;
+    color: Print_Color;
+    if test_ok {
+        status = "OK  ";
+        color = .Green;
+    } else {
+        status = "FAIL";
+        color = .Red;
+    }
+
+    print_color(c.stdout_writer, status, color);
+    fmt.printf(" %s%s\t", prefix, test.name);
+    fmt.println();
 
     if !test_ok {
         c.test_fail_count += 1;
@@ -106,15 +109,26 @@ when ODIN_TEST {
         if !condition {
             TEST_fail += 1
             c.assert_fail_count += 1;
-            fmt.wprintf(c.current_writer, "[%v] %v\n", loc, message)
+            loc_str := fmt.tprintf("[%v] ", loc);
+            print_color(c.test_writer, loc_str, .Red);
+            fmt.wprintf(c.test_writer, "%v\n", message);
             return
         }
     }
     log     :: proc(t: ^testing.T, v: any, loc := #caller_location) {
         c := transmute(^Test_Context)t;
-        fmt.wprintf(c.current_writer, "[%v] ", loc)
-        fmt.wprintf(c.current_writer, "log: %v\n", v)
+        msg := fmt.tprintf("[%v] log: ", loc)
+        print_color(c.test_writer, msg, .Yellow);
+        fmt.wprintf(c.test_writer, "%v\n", v)
     }
+}
+
+@private
+Print_Color :: enum rune {
+    Red = '1',
+    Green = '2',
+    Yellow = '3',
+    Blue = '4',
 }
 
 @private
@@ -122,6 +136,10 @@ _MyFile :: struct {
     _padding0: int,
     _padding1: [13]uintptr,
     fileno: int,
+}
+
+print_color :: proc(w: io.Writer, s: string, c: Print_Color) {
+    fmt.wprintf(w, "\x1b[3%cm%s\x1b[39m", rune(c), s);
 }
 
 @private
