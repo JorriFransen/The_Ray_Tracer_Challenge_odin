@@ -8,24 +8,6 @@ import g "../src/graphics"
 import m "../src/rtmath"
 
 
-all_graphics_tests :: proc(t: ^testing.T) {
-    Color_Constructor(t);
-    Color_Layout_Matches_Tuple(t);
-
-    Color_Add(t);
-    Color_Sub(t);
-    Color_Mul_Scalar(t);
-    Color_Mul(t);
-
-    Canvas_Constructor(t);
-    Canvas_Write_Pixel(t);
-    Canvas_PPM_Header(t);
-    Canvas_PPM_Pixel_Data_Construction(t);
-    Canvas_Clear(t);
-    Canvas_PPM_Line_Splitting(t);
-    Canvas_PPM_Ends_With_Newline(t);
-}
-
 @test
 Color_Constructor :: proc(t: ^testing.T) {
     when !ODIN_TEST { fmt.println(#procedure); }

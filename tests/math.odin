@@ -7,63 +7,69 @@ import cm "core:math"
 
 import m "../src/rtmath"
 
-all_math_tests :: proc(t: ^testing.T) {
+math_suite := &Test_Suite {
+    name = "Math/",
+    tests = {
+        Test { {"tests", "failing_test", failing_test } },
+        Test { {"tests", "Tuple_Is_Point", Tuple_Is_Point } },
+        Test { {"tests", "Tuple_Is_Vector", Tuple_Is_Vector } },
+        Test { {"tests", "Point_Constructor", Point_Constructor } },
+        Test { {"tests", "Vector_Constructor", Vector_Constructor } },
+        Test { {"tests", "Tuple_Add", Tuple_Add } },
+        Test { {"tests", "Add_Point_And_Vector", Add_Point_And_Vector } },
+        Test { {"tests", "Add_Vector_And_Point", Add_Vector_And_Point } },
+        Test { {"tests", "Vector_Add", Vector_Add } },
+        Test { {"tests", "Tuple_Sub", Tuple_Sub } },
+        Test { {"tests", "Point_Sub", Point_Sub } },
+        Test { {"tests", "Point_Sub_Vector", Point_Sub_Vector } },
+        Test { {"tests", "Vector_Sub", Vector_Sub } },
+        Test { {"tests", "Vector_Sub_From_Zero", Vector_Sub_From_Zero } },
+        Test { {"tests", "Tuple_Negate", Tuple_Negate } },
+        Test { {"tests", "Vector_Negate", Vector_Negate } },
+        Test { {"tests", "Tuple_Mul_Scalar", Tuple_Mul_Scalar } },
+        Test { {"tests", "Tuple_Mul_Fraction", Tuple_Mul_Fraction } },
+        Test { {"tests", "Tuple_Div_Scalar", Tuple_Div_Scalar } },
+        Test { {"tests", "Vector_Magnitude_X1", Vector_Magnitude_X1 } },
+        Test { {"tests", "Vector_Magnitude_Y1", Vector_Magnitude_Y1 } },
+        Test { {"tests", "Vector_Magnitude_Z1", Vector_Magnitude_Z1 } },
+        Test { {"tests", "Vector_Magnitude_X1_Y2_Z3", Vector_Magnitude_X1_Y2_Z3 } },
+        Test { {"tests", "Vector_Magnitude_X1_Y2_Z3_Neg", Vector_Magnitude_X1_Y2_Z3_Neg } },
+        Test { {"tests", "Vector_Normalize_X4", Vector_Normalize_X4 } },
+        Test { {"tests", "Vector_Normalize_X1_Y2_Z3", Vector_Normalize_X1_Y2_Z3 } },
+        Test { {"tests", "Vector_Dot", Vector_Dot } },
+        Test { {"tests", "Vector_Cross", Vector_Cross } },
+        Test { {"tests", "Matrix4_Construction", Matrix4_Construction } },
+        Test { {"tests", "Matrix3_Construction", Matrix3_Construction } },
+        Test { {"tests", "Matrix2_Construction", Matrix2_Construction } },
+        Test { {"tests", "Matrix4_Equality", Matrix4_Equality } },
+        Test { {"tests", "Matrix4_Inequality", Matrix4_Inequality } },
+        Test { {"tests", "Matrix3_Equality", Matrix3_Equality } },
+        Test { {"tests", "Matrix3_Inequality", Matrix3_Inequality } },
+        Test { {"tests", "Matrix2_Equality", Matrix2_Equality } },
+        Test { {"tests", "Matrix2_Inequality", Matrix2_Inequality } },
+        Test { {"tests", "Matrix4_Multiply", Matrix4_Multiply } },
+        Test { {"tests", "Matrix4_Multiply_Tuple", Matrix4_Multiply_Tuple } },
+        Test { {"tests", "Matrix4_Multiply_Identity", Matrix4_Multiply_Identity } },
+        Test { {"tests", "Matrix4_Multiply_Identity_Tuple", Matrix4_Multiply_Identity_Tuple } },
+        Test { {"tests", "Matrix4_Transpose", Matrix4_Transpose } },
+        Test { {"tests", "Matrix4_Transpose_Identity", Matrix4_Transpose_Identity } },
+        Test { {"tests", "Matrix2_Determinant", Matrix2_Determinant } },
+        Test { {"tests", "Matrix3_Submatrix", Matrix3_Submatrix } },
+        Test { {"tests", "Matrix4_Submatrix", Matrix4_Submatrix } },
+        Test { {"tests", "Matrix3_Minor", Matrix3_Minor } },
+        Test { {"tests", "Matrix3_Cofactor", Matrix3_Cofactor } },
 
-    Tuple_Is_Point(t);
-    Tuple_Is_Vector(t);
-    Point_Constructor(t);
-    Vector_Constructor(t);
-    Tuple_Add(t);
-    Add_Point_And_Vector(t);
-    Add_Vector_And_Point(t);
-    Vector_Add(t);
-    Tuple_Sub(t);
-    Point_Sub(t);
-    Point_Sub_Vector(t);
-    Vector_Sub(t);
-    Vector_Sub_From_Zero(t);
-    Tuple_Negate(t);
-    Vector_Negate(t);
-    Tuple_Mul_Scalar(t);
-    Tuple_Mul_Fraction(t);
-    Tuple_Div_Scalar(t);
-    Vector_Magnitude_X1(t);
-    Vector_Magnitude_Y1(t);
-    Vector_Magnitude_Z1(t);
-    Vector_Magnitude_X1_Y2_Z3(t);
-    Vector_Magnitude_X1_Y2_Z3_Neg(t);
-    Vector_Normalize_X4(t);
-    Vector_Normalize_X1_Y2_Z3(t);
-    Vector_Dot(t);
-    Vector_Cross(t);
+    },
+}
 
-    Matrix4_Construction(t);
-    Matrix3_Construction(t);
-    Matrix2_Construction(t);
-    Matrix4_Equality(t);
-    Matrix4_Inequality(t);
-    Matrix3_Equality(t);
-    Matrix3_Inequality(t);
-    Matrix3_Equality(t);
-    Matrix3_Inequality(t);
-    Matrix2_Equality(t);
-    Matrix2_Inequality(t);
-    Matrix4_Multiply(t);
-    Matrix4_Multiply_Tuple(t);
-    Matrix4_Multiply_Identity(t);
-    Matrix4_Multiply_Identity_Tuple(t);
-    Matrix4_Transpose(t);
-    Matrix4_Transpose_Identity(t);
-    Matrix2_Determinant(t);
-    Matrix3_Submatrix(t);
-    Matrix4_Submatrix(t);
-    Matrix3_Minor(t);
-    Matrix3_Cofactor(t);
+@test
+failing_test :: proc(t: ^testing.T) {
+    // expect(t, false, "dummy failing test...");
+    // expect(t, false, "another failing condition in the same test...");
 }
 
 @test
 Tuple_Is_Point :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     a := m.tuple(4.3, -4.2, 3.1, 1.0);
 
@@ -78,7 +84,6 @@ Tuple_Is_Point :: proc(t: ^testing.T) {
 
 @test
 Tuple_Is_Vector :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     a := m.tuple(4.3, -4.2, 3.1, 0.0);
 
@@ -93,7 +98,6 @@ Tuple_Is_Vector :: proc(t: ^testing.T) {
 
 @test
 Point_Constructor :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     p := m.point(4, -4, 3);
 
@@ -107,7 +111,6 @@ Point_Constructor :: proc(t: ^testing.T) {
 
 @test
 Vector_Constructor :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     v := m.vector(4, -4, 3);
 
@@ -121,7 +124,6 @@ Vector_Constructor :: proc(t: ^testing.T) {
 
 @test
 Tuple_Add :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     a1 := m.tuple(3, -2, 5, 1);
     a2 := m.tuple(-2, 3, 1, 0);
@@ -138,7 +140,6 @@ Tuple_Add :: proc(t: ^testing.T) {
 
 @test
 Add_Point_And_Vector :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     p := m.point(3, -2, 5);
     v := m.vector(-2, 3, 1);
@@ -153,7 +154,6 @@ Add_Point_And_Vector :: proc(t: ^testing.T) {
 
 @test
 Add_Vector_And_Point :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     v := m.vector(3, -2, 5);
     p := m.point(-2, 3, 1);
@@ -168,7 +168,6 @@ Add_Vector_And_Point :: proc(t: ^testing.T) {
 
 @test
 Vector_Add :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     v1 := m.vector(3, -2, 5);
     v2 := m.vector(-2, 3, 1);
@@ -183,7 +182,6 @@ Vector_Add :: proc(t: ^testing.T) {
 
 @test
 Tuple_Sub :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     a := m.tuple(3, 2, 1, 1);
     b := m.tuple(5, 6, 7, 1);
@@ -198,7 +196,6 @@ Tuple_Sub :: proc(t: ^testing.T) {
 
 @test
 Point_Sub :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     a := m.point(3, 2, 1);
     b := m.point(5, 6, 7);
@@ -213,7 +210,6 @@ Point_Sub :: proc(t: ^testing.T) {
 
 @test
 Point_Sub_Vector :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     p := m.point(3, 2, 1);
     v := m.vector(5, 6, 7);
@@ -228,7 +224,6 @@ Point_Sub_Vector :: proc(t: ^testing.T) {
 
 @test
 Vector_Sub :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     v1 := m.vector(3, 2, 1);
     v2 := m.vector(5, 6, 7);
@@ -244,7 +239,6 @@ Vector_Sub :: proc(t: ^testing.T) {
 
 @test
 Vector_Sub_From_Zero :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     zero := m.vector(0, 0, 0);
     v := m.vector(1, -2, 3);
@@ -259,7 +253,6 @@ Vector_Sub_From_Zero :: proc(t: ^testing.T) {
 
 @test
 Tuple_Negate :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     a := m.tuple(1, -2, 3, -4);
 
@@ -272,7 +265,6 @@ Tuple_Negate :: proc(t: ^testing.T) {
 
 @test
 Vector_Negate :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     v := m.vector(1, -2, 3);
 
@@ -285,7 +277,6 @@ Vector_Negate :: proc(t: ^testing.T) {
 
 @test
 Tuple_Mul_Scalar :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     a := m.tuple(1, -2, 3, -4);
 
@@ -298,7 +289,6 @@ Tuple_Mul_Scalar :: proc(t: ^testing.T) {
 
 @test
 Tuple_Mul_Fraction :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     a := m.tuple(1, -2, 3, -4);
 
@@ -311,7 +301,6 @@ Tuple_Mul_Fraction :: proc(t: ^testing.T) {
 
 @test
 Tuple_Div_Scalar :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     a := m.tuple(1, -2, 3, -4);
 
@@ -324,7 +313,6 @@ Tuple_Div_Scalar :: proc(t: ^testing.T) {
 
 @test
 Vector_Magnitude_X1 :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     v := m.vector(1, 0, 0);
 
@@ -336,7 +324,6 @@ Vector_Magnitude_X1 :: proc(t: ^testing.T) {
 
 @test
 Vector_Magnitude_Y1 :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     v := m.vector(0, 1, 0);
 
@@ -348,7 +335,6 @@ Vector_Magnitude_Y1 :: proc(t: ^testing.T) {
 
 @test
 Vector_Magnitude_Z1 :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     v := m.vector(0, 0, 1);
 
@@ -360,7 +346,6 @@ Vector_Magnitude_Z1 :: proc(t: ^testing.T) {
 
 @test
 Vector_Magnitude_X1_Y2_Z3 :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     v := m.vector(1, 2, 3);
 
@@ -372,7 +357,6 @@ Vector_Magnitude_X1_Y2_Z3 :: proc(t: ^testing.T) {
 
 @test
 Vector_Magnitude_X1_Y2_Z3_Neg :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     v := m.vector(-1, -2, -3);
 
@@ -384,7 +368,6 @@ Vector_Magnitude_X1_Y2_Z3_Neg :: proc(t: ^testing.T) {
 
 @test
 Vector_Normalize_X4 :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     v := m.vector(4, 0, 0);
 
@@ -397,7 +380,6 @@ Vector_Normalize_X4 :: proc(t: ^testing.T) {
 
 @test
 Vector_Normalize_X1_Y2_Z3 :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     v := m.vector(1, 2, 3);
 
@@ -412,7 +394,6 @@ Vector_Normalize_X1_Y2_Z3 :: proc(t: ^testing.T) {
 
 @test
 Vector_Dot :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     a := m.vector(1, 2, 3);
     b := m.vector(2, 3, 4);
@@ -425,7 +406,6 @@ Vector_Dot :: proc(t: ^testing.T) {
 
 @test
 Vector_Cross :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     a := m.vector(1, 2, 3);
     b := m.vector(2, 3, 4);
@@ -447,7 +427,6 @@ Vector_Cross :: proc(t: ^testing.T) {
 
 @test
 Matrix4_Construction :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     M :: m.Matrix4 { 1,    2,    3,    4,
                      5.5,  6.5,  7.5,  8.5,
@@ -478,7 +457,6 @@ Matrix4_Construction :: proc(t: ^testing.T) {
 
 @test
 Matrix3_Construction :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     M :: m.Matrix3 { -3,  5,  0,
                       1, -2, -7,
@@ -499,7 +477,6 @@ Matrix3_Construction :: proc(t: ^testing.T) {
 
 @test
 Matrix2_Construction :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     M :: m.Matrix2 { -3,  5,
                       1, -2 };
@@ -520,7 +497,6 @@ Matrix2_Construction :: proc(t: ^testing.T) {
 
 @test
 Matrix4_Equality :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A :: m.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
@@ -538,7 +514,6 @@ Matrix4_Equality :: proc(t: ^testing.T) {
 
 @test
 Matrix4_Inequality :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A :: m.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
@@ -556,7 +531,6 @@ Matrix4_Inequality :: proc(t: ^testing.T) {
 
 @test
 Matrix3_Equality :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A :: m.Matrix3 { 1, 2, 3,
                      5, 6, 7,
@@ -572,7 +546,6 @@ Matrix3_Equality :: proc(t: ^testing.T) {
 
 @test
 Matrix3_Inequality :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A :: m.Matrix3 { 1, 2, 3,
                      5, 6, 7,
@@ -588,7 +561,6 @@ Matrix3_Inequality :: proc(t: ^testing.T) {
 
 @test
 Matrix2_Equality :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A :: m.Matrix2 { 1, 2,
                      5, 6 };
@@ -602,7 +574,6 @@ Matrix2_Equality :: proc(t: ^testing.T) {
 
 @test
 Matrix2_Inequality :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A :: m.Matrix2 { 1, 2,
                      5, 6 };
@@ -616,7 +587,6 @@ Matrix2_Inequality :: proc(t: ^testing.T) {
 
 @test
 Matrix4_Multiply :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A :: m.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
@@ -646,7 +616,6 @@ Matrix4_Multiply :: proc(t: ^testing.T) {
 
 @test
 Matrix4_Multiply_Tuple :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A :: m.Matrix4 { 1, 2, 3, 4,
                      2, 4, 4, 2,
@@ -670,7 +639,6 @@ Matrix4_Multiply_Tuple :: proc(t: ^testing.T) {
 
 @test
 Matrix4_Multiply_Identity :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A :: m.Matrix4 {
         0, 1,  2,  4,
@@ -691,7 +659,6 @@ Matrix4_Multiply_Identity :: proc(t: ^testing.T) {
 
 @test
 Matrix4_Multiply_Identity_Tuple :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     a := m.Tuple { 1, 2, 3, 4 };
 
@@ -707,7 +674,6 @@ Matrix4_Multiply_Identity_Tuple :: proc(t: ^testing.T) {
 
 @test
 Matrix4_Transpose :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A :: m.Matrix4 {
         0, 9, 3, 0,
@@ -735,7 +701,6 @@ Matrix4_Transpose :: proc(t: ^testing.T) {
 
 @test
 Matrix4_Transpose_Identity :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A := m.matrix_transpose(m.matrix4_identity);
 
@@ -745,7 +710,6 @@ Matrix4_Transpose_Identity :: proc(t: ^testing.T) {
 
 @test
 Matrix2_Determinant :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A :: m.Matrix2 {
          1, 5,
@@ -767,7 +731,6 @@ Matrix2_Determinant :: proc(t: ^testing.T) {
 
 @test
 Matrix3_Submatrix :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A :: m.Matrix3 {
          1, 5, 0,
@@ -797,7 +760,6 @@ Matrix3_Submatrix :: proc(t: ^testing.T) {
 
 @test
 Matrix4_Submatrix :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A :: m.Matrix4 {
         -6, 1,  1, 6,
@@ -830,7 +792,6 @@ Matrix4_Submatrix :: proc(t: ^testing.T) {
 
 @test
 Matrix3_Minor :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A :: m.Matrix3 {
         3,  5,  0,
@@ -857,7 +818,6 @@ Matrix3_Minor :: proc(t: ^testing.T) {
 
 @test
 Matrix3_Cofactor :: proc(t: ^testing.T) {
-    when !ODIN_TEST { fmt.println(#procedure); }
 
     A :: m.Matrix3 {
         3,  5,  0,
