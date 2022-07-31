@@ -7,70 +7,76 @@ import cm "core:math"
 
 import m "../src/rtmath"
 
-math_suite := &Test_Suite {
+math_suite := Test_Suite {
     name = "Math/",
-    tests = {
-        Test { {"tests", "failing_test", failing_test } },
-        Test { {"tests", "Tuple_Is_Point", Tuple_Is_Point } },
-        Test { {"tests", "Tuple_Is_Vector", Tuple_Is_Vector } },
-        Test { {"tests", "Point_Constructor", Point_Constructor } },
-        Test { {"tests", "Vector_Constructor", Vector_Constructor } },
-        Test { {"tests", "Tuple_Add", Tuple_Add } },
-        Test { {"tests", "Add_Point_And_Vector", Add_Point_And_Vector } },
-        Test { {"tests", "Add_Vector_And_Point", Add_Vector_And_Point } },
-        Test { {"tests", "Vector_Add", Vector_Add } },
-        Test { {"tests", "Tuple_Sub", Tuple_Sub } },
-        Test { {"tests", "Point_Sub", Point_Sub } },
-        Test { {"tests", "Point_Sub_Vector", Point_Sub_Vector } },
-        Test { {"tests", "Vector_Sub", Vector_Sub } },
-        Test { {"tests", "Vector_Sub_From_Zero", Vector_Sub_From_Zero } },
-        Test { {"tests", "Tuple_Negate", Tuple_Negate } },
-        Test { {"tests", "Vector_Negate", Vector_Negate } },
-        Test { {"tests", "Tuple_Mul_Scalar", Tuple_Mul_Scalar } },
-        Test { {"tests", "Tuple_Mul_Fraction", Tuple_Mul_Fraction } },
-        Test { {"tests", "Tuple_Div_Scalar", Tuple_Div_Scalar } },
-        Test { {"tests", "Vector_Magnitude_X1", Vector_Magnitude_X1 } },
-        Test { {"tests", "Vector_Magnitude_Y1", Vector_Magnitude_Y1 } },
-        Test { {"tests", "Vector_Magnitude_Z1", Vector_Magnitude_Z1 } },
-        Test { {"tests", "Vector_Magnitude_X1_Y2_Z3", Vector_Magnitude_X1_Y2_Z3 } },
-        Test { {"tests", "Vector_Magnitude_X1_Y2_Z3_Neg", Vector_Magnitude_X1_Y2_Z3_Neg } },
-        Test { {"tests", "Vector_Normalize_X4", Vector_Normalize_X4 } },
-        Test { {"tests", "Vector_Normalize_X1_Y2_Z3", Vector_Normalize_X1_Y2_Z3 } },
-        Test { {"tests", "Vector_Dot", Vector_Dot } },
-        Test { {"tests", "Vector_Cross", Vector_Cross } },
-        Test { {"tests", "Matrix4_Construction", Matrix4_Construction } },
-        Test { {"tests", "Matrix3_Construction", Matrix3_Construction } },
-        Test { {"tests", "Matrix2_Construction", Matrix2_Construction } },
-        Test { {"tests", "Matrix4_Equality", Matrix4_Equality } },
-        Test { {"tests", "Matrix4_Inequality", Matrix4_Inequality } },
-        Test { {"tests", "Matrix3_Equality", Matrix3_Equality } },
-        Test { {"tests", "Matrix3_Inequality", Matrix3_Inequality } },
-        Test { {"tests", "Matrix2_Equality", Matrix2_Equality } },
-        Test { {"tests", "Matrix2_Inequality", Matrix2_Inequality } },
-        Test { {"tests", "Matrix4_Multiply", Matrix4_Multiply } },
-        Test { {"tests", "Matrix4_Multiply_Tuple", Matrix4_Multiply_Tuple } },
-        Test { {"tests", "Matrix4_Multiply_Identity", Matrix4_Multiply_Identity } },
-        Test { {"tests", "Matrix4_Multiply_Identity_Tuple", Matrix4_Multiply_Identity_Tuple } },
-        Test { {"tests", "Matrix4_Transpose", Matrix4_Transpose } },
-        Test { {"tests", "Matrix4_Transpose_Identity", Matrix4_Transpose_Identity } },
-        Test { {"tests", "Matrix2_Determinant", Matrix2_Determinant } },
-        Test { {"tests", "Matrix3_Submatrix", Matrix3_Submatrix } },
-        Test { {"tests", "Matrix4_Submatrix", Matrix4_Submatrix } },
-        Test { {"tests", "Matrix3_Minor", Matrix3_Minor } },
-        Test { {"tests", "Matrix3_Cofactor", Matrix3_Cofactor } },
+    tests = { },
+    child_suites = { 
+        &tuple_suite,
+        &matrix_suite,
+    },
+}
 
+tuple_suite := Test_Suite {
+    name = "Tuple/",
+    tests = {
+        test("T_Is_Point", T_Is_Point),
+        test("T_Is_Vector", T_Is_Vector),
+        test("P_Constructor", P_Constructor),
+        test("V_Constructor", V_Constructor),
+        test("T_Add", T_Add),
+        test("P_Add_Vector", P_Add_Vector),
+        test("V_Add_Point", V_Add_Point),
+        test("V_Add", V_Add),
+        test("T_Sub", T_Sub),
+        test("P_Sub", P_Sub),
+        test("P_Sub_Vector", P_Sub_Vector),
+        test("V_Sub", V_Sub),
+        test("V_Sub_From_Zero", V_Sub_From_Zero),
+        test("T_Negate", T_Negate),
+        test("V_Negate", V_Negate),
+        test("T_Mul_Scalar", T_Mul_Scalar),
+        test("T_Mul_Fraction", T_Mul_Fraction),
+        test("T_Div_Scalar", T_Div_Scalar),
+        test("V_Magnitude_X1", V_Magnitude_X1),
+        test("V_Magnitude_Y1", V_Magnitude_Y1),
+        test("V_Magnitude_Z1", V_Magnitude_Z1),
+        test("V_Magnitude_X1_Y2_Z3", V_Magnitude_X1_Y2_Z3),
+        test("V_Magnitude_X1_Y2_Z3_Neg", V_Magnitude_X1_Y2_Z3_Neg),
+        test("V_Normalize_X4", V_Normalize_X4),
+        test("V_Normalize_X1_Y2_Z3", V_Normalize_X1_Y2_Z3),
+        test("V_Dot", V_Dot),
+        test("V_Cross", V_Cross),
+    },
+}
+
+matrix_suite := Test_Suite {
+    name = "Matrix/",
+    tests = {
+        test("M4_Construction", M4_Construction),
+        test("M3_Construction", M3_Construction),
+        test("M2_Construction", M2_Construction),
+        test("M4_Equality", M4_Equality),
+        test("M4_Inequality", M4_Inequality),
+        test("M3_Equality", M3_Equality),
+        test("M3_Inequality", M3_Inequality),
+        test("M2_Equality", M2_Equality),
+        test("M2_Inequality", M2_Inequality),
+        test("M4_Multiply", M4_Multiply),
+        test("M4_Multiply_Tuple", M4_Multiply_Tuple),
+        test("M4_Multiply_Identity", M4_Multiply_Identity),
+        test("M4_Multiply_Identity_Tuple", M4_Multiply_Identity_Tuple),
+        test("M4_Transpose", M4_Transpose),
+        test("M4_Transpose_Identity", M4_Transpose_Identity),
+        test("M2_Determinant", Matrix2_Determinant),
+        test("M3_Submatrix", Matrix3_Submatrix),
+        test("M4_Submatrix", M4_Submatrix),
+        test("M3_Minor", Matrix3_Minor),
+        test("M3_Cofactor", Matrix3_Cofactor),
     },
 }
 
 @test
-failing_test :: proc(t: ^testing.T) {
-    // expect(t, false, "dummy failing test...");
-    expect(t, false, "another failing condition in the same test...");
-    log(t, "This test is meant to fail");
-}
-
-@test
-Tuple_Is_Point :: proc(t: ^testing.T) {
+T_Is_Point :: proc(t: ^testing.T) {
 
     a := m.tuple(4.3, -4.2, 3.1, 1.0);
 
@@ -84,7 +90,7 @@ Tuple_Is_Point :: proc(t: ^testing.T) {
 }
 
 @test
-Tuple_Is_Vector :: proc(t: ^testing.T) {
+T_Is_Vector :: proc(t: ^testing.T) {
 
     a := m.tuple(4.3, -4.2, 3.1, 0.0);
 
@@ -98,7 +104,7 @@ Tuple_Is_Vector :: proc(t: ^testing.T) {
 }
 
 @test
-Point_Constructor :: proc(t: ^testing.T) {
+P_Constructor :: proc(t: ^testing.T) {
 
     p := m.point(4, -4, 3);
 
@@ -111,7 +117,7 @@ Point_Constructor :: proc(t: ^testing.T) {
 }
 
 @test
-Vector_Constructor :: proc(t: ^testing.T) {
+V_Constructor :: proc(t: ^testing.T) {
 
     v := m.vector(4, -4, 3);
 
@@ -124,7 +130,7 @@ Vector_Constructor :: proc(t: ^testing.T) {
 }
 
 @test
-Tuple_Add :: proc(t: ^testing.T) {
+T_Add :: proc(t: ^testing.T) {
 
     a1 := m.tuple(3, -2, 5, 1);
     a2 := m.tuple(-2, 3, 1, 0);
@@ -140,7 +146,7 @@ Tuple_Add :: proc(t: ^testing.T) {
 }
 
 @test
-Add_Point_And_Vector :: proc(t: ^testing.T) {
+P_Add_Vector :: proc(t: ^testing.T) {
 
     p := m.point(3, -2, 5);
     v := m.vector(-2, 3, 1);
@@ -154,7 +160,7 @@ Add_Point_And_Vector :: proc(t: ^testing.T) {
 }
 
 @test
-Add_Vector_And_Point :: proc(t: ^testing.T) {
+V_Add_Point :: proc(t: ^testing.T) {
 
     v := m.vector(3, -2, 5);
     p := m.point(-2, 3, 1);
@@ -168,7 +174,7 @@ Add_Vector_And_Point :: proc(t: ^testing.T) {
 }
 
 @test
-Vector_Add :: proc(t: ^testing.T) {
+V_Add :: proc(t: ^testing.T) {
 
     v1 := m.vector(3, -2, 5);
     v2 := m.vector(-2, 3, 1);
@@ -182,7 +188,7 @@ Vector_Add :: proc(t: ^testing.T) {
 }
 
 @test
-Tuple_Sub :: proc(t: ^testing.T) {
+T_Sub :: proc(t: ^testing.T) {
 
     a := m.tuple(3, 2, 1, 1);
     b := m.tuple(5, 6, 7, 1);
@@ -196,7 +202,7 @@ Tuple_Sub :: proc(t: ^testing.T) {
 }
 
 @test
-Point_Sub :: proc(t: ^testing.T) {
+P_Sub :: proc(t: ^testing.T) {
 
     a := m.point(3, 2, 1);
     b := m.point(5, 6, 7);
@@ -210,7 +216,7 @@ Point_Sub :: proc(t: ^testing.T) {
 }
 
 @test
-Point_Sub_Vector :: proc(t: ^testing.T) {
+P_Sub_Vector :: proc(t: ^testing.T) {
 
     p := m.point(3, 2, 1);
     v := m.vector(5, 6, 7);
@@ -224,7 +230,7 @@ Point_Sub_Vector :: proc(t: ^testing.T) {
 }
 
 @test
-Vector_Sub :: proc(t: ^testing.T) {
+V_Sub :: proc(t: ^testing.T) {
 
     v1 := m.vector(3, 2, 1);
     v2 := m.vector(5, 6, 7);
@@ -239,7 +245,7 @@ Vector_Sub :: proc(t: ^testing.T) {
 
 
 @test
-Vector_Sub_From_Zero :: proc(t: ^testing.T) {
+V_Sub_From_Zero :: proc(t: ^testing.T) {
 
     zero := m.vector(0, 0, 0);
     v := m.vector(1, -2, 3);
@@ -253,7 +259,7 @@ Vector_Sub_From_Zero :: proc(t: ^testing.T) {
 }
 
 @test
-Tuple_Negate :: proc(t: ^testing.T) {
+T_Negate :: proc(t: ^testing.T) {
 
     a := m.tuple(1, -2, 3, -4);
 
@@ -265,7 +271,7 @@ Tuple_Negate :: proc(t: ^testing.T) {
 }
 
 @test
-Vector_Negate :: proc(t: ^testing.T) {
+V_Negate :: proc(t: ^testing.T) {
 
     v := m.vector(1, -2, 3);
 
@@ -277,7 +283,7 @@ Vector_Negate :: proc(t: ^testing.T) {
 }
 
 @test
-Tuple_Mul_Scalar :: proc(t: ^testing.T) {
+T_Mul_Scalar :: proc(t: ^testing.T) {
 
     a := m.tuple(1, -2, 3, -4);
 
@@ -289,7 +295,7 @@ Tuple_Mul_Scalar :: proc(t: ^testing.T) {
 }
 
 @test
-Tuple_Mul_Fraction :: proc(t: ^testing.T) {
+T_Mul_Fraction :: proc(t: ^testing.T) {
 
     a := m.tuple(1, -2, 3, -4);
 
@@ -301,7 +307,7 @@ Tuple_Mul_Fraction :: proc(t: ^testing.T) {
 }
 
 @test
-Tuple_Div_Scalar :: proc(t: ^testing.T) {
+T_Div_Scalar :: proc(t: ^testing.T) {
 
     a := m.tuple(1, -2, 3, -4);
 
@@ -313,7 +319,7 @@ Tuple_Div_Scalar :: proc(t: ^testing.T) {
 }
 
 @test
-Vector_Magnitude_X1 :: proc(t: ^testing.T) {
+V_Magnitude_X1 :: proc(t: ^testing.T) {
 
     v := m.vector(1, 0, 0);
 
@@ -324,7 +330,7 @@ Vector_Magnitude_X1 :: proc(t: ^testing.T) {
 }
 
 @test
-Vector_Magnitude_Y1 :: proc(t: ^testing.T) {
+V_Magnitude_Y1 :: proc(t: ^testing.T) {
 
     v := m.vector(0, 1, 0);
 
@@ -335,7 +341,7 @@ Vector_Magnitude_Y1 :: proc(t: ^testing.T) {
 }
 
 @test
-Vector_Magnitude_Z1 :: proc(t: ^testing.T) {
+V_Magnitude_Z1 :: proc(t: ^testing.T) {
 
     v := m.vector(0, 0, 1);
 
@@ -346,7 +352,7 @@ Vector_Magnitude_Z1 :: proc(t: ^testing.T) {
 }
 
 @test
-Vector_Magnitude_X1_Y2_Z3 :: proc(t: ^testing.T) {
+V_Magnitude_X1_Y2_Z3 :: proc(t: ^testing.T) {
 
     v := m.vector(1, 2, 3);
 
@@ -357,7 +363,7 @@ Vector_Magnitude_X1_Y2_Z3 :: proc(t: ^testing.T) {
 }
 
 @test
-Vector_Magnitude_X1_Y2_Z3_Neg :: proc(t: ^testing.T) {
+V_Magnitude_X1_Y2_Z3_Neg :: proc(t: ^testing.T) {
 
     v := m.vector(-1, -2, -3);
 
@@ -368,7 +374,7 @@ Vector_Magnitude_X1_Y2_Z3_Neg :: proc(t: ^testing.T) {
 }
 
 @test
-Vector_Normalize_X4 :: proc(t: ^testing.T) {
+V_Normalize_X4 :: proc(t: ^testing.T) {
 
     v := m.vector(4, 0, 0);
 
@@ -380,7 +386,7 @@ Vector_Normalize_X4 :: proc(t: ^testing.T) {
 }
 
 @test
-Vector_Normalize_X1_Y2_Z3 :: proc(t: ^testing.T) {
+V_Normalize_X1_Y2_Z3 :: proc(t: ^testing.T) {
 
     v := m.vector(1, 2, 3);
 
@@ -394,7 +400,7 @@ Vector_Normalize_X1_Y2_Z3 :: proc(t: ^testing.T) {
 }
 
 @test
-Vector_Dot :: proc(t: ^testing.T) {
+V_Dot :: proc(t: ^testing.T) {
 
     a := m.vector(1, 2, 3);
     b := m.vector(2, 3, 4);
@@ -406,7 +412,7 @@ Vector_Dot :: proc(t: ^testing.T) {
 }
 
 @test
-Vector_Cross :: proc(t: ^testing.T) {
+V_Cross :: proc(t: ^testing.T) {
 
     a := m.vector(1, 2, 3);
     b := m.vector(2, 3, 4);
@@ -427,7 +433,7 @@ Vector_Cross :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix4_Construction :: proc(t: ^testing.T) {
+M4_Construction :: proc(t: ^testing.T) {
 
     M :: m.Matrix4 { 1,    2,    3,    4,
                      5.5,  6.5,  7.5,  8.5,
@@ -457,7 +463,7 @@ Matrix4_Construction :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix3_Construction :: proc(t: ^testing.T) {
+M3_Construction :: proc(t: ^testing.T) {
 
     M :: m.Matrix3 { -3,  5,  0,
                       1, -2, -7,
@@ -477,7 +483,7 @@ Matrix3_Construction :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix2_Construction :: proc(t: ^testing.T) {
+M2_Construction :: proc(t: ^testing.T) {
 
     M :: m.Matrix2 { -3,  5,
                       1, -2 };
@@ -497,7 +503,7 @@ Matrix2_Construction :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix4_Equality :: proc(t: ^testing.T) {
+M4_Equality :: proc(t: ^testing.T) {
 
     A :: m.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
@@ -514,7 +520,7 @@ Matrix4_Equality :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix4_Inequality :: proc(t: ^testing.T) {
+M4_Inequality :: proc(t: ^testing.T) {
 
     A :: m.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
@@ -531,7 +537,7 @@ Matrix4_Inequality :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix3_Equality :: proc(t: ^testing.T) {
+M3_Equality :: proc(t: ^testing.T) {
 
     A :: m.Matrix3 { 1, 2, 3,
                      5, 6, 7,
@@ -546,7 +552,7 @@ Matrix3_Equality :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix3_Inequality :: proc(t: ^testing.T) {
+M3_Inequality :: proc(t: ^testing.T) {
 
     A :: m.Matrix3 { 1, 2, 3,
                      5, 6, 7,
@@ -561,7 +567,7 @@ Matrix3_Inequality :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix2_Equality :: proc(t: ^testing.T) {
+M2_Equality :: proc(t: ^testing.T) {
 
     A :: m.Matrix2 { 1, 2,
                      5, 6 };
@@ -574,7 +580,7 @@ Matrix2_Equality :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix2_Inequality :: proc(t: ^testing.T) {
+M2_Inequality :: proc(t: ^testing.T) {
 
     A :: m.Matrix2 { 1, 2,
                      5, 6 };
@@ -587,7 +593,7 @@ Matrix2_Inequality :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix4_Multiply :: proc(t: ^testing.T) {
+M4_Multiply :: proc(t: ^testing.T) {
 
     A :: m.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
@@ -616,7 +622,7 @@ Matrix4_Multiply :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix4_Multiply_Tuple :: proc(t: ^testing.T) {
+M4_Multiply_Tuple :: proc(t: ^testing.T) {
 
     A :: m.Matrix4 { 1, 2, 3, 4,
                      2, 4, 4, 2,
@@ -639,7 +645,7 @@ Matrix4_Multiply_Tuple :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix4_Multiply_Identity :: proc(t: ^testing.T) {
+M4_Multiply_Identity :: proc(t: ^testing.T) {
 
     A :: m.Matrix4 {
         0, 1,  2,  4,
@@ -659,7 +665,7 @@ Matrix4_Multiply_Identity :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix4_Multiply_Identity_Tuple :: proc(t: ^testing.T) {
+M4_Multiply_Identity_Tuple :: proc(t: ^testing.T) {
 
     a := m.Tuple { 1, 2, 3, 4 };
 
@@ -674,7 +680,7 @@ Matrix4_Multiply_Identity_Tuple :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix4_Transpose :: proc(t: ^testing.T) {
+M4_Transpose :: proc(t: ^testing.T) {
 
     A :: m.Matrix4 {
         0, 9, 3, 0,
@@ -701,7 +707,7 @@ Matrix4_Transpose :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix4_Transpose_Identity :: proc(t: ^testing.T) {
+M4_Transpose_Identity :: proc(t: ^testing.T) {
 
     A := m.matrix_transpose(m.matrix4_identity);
 
@@ -760,7 +766,7 @@ Matrix3_Submatrix :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix4_Submatrix :: proc(t: ^testing.T) {
+M4_Submatrix :: proc(t: ^testing.T) {
 
     A :: m.Matrix4 {
         -6, 1,  1, 6,

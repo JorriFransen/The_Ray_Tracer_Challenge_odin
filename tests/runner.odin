@@ -17,6 +17,8 @@ Test :: struct {
 Test_Suite :: struct {
     name: string,
     tests: []Test,
+
+    child_suites: []^Test_Suite,
 }
 
 Test_Context :: struct {
@@ -35,6 +37,13 @@ Test_Context :: struct {
 Test_Options :: struct {
     print_color: bool,
 }
+
+test :: proc (name: string, test_fn: testing.Test_Signature) -> Test {
+    return Test { {
+        "tests", name, test_fn,
+    } };
+}
+
 
 default_test_options :: proc() -> Test_Options {
     return Test_Options {
@@ -70,10 +79,15 @@ execute_test_suite_csp :: proc(c: ^Test_Context, s: ^Test_Suite, prefix: string 
 
     c.total_test_count += len(s.tests);
 
-    current_prefix := strings.concatenate({prefix, s.name}, context.temp_allocator);
+    current_prefix := strings.concatenate({prefix, s.name});
+    defer delete(current_prefix);
 
     for _,i in s.tests {
         execute_test(c, &s.tests[i], current_prefix);
+    }
+
+    for child in s.child_suites {
+        execute_test_suite(c, child, current_prefix);
     }
 }
 
@@ -117,7 +131,8 @@ execute_test :: proc(c: ^Test_Context, test: ^Test, prefix: string = "") {
     if !test_ok {
         c.test_fail_count += 1;
         os.seek(fd, 0, os.SEEK_SET);
-        buf, ok := os.read_entire_file_from_handle(fd, context.temp_allocator);
+        buf, ok := os.read_entire_file_from_handle(fd);
+        defer delete(buf);
         assert(ok);
         fmt.print(string(buf));
     }
