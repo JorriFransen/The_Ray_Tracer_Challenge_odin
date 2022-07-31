@@ -28,7 +28,7 @@ odin_test: builddir
 
 custom_test: builddir
 	$(ODIN) build tests -out:build/tests.bin $(ODINFLAGS)
-	build/tests.bin
+	build/tests.bin $(ODINTEST_FLAGS)
 
 
 builddir:

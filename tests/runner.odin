@@ -26,12 +26,38 @@ Test_Context :: struct {
 
     total_test_count, test_fail_count, assert_fail_count: int,
 
-    test_writer : io.Writer,
+    test_writer: io.Writer,
     stdout_writer: io.Writer,
+
+    print_color: bool,
 }
 
-execute_test_suite_s :: proc(s: ^Test_Suite) {
-    c := Test_Context { {}, s, 0, 0, 0, {}, io.to_writer(os.stream_from_handle(os.stdout)) };
+Test_Options :: struct {
+    print_color: bool,
+}
+
+default_test_options :: proc() -> Test_Options {
+    return Test_Options {
+        print_color = true,
+    };
+}
+
+test_context :: proc(s: ^Test_Suite, options: Test_Options) -> Test_Context {
+
+    return Test_Context {
+        t = {},
+        main_suite = s,
+        total_test_count = 0,
+        test_fail_count = 0,
+        assert_fail_count = 0,
+        test_writer = {},
+        stdout_writer = io.to_writer(os.stream_from_handle(os.stdout)),
+        print_color = options.print_color,
+    };
+}
+
+execute_test_suite_s :: proc(s: ^Test_Suite, options: Test_Options) {
+    c := test_context(s, options);
     execute_test_suite(&c, s);
 
     success_count := c.total_test_count - c.test_fail_count;
@@ -84,7 +110,7 @@ execute_test :: proc(c: ^Test_Context, test: ^Test, prefix: string = "") {
         color = .Red;
     }
 
-    print_color(c.stdout_writer, status, color);
+    print_color(c, c.stdout_writer, status, color);
     fmt.printf(" %s%s\t", prefix, test.name);
     fmt.println();
 
@@ -109,8 +135,8 @@ when ODIN_TEST {
         if !condition {
             TEST_fail += 1
             c.assert_fail_count += 1;
-            loc_str := fmt.tprintf("[%v] ", loc);
-            print_color(c.test_writer, loc_str, .Red);
+            loc_str := fmt.tprintf("[%v] error : ", loc);
+            print_color(c, c.test_writer, loc_str, .Red);
             fmt.wprintf(c.test_writer, "%v\n", message);
             return
         }
@@ -118,7 +144,7 @@ when ODIN_TEST {
     log     :: proc(t: ^testing.T, v: any, loc := #caller_location) {
         c := transmute(^Test_Context)t;
         msg := fmt.tprintf("[%v] log: ", loc)
-        print_color(c.test_writer, msg, .Yellow);
+        print_color(c, c.test_writer, msg, .Yellow);
         fmt.wprintf(c.test_writer, "%v\n", v)
     }
 }
@@ -138,8 +164,13 @@ _MyFile :: struct {
     fileno: int,
 }
 
-print_color :: proc(w: io.Writer, s: string, c: Print_Color) {
-    fmt.wprintf(w, "\x1b[3%cm%s\x1b[39m", rune(c), s);
+print_color :: proc(c: ^Test_Context, w: io.Writer, s: string, col: Print_Color) {
+    if c.print_color {
+        fmt.wprintf(w, "\x1b[3%cm%s\x1b[39m", rune(col), s);
+        return;
+    }
+
+    fmt.wprintf(w, "%s", s);
 }
 
 @private
