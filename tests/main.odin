@@ -8,16 +8,18 @@ main_suite := Test_Suite {
     tests = {},
     child_suites = {
         &math_suite,
-        &graphics_suite
+        &graphics_suite,
     },
 }
 
 main :: proc() {
 
-    options, ok := parse_options(os.args[1:]);
-    if !ok do return;
+    options, options_ok := parse_options(os.args[1:]);
+    if !options_ok do return;
 
-    execute_test_suite(&main_suite, options);
+    if !execute_test_suite(&main_suite, options) {
+        os.exit(1);
+    }
 }
 
 parse_options :: proc(args: []string) -> (result: Test_Options, ok: bool) {

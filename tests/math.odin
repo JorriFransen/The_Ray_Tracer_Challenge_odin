@@ -829,7 +829,7 @@ Matrix3_Cofactor :: proc(t: ^testing.T) {
     A :: m.Matrix3 {
         3,  5,  0,
         2, -1, -7,
-        6, -1,  5
+        6, -1,  5,
     };
 
     expect(t, m.matrix_minor(A, 0, 0) == -12);

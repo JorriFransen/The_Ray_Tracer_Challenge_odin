@@ -62,13 +62,13 @@ test_context :: proc(s: ^Test_Suite, options: Test_Options) -> Test_Context {
     };
 }
 
-execute_test_suite_s :: proc(s: ^Test_Suite, options: Test_Options) {
+execute_test_suite_s :: proc(s: ^Test_Suite, options: Test_Options) -> bool {
+
     c := test_context(s, options);
-    execute_test_suite(&c, s);
+    ok := execute_test_suite(&c, s);
 
     success_count := c.total_test_count - c.test_fail_count;
     percentage := f32(success_count) / f32(c.total_test_count) * 100;
-    ok := c.test_fail_count == 0;
     precision := 0 if ok else 2;
     report_color : Print_Color = .Green if ok else .Red;
 
@@ -76,22 +76,30 @@ execute_test_suite_s :: proc(s: ^Test_Suite, options: Test_Options) {
     defer delete(report_msg);
 
     print_color(&c, c.stdout_writer, report_msg, report_color);
+
+    return ok;
 }
 
-execute_test_suite_csp :: proc(c: ^Test_Context, s: ^Test_Suite, prefix: string = "") {
+execute_test_suite_csp :: proc(c: ^Test_Context, s: ^Test_Suite, prefix: string = "") -> bool {
 
     c.total_test_count += len(s.tests);
 
     current_prefix := strings.concatenate({prefix, s.name});
     defer delete(current_prefix);
 
+    tests_ok := true;
+
     for _,i in s.tests {
-        execute_test(c, &s.tests[i], current_prefix);
+        if !execute_test(c, &s.tests[i], current_prefix) do tests_ok = false;
     }
 
+    suites_ok := true;
+
     for child in s.child_suites {
-        execute_test_suite(c, child, current_prefix);
+        if !execute_test_suite(c, child, current_prefix) do suites_ok = false;
     }
+
+    return tests_ok && suites_ok;
 }
 
 execute_test_suite :: proc {
@@ -99,7 +107,7 @@ execute_test_suite :: proc {
     execute_test_suite_csp,
 }
 
-execute_test :: proc(c: ^Test_Context, test: ^Test, prefix: string = "") {
+execute_test :: proc(c: ^Test_Context, test: ^Test, prefix: string = "") -> bool {
 
     fd := tmpfile();
     defer os.close(fd);
@@ -139,6 +147,8 @@ execute_test :: proc(c: ^Test_Context, test: ^Test, prefix: string = "") {
         assert(ok);
         fmt.print(string(buf));
     }
+
+    return test_ok;
 }
 
 when ODIN_TEST {
