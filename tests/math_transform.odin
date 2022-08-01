@@ -26,7 +26,6 @@ P_Mul_Translation :: proc(t: ^testing.T) {
 
     expect(t, result1 == expected);
     expect(t, result2 == expected);
-
 }
 
 @test
