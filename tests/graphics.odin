@@ -4,8 +4,8 @@ import "core:fmt"
 import "core:testing"
 import "core:strings"
 
-import g "../src/graphics"
-import m "../src/rtmath"
+import g "raytracer:graphics"
+import rm "raytracer:math"
 
 graphics_suite := Test_Suite {
     name = "GFX/",
@@ -61,11 +61,11 @@ C_Layout_Matches_Tuple :: proc(t: ^testing.T) {
 
     c := g.color(-0.5, 0.4, 1.7);
 
-    expected := m.tuple(-0.5, 0.4, 1.7, 0.0);
+    expected := rm.tuple(-0.5, 0.4, 1.7, 0.0);
 
-    expect(t, transmute(m.Tuple)c == expected);
+    expect(t, transmute(rm.Tuple)c == expected);
     expect(t, c == transmute(g.Color)expected);
-    expect(t, m.tuple(c.r, c.g, c.b, 0.0) == expected);
+    expect(t, rm.tuple(c.r, c.g, c.b, 0.0) == expected);
 }
 
 @test

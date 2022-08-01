@@ -3,9 +3,9 @@ package tests
 import "core:fmt"
 import "core:testing"
 import "core:intrinsics"
-import cm "core:math"
 
-import m "../src/rtmath"
+import cm "core:math"
+import rm "raytracer:math"
 
 math_suite := Test_Suite {
     name = "Math/",
@@ -86,253 +86,253 @@ matrix_suite := Test_Suite {
 @test
 T_Is_Point :: proc(t: ^testing.T) {
 
-    a := m.tuple(4.3, -4.2, 3.1, 1.0);
+    a := rm.tuple(4.3, -4.2, 3.1, 1.0);
 
     expect(t, a.x == 4.3);
     expect(t, a.y == -4.2);
     expect(t, a.z == 3.1);
     expect(t, a.w == 1.0);
 
-    expect(t, m.is_point(a));
-    expect(t, !m.is_vector(a));
+    expect(t, rm.is_point(a));
+    expect(t, !rm.is_vector(a));
 }
 
 @test
 T_Is_Vector :: proc(t: ^testing.T) {
 
-    a := m.tuple(4.3, -4.2, 3.1, 0.0);
+    a := rm.tuple(4.3, -4.2, 3.1, 0.0);
 
     expect(t, a.x == 4.3);
     expect(t, a.y == -4.2);
     expect(t, a.z == 3.1);
     expect(t, a.w == 0.0);
 
-    expect(t, m.is_vector(a));
-    expect(t, !m.is_point(a));
+    expect(t, rm.is_vector(a));
+    expect(t, !rm.is_point(a));
 }
 
 @test
 P_Constructor :: proc(t: ^testing.T) {
 
-    p := m.point(4, -4, 3);
+    p := rm.point(4, -4, 3);
 
-    expected := m.tuple(4, -4, 3, 1);
+    expected := rm.tuple(4, -4, 3, 1);
 
-    expect(t, m.is_point(p));
-    expect(t, transmute(m.Tuple)p == expected);
-    expect(t, p == transmute(m.Point)expected);
-    expect(t, m.eq(p, expected));
+    expect(t, rm.is_point(p));
+    expect(t, transmute(rm.Tuple)p == expected);
+    expect(t, p == transmute(rm.Point)expected);
+    expect(t, rm.eq(p, expected));
 }
 
 @test
 V_Constructor :: proc(t: ^testing.T) {
 
-    v := m.vector(4, -4, 3);
+    v := rm.vector(4, -4, 3);
 
-    expected := m.tuple(4, -4, 3, 0);
+    expected := rm.tuple(4, -4, 3, 0);
 
-    expect(t, m.is_vector(v));
-    expect(t, transmute(m.Tuple)v == expected);
-    expect(t, v == transmute(m.Vector)expected);
-    expect(t, m.eq(v, expected));
+    expect(t, rm.is_vector(v));
+    expect(t, transmute(rm.Tuple)v == expected);
+    expect(t, v == transmute(rm.Vector)expected);
+    expect(t, rm.eq(v, expected));
 }
 
 @test
 T_Add :: proc(t: ^testing.T) {
 
-    a1 := m.tuple(3, -2, 5, 1);
-    a2 := m.tuple(-2, 3, 1, 0);
+    a1 := rm.tuple(3, -2, 5, 1);
+    a2 := rm.tuple(-2, 3, 1, 0);
 
-    expected := m.tuple(1, 1, 6, 1);
+    expected := rm.tuple(1, 1, 6, 1);
     result1 := a1 + a2;
-    result2 := m.add(a1, a2);
+    result2 := rm.add(a1, a2);
 
     expect(t, result1 == expected);
-    expect(t, m.eq(result1, expected));
+    expect(t, rm.eq(result1, expected));
     expect(t, result2 == expected);
-    expect(t, m.eq(result2, expected));
+    expect(t, rm.eq(result2, expected));
 }
 
 @test
 P_Add_Vector :: proc(t: ^testing.T) {
 
-    p := m.point(3, -2, 5);
-    v := m.vector(-2, 3, 1);
+    p := rm.point(3, -2, 5);
+    v := rm.vector(-2, 3, 1);
 
-    expected := m.point(1, 1, 6);
-    result : m.Point = m.add(p, v);
+    expected := rm.point(1, 1, 6);
+    result : rm.Point = rm.add(p, v);
 
-    expect(t, m.is_point(result));
+    expect(t, rm.is_point(result));
     expect(t, result == expected);
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 V_Add_Point :: proc(t: ^testing.T) {
 
-    v := m.vector(3, -2, 5);
-    p := m.point(-2, 3, 1);
+    v := rm.vector(3, -2, 5);
+    p := rm.point(-2, 3, 1);
 
-    expected := m.point(1, 1, 6);
-    result : m.Point = m.add(v, p);
+    expected := rm.point(1, 1, 6);
+    result : rm.Point = rm.add(v, p);
 
-    expect(t, m.is_point(result));
+    expect(t, rm.is_point(result));
     expect(t, result == expected);
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 V_Add :: proc(t: ^testing.T) {
 
-    v1 := m.vector(3, -2, 5);
-    v2 := m.vector(-2, 3, 1);
+    v1 := rm.vector(3, -2, 5);
+    v2 := rm.vector(-2, 3, 1);
 
-    expected := m.vector(1, 1, 6);
-    result : m.Vector = m.add(v1, v2);
+    expected := rm.vector(1, 1, 6);
+    result : rm.Vector = rm.add(v1, v2);
 
-    expect(t, m.is_vector(result));
+    expect(t, rm.is_vector(result));
     expect(t, result == expected);
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 T_Sub :: proc(t: ^testing.T) {
 
-    a := m.tuple(3, 2, 1, 1);
-    b := m.tuple(5, 6, 7, 1);
+    a := rm.tuple(3, 2, 1, 1);
+    b := rm.tuple(5, 6, 7, 1);
 
-    expected := m.tuple(-2, -4, -6, 0);
-    result := m.sub(a, b);
+    expected := rm.tuple(-2, -4, -6, 0);
+    result := rm.sub(a, b);
 
-    expect(t, m.is_vector(result));
+    expect(t, rm.is_vector(result));
     expect(t, result == expected);
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 P_Sub :: proc(t: ^testing.T) {
 
-    a := m.point(3, 2, 1);
-    b := m.point(5, 6, 7);
+    a := rm.point(3, 2, 1);
+    b := rm.point(5, 6, 7);
 
-    expected := m.vector(-2, -4, -6);
-    result : m.Vector = m.sub(a, b);
+    expected := rm.vector(-2, -4, -6);
+    result : rm.Vector = rm.sub(a, b);
 
-    expect(t, m.is_vector(result));
+    expect(t, rm.is_vector(result));
     expect(t, result == expected);
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 P_Sub_Vector :: proc(t: ^testing.T) {
 
-    p := m.point(3, 2, 1);
-    v := m.vector(5, 6, 7);
+    p := rm.point(3, 2, 1);
+    v := rm.vector(5, 6, 7);
 
-    expected := m.point(-2, -4, -6);
-    result : m.Point = m.sub(p, v);
+    expected := rm.point(-2, -4, -6);
+    result : rm.Point = rm.sub(p, v);
 
-    expect(t, m.is_point(result));
+    expect(t, rm.is_point(result));
     expect(t, result == expected);
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 V_Sub :: proc(t: ^testing.T) {
 
-    v1 := m.vector(3, 2, 1);
-    v2 := m.vector(5, 6, 7);
+    v1 := rm.vector(3, 2, 1);
+    v2 := rm.vector(5, 6, 7);
 
-    expected := m.vector(-2, -4, -6);
-    result : m.Vector = m.sub(v1, v2);
+    expected := rm.vector(-2, -4, -6);
+    result : rm.Vector = rm.sub(v1, v2);
 
-    expect(t, m.is_vector(result));
+    expect(t, rm.is_vector(result));
     expect(t, result == expected);
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 
 @test
 V_Sub_From_Zero :: proc(t: ^testing.T) {
 
-    zero := m.vector(0, 0, 0);
-    v := m.vector(1, -2, 3);
+    zero := rm.vector(0, 0, 0);
+    v := rm.vector(1, -2, 3);
 
-    expected := m.vector(-1, 2, -3);
-    result : m.Vector = m.sub(zero, v);
+    expected := rm.vector(-1, 2, -3);
+    result : rm.Vector = rm.sub(zero, v);
 
-    expect(t, m.is_vector(result));
+    expect(t, rm.is_vector(result));
     expect(t, result == expected);
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 T_Negate :: proc(t: ^testing.T) {
 
-    a := m.tuple(1, -2, 3, -4);
+    a := rm.tuple(1, -2, 3, -4);
 
-    expected := m.tuple(-1, 2, -3, 4);
-    result := m.negate(a);
+    expected := rm.tuple(-1, 2, -3, 4);
+    result := rm.negate(a);
 
     expect(t, result == expected);
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 V_Negate :: proc(t: ^testing.T) {
 
-    v := m.vector(1, -2, 3);
+    v := rm.vector(1, -2, 3);
 
-    expected := m.vector(-1, 2, -3);
-    result : m.Vector = m.negate(v);
+    expected := rm.vector(-1, 2, -3);
+    result : rm.Vector = rm.negate(v);
 
-    expect(t, m.is_vector(result));
-    expect(t, m.eq(result, expected));
+    expect(t, rm.is_vector(result));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 T_Mul_Scalar :: proc(t: ^testing.T) {
 
-    a := m.tuple(1, -2, 3, -4);
+    a := rm.tuple(1, -2, 3, -4);
 
-    expected := m.tuple(3.5, -7, 10.5, -14);
-    result := m.mul(a, 3.5);
+    expected := rm.tuple(3.5, -7, 10.5, -14);
+    result := rm.mul(a, 3.5);
 
     expect(t, result == expected);
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 T_Mul_Fraction :: proc(t: ^testing.T) {
 
-    a := m.tuple(1, -2, 3, -4);
+    a := rm.tuple(1, -2, 3, -4);
 
-    expected := m.tuple(0.5, -1, 1.5, -2);
-    result := m.mul(a, 0.5);
+    expected := rm.tuple(0.5, -1, 1.5, -2);
+    result := rm.mul(a, 0.5);
 
     expect(t, result == expected);
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 T_Div_Scalar :: proc(t: ^testing.T) {
 
-    a := m.tuple(1, -2, 3, -4);
+    a := rm.tuple(1, -2, 3, -4);
 
-    expected := m.tuple(0.5, -1, 1.5, -2);
-    result := m.div(a, 2);
+    expected := rm.tuple(0.5, -1, 1.5, -2);
+    result := rm.div(a, 2);
 
     expect(t, result == expected);
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 V_Magnitude_X1 :: proc(t: ^testing.T) {
 
-    v := m.vector(1, 0, 0);
+    v := rm.vector(1, 0, 0);
 
     expected :: 1.0;
-    result := m.magnitude(v);
+    result := rm.magnitude(v);
 
     expect(t, result == expected);
 }
@@ -340,10 +340,10 @@ V_Magnitude_X1 :: proc(t: ^testing.T) {
 @test
 V_Magnitude_Y1 :: proc(t: ^testing.T) {
 
-    v := m.vector(0, 1, 0);
+    v := rm.vector(0, 1, 0);
 
     expected :: 1.0;
-    result := m.magnitude(v);
+    result := rm.magnitude(v);
 
     expect(t, result == expected);
 }
@@ -351,10 +351,10 @@ V_Magnitude_Y1 :: proc(t: ^testing.T) {
 @test
 V_Magnitude_Z1 :: proc(t: ^testing.T) {
 
-    v := m.vector(0, 0, 1);
+    v := rm.vector(0, 0, 1);
 
     expected :: 1.0;
-    result := m.magnitude(v);
+    result := rm.magnitude(v);
 
     expect(t, result == expected);
 }
@@ -362,10 +362,10 @@ V_Magnitude_Z1 :: proc(t: ^testing.T) {
 @test
 V_Magnitude_X1_Y2_Z3 :: proc(t: ^testing.T) {
 
-    v := m.vector(1, 2, 3);
+    v := rm.vector(1, 2, 3);
 
-    expected := cm.sqrt(intrinsics.type_field_type(m.Vector, "x")(14));
-    result := m.magnitude(v);
+    expected := cm.sqrt(intrinsics.type_field_type(rm.Vector, "x")(14));
+    result := rm.magnitude(v);
 
     expect(t, result == expected);
 }
@@ -373,10 +373,10 @@ V_Magnitude_X1_Y2_Z3 :: proc(t: ^testing.T) {
 @test
 V_Magnitude_X1_Y2_Z3_Neg :: proc(t: ^testing.T) {
 
-    v := m.vector(-1, -2, -3);
+    v := rm.vector(-1, -2, -3);
 
-    expected := cm.sqrt(intrinsics.type_field_type(m.Vector, "x")(14));
-    result := m.magnitude(v);
+    expected := cm.sqrt(intrinsics.type_field_type(rm.Vector, "x")(14));
+    result := rm.magnitude(v);
 
     expect(t, result == expected);
 }
@@ -384,37 +384,37 @@ V_Magnitude_X1_Y2_Z3_Neg :: proc(t: ^testing.T) {
 @test
 V_Normalize_X4 :: proc(t: ^testing.T) {
 
-    v := m.vector(4, 0, 0);
+    v := rm.vector(4, 0, 0);
 
-    expected := m.vector(1, 0, 0);
-    result := m.normalize(v);
+    expected := rm.vector(1, 0, 0);
+    result := rm.normalize(v);
 
     expect(t, result == expected);
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 V_Normalize_X1_Y2_Z3 :: proc(t: ^testing.T) {
 
-    v := m.vector(1, 2, 3);
+    v := rm.vector(1, 2, 3);
 
     // 1*1 + 2*2 + 3*3 = 14
-    /*expected := m.vector(1 / cm.sqrt(f32(14)), 2 / cm.sqrt(f32(14)), 3 / cm.sqrt(f32(14)));*/
-    expected := m.vector(0.267271, 0.53452, 0.80178);
-    result := m.normalize(v);
+    /*expected := rm.vector(1 / crm.sqrt(f32(14)), 2 / crm.sqrt(f32(14)), 3 / crm.sqrt(f32(14)));*/
+    expected := rm.vector(0.267271, 0.53452, 0.80178);
+    result := rm.normalize(v);
 
     /*expect(t, result == expected);*/
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 V_Dot :: proc(t: ^testing.T) {
 
-    a := m.vector(1, 2, 3);
-    b := m.vector(2, 3, 4);
+    a := rm.vector(1, 2, 3);
+    b := rm.vector(2, 3, 4);
 
     expected :: 20.0;
-    result := m.dot(a, b);
+    result := rm.dot(a, b);
 
     expect(t, result == expected);
 }
@@ -422,28 +422,28 @@ V_Dot :: proc(t: ^testing.T) {
 @test
 V_Cross :: proc(t: ^testing.T) {
 
-    a := m.vector(1, 2, 3);
-    b := m.vector(2, 3, 4);
+    a := rm.vector(1, 2, 3);
+    b := rm.vector(2, 3, 4);
 
-    expected_ab := m.vector(-1, 2, -1);
-    expected_ba := m.vector(1, -2, 1);
+    expected_ab := rm.vector(-1, 2, -1);
+    expected_ba := rm.vector(1, -2, 1);
 
-    result_ab := m.cross(a, b);
-    result_ba := m.cross(b, a);
+    result_ab := rm.cross(a, b);
+    result_ba := rm.cross(b, a);
 
-    expect(t, m.is_vector(result_ab));
-    expect(t, m.is_vector(result_ba));
+    expect(t, rm.is_vector(result_ab));
+    expect(t, rm.is_vector(result_ba));
 
     expect(t, result_ab == expected_ab);
-    expect(t, m.eq(result_ab, expected_ab));
+    expect(t, rm.eq(result_ab, expected_ab));
     expect(t, result_ba == expected_ba);
-    expect(t, m.eq(result_ba, expected_ba));
+    expect(t, rm.eq(result_ba, expected_ba));
 }
 
 @test
 M4_Construction :: proc(t: ^testing.T) {
 
-    M :: m.Matrix4 { 1,    2,    3,    4,
+    M :: rm.Matrix4 { 1,    2,    3,    4,
                      5.5,  6.5,  7.5,  8.5,
                      9,    10,   11,   12,
                      13.5, 14.5, 15.5, 16.5 };
@@ -456,7 +456,7 @@ M4_Construction :: proc(t: ^testing.T) {
     expect(t, M[3, 0] == 13.5);
     expect(t, M[3, 2] == 15.5);
 
-    M2 := m.matrix4(1,    2,    3,    4,
+    M2 := rm.matrix4(1,    2,    3,    4,
                     5.5,  6.5,  7.5,  8.5,
                     9,    10,   11,   12,
                     13.5, 14.5, 15.5, 16.5);
@@ -473,7 +473,7 @@ M4_Construction :: proc(t: ^testing.T) {
 @test
 M3_Construction :: proc(t: ^testing.T) {
 
-    M :: m.Matrix3 { -3,  5,  0,
+    M :: rm.Matrix3 { -3,  5,  0,
                       1, -2, -7,
                       0,  1,  1 };
 
@@ -481,7 +481,7 @@ M3_Construction :: proc(t: ^testing.T) {
     expect(t, M[1, 1] == -2);
     expect(t, M[2, 2] == 1);
 
-    M2 := m.matrix3(-3,  5,  0,
+    M2 := rm.matrix3(-3,  5,  0,
                      1, -2, -7,
                      0,  1,  1);
 
@@ -493,7 +493,7 @@ M3_Construction :: proc(t: ^testing.T) {
 @test
 M2_Construction :: proc(t: ^testing.T) {
 
-    M :: m.Matrix2 { -3,  5,
+    M :: rm.Matrix2 { -3,  5,
                       1, -2 };
 
     expect(t, M[0, 0] == -3);
@@ -501,7 +501,7 @@ M2_Construction :: proc(t: ^testing.T) {
     expect(t, M[1, 0] == 1);
     expect(t, M[1, 1] == -2);
 
-    M2 := m.matrix2(-3,  5,
+    M2 := rm.matrix2(-3,  5,
                      1, -2);
 
     expect(t, M2[0, 0] == -3);
@@ -513,220 +513,220 @@ M2_Construction :: proc(t: ^testing.T) {
 @test
 M4_Equality :: proc(t: ^testing.T) {
 
-    A :: m.Matrix4 { 1, 2, 3, 4,
+    A :: rm.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
                      9, 8, 7, 6,
                      5, 4, 3, 2 };
 
-    B :: m.Matrix4 { 1, 2, 3, 4,
+    B :: rm.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
                      9, 8, 7, 6,
                      5, 4, 3, 2 };
 
     expect(t, A == B);
-    expect(t, m.eq(A, B));
+    expect(t, rm.eq(A, B));
 }
 
 @test
 M4_Inequality :: proc(t: ^testing.T) {
 
-    A :: m.Matrix4 { 1, 2, 3, 4,
+    A :: rm.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
                      9, 8, 7, 6,
                      5, 4, 3, 2 };
 
-    B :: m.Matrix4 { 2, 3, 4, 5,
+    B :: rm.Matrix4 { 2, 3, 4, 5,
                      6, 7, 8, 9,
                      8, 7, 6, 5,
                      4, 3, 2, 1 };
 
     expect(t, A != B);
-    expect(t, !m.eq(A, B));
+    expect(t, !rm.eq(A, B));
 }
 
 @test
 M3_Equality :: proc(t: ^testing.T) {
 
-    A :: m.Matrix3 { 1, 2, 3,
+    A :: rm.Matrix3 { 1, 2, 3,
                      5, 6, 7,
                      9, 8, 7 };
 
-    B :: m.Matrix3 { 1, 2, 3,
+    B :: rm.Matrix3 { 1, 2, 3,
                      5, 6, 7,
                      9, 8, 7 };
 
     expect(t, A == B);
-    expect(t, m.eq(A, B));
+    expect(t, rm.eq(A, B));
 }
 
 @test
 M3_Inequality :: proc(t: ^testing.T) {
 
-    A :: m.Matrix3 { 1, 2, 3,
+    A :: rm.Matrix3 { 1, 2, 3,
                      5, 6, 7,
                      9, 8, 7 };
 
-    B :: m.Matrix3 { 2, 3, 4,
+    B :: rm.Matrix3 { 2, 3, 4,
                      6, 7, 8,
                      8, 7, 6 };
 
     expect(t, A != B);
-    expect(t, !m.eq(A, B));
+    expect(t, !rm.eq(A, B));
 }
 
 @test
 M2_Equality :: proc(t: ^testing.T) {
 
-    A :: m.Matrix2 { 1, 2,
+    A :: rm.Matrix2 { 1, 2,
                      5, 6 };
 
-    B :: m.Matrix2 { 1, 2,
+    B :: rm.Matrix2 { 1, 2,
                      5, 6 };
 
     expect(t, A == B);
-    expect(t, m.eq(A, B));
+    expect(t, rm.eq(A, B));
 }
 
 @test
 M2_Inequality :: proc(t: ^testing.T) {
 
-    A :: m.Matrix2 { 1, 2,
+    A :: rm.Matrix2 { 1, 2,
                      5, 6 };
 
-    B :: m.Matrix2 { 2, 3,
+    B :: rm.Matrix2 { 2, 3,
                      6, 7 };
 
     expect(t, A != B);
-    expect(t, !m.eq(A, B));
+    expect(t, !rm.eq(A, B));
 }
 
 @test
 M4_Multiply :: proc(t: ^testing.T) {
 
-    A :: m.Matrix4 { 1, 2, 3, 4,
+    A :: rm.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
                      9, 8, 7, 6,
                      5, 4, 3, 2 };
 
-    B :: m.Matrix4 { -2, 1, 2,  3,
+    B :: rm.Matrix4 { -2, 1, 2,  3,
                       3, 2, 1, -1,
                       4, 3, 6,  5,
                       1, 2, 7,  8 };
 
-    expected :: m.Matrix4 { 20, 22,  50,  48,
+    expected :: rm.Matrix4 { 20, 22,  50,  48,
                             44, 54, 114, 108,
                             40, 58, 110, 102,
                             16, 26,  46,  42 };
 
     result1 := A * B;
 
-    result2 := m.mul(A, B);
+    result2 := rm.mul(A, B);
 
     expect(t, result1 == expected);
-    expect(t, m.eq(result1, expected));
+    expect(t, rm.eq(result1, expected));
 
     expect(t, result2 == expected);
-    expect(t, m.eq(result2, expected));
+    expect(t, rm.eq(result2, expected));
 }
 
 @test
 M4_Multiply_Tuple :: proc(t: ^testing.T) {
 
-    A :: m.Matrix4 { 1, 2, 3, 4,
+    A :: rm.Matrix4 { 1, 2, 3, 4,
                      2, 4, 4, 2,
                      8, 6, 4, 1,
                      0, 0, 0, 1 };
 
-    b :: m.Tuple { 1, 2, 3, 1 };
+    b :: rm.Tuple { 1, 2, 3, 1 };
 
-    expected :: m.Tuple { 18, 24, 33, 1 };
+    expected :: rm.Tuple { 18, 24, 33, 1 };
 
     result1 := A * b;
-    result2 := m.mul(A, b);
+    result2 := rm.mul(A, b);
 
     expect(t, result1 == expected);
-    expect(t, m.eq(result1, expected));
+    expect(t, rm.eq(result1, expected));
 
     expect(t, result2 == expected);
-    expect(t, m.eq(result2, expected));
+    expect(t, rm.eq(result2, expected));
 
 }
 
 @test
 M4_Multiply_Identity :: proc(t: ^testing.T) {
 
-    A :: m.Matrix4 {
+    A :: rm.Matrix4 {
         0, 1,  2,  4,
         1, 2,  4,  8,
         2, 4,  8, 16,
         4, 8, 16, 32,
     };
 
-    result1 := A * m.matrix4_identity;
-    result2 := m.mul(A, m.matrix4_identity);
+    result1 := A * rm.matrix4_identity;
+    result2 := rm.mul(A, rm.matrix4_identity);
 
     expect(t, result1 == A);
-    expect(t, m.eq(result1, A));
+    expect(t, rm.eq(result1, A));
 
     expect(t, result2 == A);
-    expect(t, m.eq(result2, A));
+    expect(t, rm.eq(result2, A));
 }
 
 @test
 M4_Multiply_Identity_Tuple :: proc(t: ^testing.T) {
 
-    a := m.Tuple { 1, 2, 3, 4 };
+    a := rm.Tuple { 1, 2, 3, 4 };
 
-    result1 := m.matrix4_identity * a;
-    result2 := m.mul(m.matrix4_identity, a);
+    result1 := rm.matrix4_identity * a;
+    result2 := rm.mul(rm.matrix4_identity, a);
 
     expect(t, result1 == a);
-    expect(t, m.eq(result1, a));
+    expect(t, rm.eq(result1, a));
 
     expect(t, result2 == a);
-    expect(t, m.eq(result2, a));
+    expect(t, rm.eq(result2, a));
 }
 
 @test
 M4_Transpose :: proc(t: ^testing.T) {
 
-    A :: m.Matrix4 {
+    A :: rm.Matrix4 {
         0, 9, 3, 0,
         9, 8, 0, 8,
         1, 8, 5, 3,
         0, 0, 5, 8,
     };
 
-    expected :: m.Matrix4 {
+    expected :: rm.Matrix4 {
         0, 9, 1, 0,
         9, 8, 8, 0,
         3, 0, 5, 5,
         0, 8, 3, 8,
     };
 
-    result1 := m.Matrix4(transpose(A));
-    result2 := m.matrix_transpose(A);
+    result1 := rm.Matrix4(transpose(A));
+    result2 := rm.matrix_transpose(A);
 
     expect(t, result1 == expected);
-    expect(t, m.eq(result1, expected));
+    expect(t, rm.eq(result1, expected));
 
     expect(t, result2 == expected);
-    expect(t, m.eq(result2, expected));
+    expect(t, rm.eq(result2, expected));
 }
 
 @test
 M4_Transpose_Identity :: proc(t: ^testing.T) {
 
-    A := m.matrix_transpose(m.matrix4_identity);
+    A := rm.matrix_transpose(rm.matrix4_identity);
 
-    expect(t, A == m.matrix4_identity);
-    expect(t, m.eq(A, m.matrix4_identity));
+    expect(t, A == rm.matrix4_identity);
+    expect(t, rm.eq(A, rm.matrix4_identity));
 }
 
 @test
 M2_Determinant :: proc(t: ^testing.T) {
 
-    A :: m.Matrix2 {
+    A :: rm.Matrix2 {
          1, 5,
         -3, 2,
     };
@@ -734,81 +734,81 @@ M2_Determinant :: proc(t: ^testing.T) {
     expected :: 17;
 
     result1 := determinant(A);
-    result2 := m.matrix_determinant(A);
+    result2 := rm.matrix_determinant(A);
 
     expect(t, result1 == expected);
-    expect(t, m.eq(result1, expected));
+    expect(t, rm.eq(result1, expected));
 
     expect(t, result2 == expected);
-    expect(t, m.eq(result2, expected));
+    expect(t, rm.eq(result2, expected));
 }
 
 
 @test
 M3_Submatrix :: proc(t: ^testing.T) {
 
-    A :: m.Matrix3 {
+    A :: rm.Matrix3 {
          1, 5, 0,
         -3, 2, 7,
          0, 6, 3,
     };
 
-    expected1 :: m.Matrix2 {
+    expected1 :: rm.Matrix2 {
         -3, 2,
          0, 6,
     };
 
-    expected2 :: m.Matrix2 {
+    expected2 :: rm.Matrix2 {
          1, 5,
         -3, 2,
     };
 
-    result1 := m.matrix_submatrix(A, 0, 2);
-    result2 := m.matrix_submatrix(A, 2, 2);
+    result1 := rm.matrix_submatrix(A, 0, 2);
+    result2 := rm.matrix_submatrix(A, 2, 2);
 
     expect(t, result1 == expected1);
-    expect(t, m.eq(result1, expected1));
+    expect(t, rm.eq(result1, expected1));
 
     expect(t, result2 == expected2);
-    expect(t, m.eq(result2, expected2));
+    expect(t, rm.eq(result2, expected2));
 }
 
 @test
 M4_Submatrix :: proc(t: ^testing.T) {
 
-    A :: m.Matrix4 {
+    A :: rm.Matrix4 {
         -6, 1,  1, 6,
         -8, 5,  8, 6,
         -1, 0,  8, 2,
         -7, 1, -1, 1,
     };
 
-    expected1 :: m.Matrix3 {
+    expected1 :: rm.Matrix3 {
         -6,  1, 6,
         -8,  8, 6,
         -7, -1, 1,
     };
 
-    expected2 :: m.Matrix3 {
+    expected2 :: rm.Matrix3 {
         -6, 1, 1,
         -8, 5, 8,
         -1, 0, 8,
     };
 
-    result1 := m.matrix_submatrix(A, 2, 1);
-    result2 := m.matrix_submatrix(A, 3, 3);
+    result1 := rm.matrix_submatrix(A, 2, 1);
+    result2 := rm.matrix_submatrix(A, 3, 3);
 
     expect(t, result1 == expected1);
-    expect(t, m.eq(result1, expected1));
+    expect(t, rm.eq(result1, expected1));
 
     expect(t, result2 == expected2);
-    expect(t, m.eq(result2, expected2));
+    expect(t, rm.eq(result2, expected2));
 }
 
 @test
 M3_Minor :: proc(t: ^testing.T) {
 
-    A :: m.Matrix3 {
+    A :: rm.Matrix3 {
         3,  5,  0,
         2, -1, -7,
         6, -1,  5,
@@ -816,16 +816,16 @@ M3_Minor :: proc(t: ^testing.T) {
 
     row, col :: 1, 0;
 
-    B := m.matrix_submatrix(A, row, col);
+    B := rm.matrix_submatrix(A, row, col);
 
-    expected_determinant : m.Matrix_Element_Type : 25;
-    result_determinant := m.matrix_determinant(B);
+    expected_determinant : rm.Matrix_Element_Type : 25;
+    result_determinant := rm.matrix_determinant(B);
 
     expect(t, result_determinant == expected_determinant);
 
 
     expected_minor :: 25;
-    result_minor := m.matrix_minor(A, row, col);
+    result_minor := rm.matrix_minor(A, row, col);
 
     expect(t, expected_minor == result_minor);
 
@@ -834,178 +834,178 @@ M3_Minor :: proc(t: ^testing.T) {
 @test
 M3_Cofactor :: proc(t: ^testing.T) {
 
-    A :: m.Matrix3 {
+    A :: rm.Matrix3 {
         3,  5,  0,
         2, -1, -7,
         6, -1,  5,
     };
 
-    expect(t, m.matrix_minor(A, 0, 0) == -12);
-    expect(t, m.matrix_cofactor(A, 0, 0) == -12);
-    expect(t, m.matrix_minor(A, 1, 0) == 25);
-    expect(t, m.matrix_cofactor(A, 1, 0) == -25);
+    expect(t, rm.matrix_minor(A, 0, 0) == -12);
+    expect(t, rm.matrix_cofactor(A, 0, 0) == -12);
+    expect(t, rm.matrix_minor(A, 1, 0) == 25);
+    expect(t, rm.matrix_cofactor(A, 1, 0) == -25);
 }
 
 @test
 M3_Determinant :: proc(t: ^testing.T) {
 
-    A :: m.Matrix3 {
+    A :: rm.Matrix3 {
          1, 2,  6,
         -5, 8, -4,
          2, 6,  4,
     };
 
-    expect(t, m.matrix_cofactor(A, 0, 0) == 56);
-    expect(t, m.matrix_cofactor(A, 0, 1) == 12);
-    expect(t, m.matrix_cofactor(A, 0, 2) == -46);
-    expect(t, m.matrix_determinant(A) == -196);
+    expect(t, rm.matrix_cofactor(A, 0, 0) == 56);
+    expect(t, rm.matrix_cofactor(A, 0, 1) == 12);
+    expect(t, rm.matrix_cofactor(A, 0, 2) == -46);
+    expect(t, rm.matrix_determinant(A) == -196);
 
 }
 
 @test
 M4_Determinant :: proc(t: ^testing.T) {
 
-     A :: m.Matrix4 {
+     A :: rm.Matrix4 {
          -2, -8,  3,  5,
          -3,  1,  7,  3,
           1,  2, -9,  6,
          -6,  7,  7, -9,
      };
 
-     expect(t, m.matrix_cofactor(A, 0, 0) == 690);
-     expect(t, m.matrix_cofactor(A, 0, 1) == 447);
-     expect(t, m.matrix_cofactor(A, 0, 2) == 210);
-     expect(t, m.matrix_cofactor(A, 0, 3) == 51);
+     expect(t, rm.matrix_cofactor(A, 0, 0) == 690);
+     expect(t, rm.matrix_cofactor(A, 0, 1) == 447);
+     expect(t, rm.matrix_cofactor(A, 0, 2) == 210);
+     expect(t, rm.matrix_cofactor(A, 0, 3) == 51);
 
-     expect(t, m.matrix_determinant(A) == -4071);
+     expect(t, rm.matrix_determinant(A) == -4071);
 }
 
 @test
 M4_Invertible :: proc(t: ^testing.T) {
 
-    A :: m.Matrix4 {
+    A :: rm.Matrix4 {
         6,  4, 4,  4,
         5,  5, 7,  6,
         4, -9, 3, -7,
         9,  1, 7, -6,
     };
 
-    expect(t, m.matrix_determinant(A) == -2120);
-    expect(t, m.matrix_is_invertible(A));
+    expect(t, rm.matrix_determinant(A) == -2120);
+    expect(t, rm.matrix_is_invertible(A));
 }
 
 @test
 M4_Non_Invertible :: proc(t: ^testing.T) {
 
-    A :: m.Matrix4 {
+    A :: rm.Matrix4 {
         -4,  2, -2, -3,
          9,  6,  2,  6,
          0, -5,  1, -5,
          0,  0,  0,  0,
     };
 
-    expect(t, m.matrix_determinant(A) == 0);
-    expect(t, m.matrix_is_invertible(A) == false);
+    expect(t, rm.matrix_determinant(A) == 0);
+    expect(t, rm.matrix_is_invertible(A) == false);
 }
 
 @test
 M4_Inverse1 :: proc(t: ^testing.T) {
 
-    A :: m.Matrix4 {
+    A :: rm.Matrix4 {
         -5,  2,  6, -8,
          1, -5,  1,  8,
          7,  7, -6, -7,
          1, -3,  7,  4,
     };
 
-    expected_b :: m.Matrix4 {
+    expected_b :: rm.Matrix4 {
          0.21805,  0.45113,  0.24060, -0.04511,
         -0.80827, -1.45677, -0.44361,  0.52068,
         -0.07895, -0.22368, -0.05263,  0.19737,
         -0.52256, -0.81391, -0.30075,  0.30639,
     };
 
-    B := m.matrix_inverse(A);
+    B := rm.matrix_inverse(A);
 
-    expect(t, m.matrix_determinant(A) == 532.0);
+    expect(t, rm.matrix_determinant(A) == 532.0);
 
-    expect(t, m.matrix_cofactor(A, 0, 1) == -430.0);
-    expect(t, m.matrix_cofactor(A, 1, 0) == 240.0);
-    expect(t, m.matrix_cofactor(A, 2, 3) == -160.0);
+    expect(t, rm.matrix_cofactor(A, 0, 1) == -430.0);
+    expect(t, rm.matrix_cofactor(A, 1, 0) == 240.0);
+    expect(t, rm.matrix_cofactor(A, 2, 3) == -160.0);
 
-    expect(t, m.eq(B[3, 2], -160.0/532.0));
+    expect(t, rm.eq(B[3, 2], -160.0/532.0));
 
-    expect(t, m.matrix_cofactor(A, 3, 2) == 105.0);
-    expect(t, m.eq(B[2, 3], 105.0/532.0));
+    expect(t, rm.matrix_cofactor(A, 3, 2) == 105.0);
+    expect(t, rm.eq(B[2, 3], 105.0/532.0));
 
-    expect(t, m.eq(B, expected_b));
+    expect(t, rm.eq(B, expected_b));
 }
 
 @test
 M4_Inverse2 :: proc(t: ^testing.T) {
-    A :: m.Matrix4 {
+    A :: rm.Matrix4 {
          8, -5,  9,  2,
          7,  5,  6,  1,
         -6,  0,  9,  6,
         -3,  0, -9, -4,
     };
 
-    expected :: m.Matrix4 {
+    expected :: rm.Matrix4 {
         -0.15385, -0.15385, -0.28205, -0.53846,
         -0.07692,  0.12308,  0.02564,  0.03077,
          0.35897,  0.35897,  0.43590,  0.92308,
         -0.69231, -0.69231, -0.76923, -1.92308,
     };
 
-    result := m.matrix_inverse(A);
+    result := rm.matrix_inverse(A);
 
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 M4_Inverse3 :: proc(t: ^testing.T) {
-    A :: m.Matrix4 {
+    A :: rm.Matrix4 {
          9,  3,  0,  9,
         -5, -2, -6, -3,
         -4,  9,  6,  4,
         -7,  6,  6,  2,
     };
 
-    expected :: m.Matrix4 {
+    expected :: rm.Matrix4 {
         -0.04074, -0.07778,  0.14444, -0.22222,
         -0.07778,  0.03333,  0.36667, -0.33333,
         -0.02901, -0.14630, -0.10926,  0.12963,
          0.17778,  0.06667, -0.26667,  0.33333,
     };
 
-    result := m.matrix_inverse(A);
+    result := rm.matrix_inverse(A);
 
-    expect(t, m.eq(result, expected));
+    expect(t, rm.eq(result, expected));
 }
 
 @test
 M4_Mul_Prod_Inverse :: proc(t: ^testing.T) {
 
-    A :: m.Matrix4 {
+    A :: rm.Matrix4 {
          3, -9,  7,  3,
          3, -8,  2, -9,
         -4,  4,  4,  1,
         -6,  5, -1,  1,
     };
 
-    B :: m.Matrix4 {
+    B :: rm.Matrix4 {
          8,  2,  2,  2,
          3, -1,  7,  0,
          7,  0,  5,  4,
          6, -2,  0,  5,
     };
 
-    C1 := m.mul(A, B);
+    C1 := rm.mul(A, B);
     C2 := A * B;
 
-    result1 := m.mul(C1, m.matrix_inverse(B));
-    result2 := C1 * m.matrix_inverse(B);
+    result1 := rm.mul(C1, rm.matrix_inverse(B));
+    result2 := C1 * rm.matrix_inverse(B);
 
-    expect(t, m.eq(result1, A));
-    expect(t, m.eq(result2, A));
+    expect(t, rm.eq(result1, A));
+    expect(t, rm.eq(result2, A));
 }

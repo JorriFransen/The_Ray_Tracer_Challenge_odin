@@ -2,28 +2,28 @@ package putting_it_together
 
 import "core:fmt"
 
-import m "../rtmath"
+import rm "raytracer:math"
 
 Projectile :: struct {
-    position: m.Point,
-    velocity: m.Vector,
+    position: rm.Point,
+    velocity: rm.Vector,
 };
 
 Environment :: struct {
-    gravity: m.Vector,
-    wind: m.Vector,
+    gravity: rm.Vector,
+    wind: rm.Vector,
 };
 
 tick :: proc(env: ^Environment, proj: Projectile) -> Projectile {
-    p := m.add(proj.position, proj.velocity);
-    v := m.add(m.add(proj.velocity, env.gravity), env.wind);
+    p := rm.add(proj.position, proj.velocity);
+    v := rm.add(rm.add(proj.velocity, env.gravity), env.wind);
     return Projectile { position = p, velocity = v };
 }
 
 putting_it_together_CH01 :: proc() {
     fmt.println("Putting it together for chapter 1...");
 
-    using m;
+    using rm;
 
 
     p := Projectile {

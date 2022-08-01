@@ -1,8 +1,9 @@
 ODIN=odin
 
 ODINFLAGS := -debug
+COLLECTION_FLAGS := -collection:raytracer=src
 
-default: test
+default: putting_it_together
 
 all: raytracer odin_test custom_test putting_it_together
 
@@ -19,15 +20,17 @@ run: raytracer
 
 
 putting_it_together: builddir
-	$(ODIN) build src/putting_it_together -out:build/putting_it_together.bin $(ODINFLAGS) && build/putting_it_together.bin && feh images/putting_it_together_ch02.ppm --force-aliasing --fullscreen --auto-zoom
+	$(ODIN) build src/putting_it_together -out:build/putting_it_together.bin $(COLLECTION_FLAGS) $(ODINFLAGS) && build/putting_it_together.bin
+
+#feh images/putting_it_together_ch02.ppm --force-aliasing --fullscreen --auto-zoom
 
 test: custom_test
 
 odin_test: builddir
-	$(ODIN) test tests $(ODINFLAGS)
+	$(ODIN) test tests $(COLLECTION_FLAGS) $(ODINFLAGS)
 
 custom_test: builddir
-	$(ODIN) build tests -out:build/tests.bin $(ODINFLAGS)
+	$(ODIN) build tests -out:build/tests.bin $(COLLECTION_FLAGS) $(ODINFLAGS)
 	build/tests.bin $(ODINTEST_FLAGS)
 
 

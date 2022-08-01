@@ -3,18 +3,18 @@ package putting_it_together
 import "core:fmt"
 import "core:math"
 import "core:os"
-import m "../rtmath"
-import g "../graphics"
+import rm "raytracer:math"
+import g "raytracer:graphics"
 
 putting_it_together_CH02 :: proc () {
     fmt.println("Putting it together for chapter 2");
 
-    start := m.point(0, 1, 0);
-    velocity := m.mul(m.normalize(m.vector(1, 1.8, 0)), 11.25);
+    start := rm.point(0, 1, 0);
+    velocity := rm.mul(rm.normalize(rm.vector(1, 1.8, 0)), 11.25);
     p := Projectile { start, velocity };
 
-    gravity := m.vector(0, -0.1, 0);
-    wind := m.vector(-0.02, 0, 0);
+    gravity := rm.vector(0, -0.1, 0);
+    wind := rm.vector(-0.02, 0, 0);
     e := Environment { gravity, wind };
 
     c := g.canvas(900, 550);
@@ -39,7 +39,7 @@ putting_it_together_CH02 :: proc () {
 
 PROJECTILE_COLOR :: g.Color { 1, 0, 0, 0 };
 
-write_projectile_to_canvas :: proc(c: g.Canvas, p: m.Point) {
+write_projectile_to_canvas :: proc(c: g.Canvas, p: rm.Point) {
 
     x := int(math.ceil(p.x));
     y := int(math.ceil(p.y));
