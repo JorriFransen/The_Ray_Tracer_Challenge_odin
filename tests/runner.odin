@@ -178,13 +178,6 @@ Print_Color :: enum rune {
 }
 
 @private
-_MyFile :: struct {
-    _padding0: int,
-    _padding1: [13]uintptr,
-    fileno: int,
-}
-
-@private
 print_color :: proc(c: ^Test_Context, w: io.Writer, s: string, col: Print_Color) {
     if c.print_color {
         fmt.wprintf(w, "\x1b[3%cm%s\x1b[39m", rune(col), s);
@@ -195,18 +188,6 @@ print_color :: proc(c: ^Test_Context, w: io.Writer, s: string, col: Print_Color)
 }
 
 @private
-to_handle :: proc(cfile: ^libc.FILE) -> os.Handle {
-    when ODIN_OS == .Linux {
-        mfile := transmute(^_MyFile)cfile;
-        return os.Handle(mfile.fileno);
-    } else when ODIN_OS == .Windows {
-        return os.Handle(_get_osfhandle(_fileno(cfile)));
-    } else {
-        #assert(false);
-    }
-}
-
-@private
 tmpfile :: proc() -> os.Handle {
     cfile : ^libc.FILE = libc.tmpfile();
     assert(cfile != nil);
@@ -214,7 +195,22 @@ tmpfile :: proc() -> os.Handle {
 
 }
 
-when ODIN_OS == .Windows {
+when ODIN_OS == .Linux {
+    foreign import _libc "system:c"
+
+    @(private="file")
+    @(default_calling_convention="c")
+    foreign _libc {
+
+        fileno :: proc(stream: ^libc.FILE) -> int ---;
+    }
+
+    @private
+    to_handle :: proc(cfile: ^libc.FILE) -> os.Handle {
+        return os.Handle(fileno(cfile));
+    }
+
+} else when ODIN_OS == .Windows {
     foreign import _libc "system:libucrt.lib";
     import widows "core:sys/windows";
 
@@ -224,4 +220,11 @@ when ODIN_OS == .Windows {
         _fileno :: proc(stream: ^libc.FILE) -> int ---;
         _get_osfhandle :: proc(fd: int) -> widows.HANDLE ---;
     }
+
+    @private
+    to_handle :: proc(cfile: ^libc.FILE) -> os.Handle {
+        return os.Handle(_get_osfhandle(_fileno(cfile)));
+    }
+} else {
+    #assert(false, "OS not supported");
 }
