@@ -10,7 +10,7 @@ import m "../src/rtmath"
 math_suite := Test_Suite {
     name = "Math/",
     tests = { },
-    child_suites = { 
+    child_suites = {
         &tuple_suite,
         &matrix_suite,
     },

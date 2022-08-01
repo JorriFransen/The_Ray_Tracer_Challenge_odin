@@ -7,9 +7,6 @@ import "core:strings"
 import "core:c/libc"
 import "core:io"
 
-TEST_count := 0;
-TEST_fail := 0;
-
 Test :: struct {
     using internal: testing.Internal_Test,
 }
@@ -71,8 +68,14 @@ execute_test_suite_s :: proc(s: ^Test_Suite, options: Test_Options) {
 
     success_count := c.total_test_count - c.test_fail_count;
     percentage := f32(success_count) / f32(c.total_test_count) * 100;
-    precision := 2 if c.test_fail_count != 0 else 0;
-    fmt.printf("{:d} of {:d} ({:.*f}%%) tests succesful\n", success_count, c.total_test_count, precision, percentage);
+    ok := c.test_fail_count == 0;
+    precision := 0 if ok else 2;
+    report_color : Print_Color = .Green if ok else .Red;
+
+    report_msg := fmt.aprintf("{:d} of {:d} ({:.*f}%%) tests succesful\n", success_count, c.total_test_count, precision, percentage);
+    defer delete(report_msg);
+
+    print_color(&c, c.stdout_writer, report_msg, report_color);
 }
 
 execute_test_suite_csp :: proc(c: ^Test_Context, s: ^Test_Suite, prefix: string = "") {
@@ -146,16 +149,18 @@ when ODIN_TEST {
 
         c := transmute(^Test_Context)t;
 
-        TEST_count += 1
         if !condition {
-            TEST_fail += 1
             c.assert_fail_count += 1;
-            loc_str := fmt.tprintf("[%v] error : ", loc);
+
+            maybe_colon := ": " if len(message) > 0 else "";
+            loc_str := fmt.tprintf("[%v] assert fail%v", loc, maybe_colon);
+
             print_color(c, c.test_writer, loc_str, .Red);
             fmt.wprintf(c.test_writer, "%v\n", message);
             return
         }
     }
+
     log     :: proc(t: ^testing.T, v: any, loc := #caller_location) {
         c := transmute(^Test_Context)t;
         msg := fmt.tprintf("[%v] log: ", loc)
