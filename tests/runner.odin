@@ -145,7 +145,7 @@ execute_test :: proc(c: ^Test_Context, test: ^Test, prefix: string = "") -> bool
         buf, ok := os.read_entire_file_from_handle(fd);
         defer delete(buf);
         assert(ok);
-        fmt.print(string(buf));
+        fmt.println(string(buf));
     }
 
     return test_ok;

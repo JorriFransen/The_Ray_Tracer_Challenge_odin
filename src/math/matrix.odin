@@ -84,7 +84,7 @@ matrix4_mul :: proc(a, b: Matrix4) -> Matrix4 {
     // };
 }
 
-matrix4_mul_tuple :: proc(a: Matrix4, b: Tuple) -> Tuple {
+matrix4_mul_tuple :: proc(a: Matrix4, b: $T/Tuple) -> T {
     return a * b;
     // return Tuple {
     //     a[0, 0] * b[0] + a[0, 1] * b[1] + a[0, 2] * b[2] + a[0, 3] * b[3],

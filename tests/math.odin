@@ -6,6 +6,7 @@ math_suite := Test_Suite {
     child_suites = {
         &vec_suite,
         &matrix_suite,
+        &transform_suite,
     },
 }
 

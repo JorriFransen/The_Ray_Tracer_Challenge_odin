@@ -23,11 +23,9 @@ putting_it_together_CH03 :: proc() {
         fmt.println("    The matrix is funcionally the same, zeros become negative zeros.");
     }
     fmt.println("\n");
+
+
     fmt.println("================================================================================");
-
-
-
-
     fmt.println("2. What do you get when you multiply a matrix by it's inverse?");
     {
         a :: Matrix4 { -1, 2, 3, 4, 5, 6, 7, 8, -9, 8, 7, 6, 5, 4, -3, 2 };
@@ -47,11 +45,9 @@ putting_it_together_CH03 :: proc() {
         fmt.println("    This is the same as with normal numbers (e.g. x * (1 / x) == 1).");
     }
     fmt.println("\n");
+
+
     fmt.println("================================================================================");
-
-
-
-
     fmt.println("3. Is there a difference between the inverse of the transpose of a matrix and");
     fmt.println("    the transpose of the inverse?");
     {
@@ -79,11 +75,9 @@ putting_it_together_CH03 :: proc() {
         fmt.println("    is_invertible(bt):", matrix_is_invertible(bt));
     }
     fmt.println("\n");
+
+
     fmt.println("================================================================================");
-
-
-
-
     fmt.println("4. Multiplying the identity matrix by a tuple results in the same tuple.");
     fmt.println("   What happens when you change a single element of the identity matrix?");
     {
