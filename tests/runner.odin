@@ -179,6 +179,7 @@ _MyFile :: struct {
     fileno: int,
 }
 
+@private
 print_color :: proc(c: ^Test_Context, w: io.Writer, s: string, col: Print_Color) {
     if c.print_color {
         fmt.wprintf(w, "\x1b[3%cm%s\x1b[39m", rune(col), s);
@@ -194,7 +195,9 @@ to_handle :: proc(cfile: ^libc.FILE) -> os.Handle {
         mfile := transmute(^_MyFile)cfile;
         return os.Handle(mfile.fileno);
     } else when ODIN_OS == .Windows {
-        assert(false);
+        return os.Handle(_get_osfhandle(_fileno(cfile)));
+    } else {
+        #assert(false);
     }
 }
 
@@ -204,4 +207,16 @@ tmpfile :: proc() -> os.Handle {
     assert(cfile != nil);
     return to_handle(cfile);
 
+}
+
+when ODIN_OS == .Windows {
+    foreign import _libc "system:libucrt.lib";
+    import widows "core:sys/windows";
+
+    @(private="file")
+    @(default_calling_convention="c")
+    foreign _libc {
+        _fileno :: proc(stream: ^libc.FILE) -> int ---;
+        _get_osfhandle :: proc(fd: int) -> widows.HANDLE ---;
+    }
 }
