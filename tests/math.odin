@@ -67,11 +67,19 @@ matrix_suite := Test_Suite {
         test("M4_Multiply_Identity_Tuple", M4_Multiply_Identity_Tuple),
         test("M4_Transpose", M4_Transpose),
         test("M4_Transpose_Identity", M4_Transpose_Identity),
-        test("M2_Determinant", Matrix2_Determinant),
-        test("M3_Submatrix", Matrix3_Submatrix),
+        test("M2_Determinant", M2_Determinant),
+        test("M3_Submatrix", M3_Submatrix),
         test("M4_Submatrix", M4_Submatrix),
-        test("M3_Minor", Matrix3_Minor),
-        test("M3_Cofactor", Matrix3_Cofactor),
+        test("M3_Minor", M3_Minor),
+        test("M3_Cofactor", M3_Cofactor),
+        test("M3_Determinant", M3_Determinant),
+        test("M4_Determinant", M4_Determinant),
+        test("M4_Invertible", M4_Invertible),
+        test("M4_Non_Invertible", M4_Non_Invertible),
+        test("M4_Inverse1", M4_Inverse1),
+        test("M4_Inverse2", M4_Inverse2),
+        test("M4_Inverse3", M4_Inverse3),
+        test("M4_Mul_Prod_Inverse", M4_Mul_Prod_Inverse),
     },
 }
 
@@ -686,14 +694,14 @@ M4_Transpose :: proc(t: ^testing.T) {
         0, 9, 3, 0,
         9, 8, 0, 8,
         1, 8, 5, 3,
-        0, 0, 5, 8
+        0, 0, 5, 8,
     };
 
     expected :: m.Matrix4 {
         0, 9, 1, 0,
         9, 8, 8, 0,
         3, 0, 5, 5,
-        0, 8, 3, 8
+        0, 8, 3, 8,
     };
 
     result1 := m.Matrix4(transpose(A));
@@ -716,11 +724,11 @@ M4_Transpose_Identity :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix2_Determinant :: proc(t: ^testing.T) {
+M2_Determinant :: proc(t: ^testing.T) {
 
     A :: m.Matrix2 {
          1, 5,
-        -3, 2
+        -3, 2,
     };
 
     expected :: 17;
@@ -737,12 +745,12 @@ Matrix2_Determinant :: proc(t: ^testing.T) {
 
 
 @test
-Matrix3_Submatrix :: proc(t: ^testing.T) {
+M3_Submatrix :: proc(t: ^testing.T) {
 
     A :: m.Matrix3 {
          1, 5, 0,
         -3, 2, 7,
-         0, 6, 3
+         0, 6, 3,
     };
 
     expected1 :: m.Matrix2 {
@@ -798,7 +806,7 @@ M4_Submatrix :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix3_Minor :: proc(t: ^testing.T) {
+M3_Minor :: proc(t: ^testing.T) {
 
     A :: m.Matrix3 {
         3,  5,  0,
@@ -824,7 +832,7 @@ Matrix3_Minor :: proc(t: ^testing.T) {
 }
 
 @test
-Matrix3_Cofactor :: proc(t: ^testing.T) {
+M3_Cofactor :: proc(t: ^testing.T) {
 
     A :: m.Matrix3 {
         3,  5,  0,
@@ -836,4 +844,168 @@ Matrix3_Cofactor :: proc(t: ^testing.T) {
     expect(t, m.matrix_cofactor(A, 0, 0) == -12);
     expect(t, m.matrix_minor(A, 1, 0) == 25);
     expect(t, m.matrix_cofactor(A, 1, 0) == -25);
+}
+
+@test
+M3_Determinant :: proc(t: ^testing.T) {
+
+    A :: m.Matrix3 {
+         1, 2,  6,
+        -5, 8, -4,
+         2, 6,  4,
+    };
+
+    expect(t, m.matrix_cofactor(A, 0, 0) == 56);
+    expect(t, m.matrix_cofactor(A, 0, 1) == 12);
+    expect(t, m.matrix_cofactor(A, 0, 2) == -46);
+    expect(t, m.matrix_determinant(A) == -196);
+
+}
+
+@test
+M4_Determinant :: proc(t: ^testing.T) {
+
+     A :: m.Matrix4 {
+         -2, -8,  3,  5,
+         -3,  1,  7,  3,
+          1,  2, -9,  6,
+         -6,  7,  7, -9,
+     };
+
+     expect(t, m.matrix_cofactor(A, 0, 0) == 690);
+     expect(t, m.matrix_cofactor(A, 0, 1) == 447);
+     expect(t, m.matrix_cofactor(A, 0, 2) == 210);
+     expect(t, m.matrix_cofactor(A, 0, 3) == 51);
+
+     expect(t, m.matrix_determinant(A) == -4071);
+}
+
+@test
+M4_Invertible :: proc(t: ^testing.T) {
+
+    A :: m.Matrix4 {
+        6,  4, 4,  4,
+        5,  5, 7,  6,
+        4, -9, 3, -7,
+        9,  1, 7, -6,
+    };
+
+    expect(t, m.matrix_determinant(A) == -2120);
+    expect(t, m.matrix_is_invertible(A));
+}
+
+@test
+M4_Non_Invertible :: proc(t: ^testing.T) {
+
+    A :: m.Matrix4 {
+        -4,  2, -2, -3,
+         9,  6,  2,  6,
+         0, -5,  1, -5,
+         0,  0,  0,  0,
+    };
+
+    expect(t, m.matrix_determinant(A) == 0);
+    expect(t, m.matrix_is_invertible(A) == false);
+}
+
+@test
+M4_Inverse1 :: proc(t: ^testing.T) {
+
+    A :: m.Matrix4 {
+        -5,  2,  6, -8,
+         1, -5,  1,  8,
+         7,  7, -6, -7,
+         1, -3,  7,  4,
+    };
+
+    expected_b :: m.Matrix4 {
+         0.21805,  0.45113,  0.24060, -0.04511,
+        -0.80827, -1.45677, -0.44361,  0.52068,
+        -0.07895, -0.22368, -0.05263,  0.19737,
+        -0.52256, -0.81391, -0.30075,  0.30639,
+    };
+
+    B := m.matrix_inverse(A);
+
+    expect(t, m.matrix_determinant(A) == 532.0);
+
+    expect(t, m.matrix_cofactor(A, 0, 1) == -430.0);
+    expect(t, m.matrix_cofactor(A, 1, 0) == 240.0);
+    expect(t, m.matrix_cofactor(A, 2, 3) == -160.0);
+
+    expect(t, m.eq(B[3, 2], -160.0/532.0));
+
+    expect(t, m.matrix_cofactor(A, 3, 2) == 105.0);
+    expect(t, m.eq(B[2, 3], 105.0/532.0));
+
+    expect(t, m.eq(B, expected_b));
+}
+
+@test
+M4_Inverse2 :: proc(t: ^testing.T) {
+    A :: m.Matrix4 {
+         8, -5,  9,  2,
+         7,  5,  6,  1,
+        -6,  0,  9,  6,
+        -3,  0, -9, -4,
+    };
+
+    expected :: m.Matrix4 {
+        -0.15385, -0.15385, -0.28205, -0.53846,
+        -0.07692,  0.12308,  0.02564,  0.03077,
+         0.35897,  0.35897,  0.43590,  0.92308,
+        -0.69231, -0.69231, -0.76923, -1.92308,
+    };
+
+    result := m.matrix_inverse(A);
+
+    expect(t, m.eq(result, expected));
+}
+
+@test
+M4_Inverse3 :: proc(t: ^testing.T) {
+    A :: m.Matrix4 {
+         9,  3,  0,  9,
+        -5, -2, -6, -3,
+        -4,  9,  6,  4,
+        -7,  6,  6,  2,
+    };
+
+    expected :: m.Matrix4 {
+        -0.04074, -0.07778,  0.14444, -0.22222,
+        -0.07778,  0.03333,  0.36667, -0.33333,
+        -0.02901, -0.14630, -0.10926,  0.12963,
+         0.17778,  0.06667, -0.26667,  0.33333,
+    };
+
+    result := m.matrix_inverse(A);
+
+    expect(t, m.eq(result, expected));
+}
+
+@test
+M4_Mul_Prod_Inverse :: proc(t: ^testing.T) {
+
+    A :: m.Matrix4 {
+         3, -9,  7,  3,
+         3, -8,  2, -9,
+        -4,  4,  4,  1,
+        -6,  5, -1,  1,
+    };
+
+    B :: m.Matrix4 {
+         8,  2,  2,  2,
+         3, -1,  7,  0,
+         7,  0,  5,  4,
+         6, -2,  0,  5,
+    };
+
+    C1 := m.mul(A, B);
+    C2 := A * B;
+
+    result1 := m.mul(C1, m.matrix_inverse(B));
+    result2 := C1 * m.matrix_inverse(B);
+
+    expect(t, m.eq(result1, A));
+    expect(t, m.eq(result2, A));
 }

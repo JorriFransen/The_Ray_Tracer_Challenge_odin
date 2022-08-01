@@ -1,6 +1,6 @@
 package rtmath
 
-import "core:reflect"
+import "core:fmt"
 import "core:intrinsics"
 
 Matrix_Element_Type :: Tuple_Element_Type;
@@ -108,13 +108,31 @@ matrix_transpose :: proc {
     matrix4_transpose,
 }
 
-matrix2_determinant :: proc(a: Matrix2) -> Matrix_Element_Type {
-    return determinant(a);
-    /*return a[0, 0] * a[1, 1] - a[0, 1] * a[1, 0];*/
-}
+// matrix2_determinant :: proc(a: Matrix2) -> Matrix_Element_Type {
+//     return a[0, 0] * a[1, 1] - a[0, 1] * a[1, 0];
+// }
 
-matrix_determinant :: proc {
-    matrix2_determinant,
+// matrix3_determinant :: proc(a: Matrix3) -> Matrix_Element_Type {
+//     return matrix_cofactor(a, 0, 0) * a[0, 0] +
+//            matrix_cofactor(a, 0, 1) * a[0, 1] +
+//            matrix_cofactor(a, 0, 2) * a[0, 2];
+// }
+
+// matrix4_determinant :: proc(a: Matrix4) -> Matrix_Element_Type {
+//     return matrix_cofactor(a, 0, 0) * a[0, 0] +
+//            matrix_cofactor(a, 0, 1) * a[0, 1] +
+//            matrix_cofactor(a, 0, 2) * a[0, 2] +
+//            matrix_cofactor(a, 0, 3) * a[0, 3];
+// }
+
+// matrix_determinant :: proc {
+//     matrix2_determinant,
+//     matrix3_determinant,
+//     matrix4_determinant,
+// }
+
+matrix_determinant :: #force_inline proc(m: $T/matrix[$R, $C]Matrix_Element_Type) -> Matrix_Element_Type {
+    return determinant(m);
 }
 
 matrix3_submatrix :: proc(m: Matrix3, row, col: int) -> (result: Matrix2) {
@@ -186,14 +204,54 @@ matrix_submatrix :: proc {
     matrix4_submatrix,
 }
 
-matrix_minor :: proc(m: Matrix3, row, col: int) -> Matrix_Element_Type {
+matrix_minor :: proc(m: $T/matrix[$R, $C]Matrix_Element_Type, row, col: int) -> Matrix_Element_Type {
+    assert(row >= 0 && row < R);
+    assert(col >= 0 && col < C);
+
     sub := matrix_submatrix(m, row, col);
     return matrix_determinant(sub);
 }
 
-matrix_cofactor :: proc(m: Matrix3, row, col: int) -> Matrix_Element_Type {
+matrix_cofactor :: proc(m: $T/matrix[$R, $C]Matrix_Element_Type, row, col: int) -> Matrix_Element_Type {
+    assert(row >= 0 && row < R);
+    assert(col >= 0 && col < C);
+
     minor := matrix_minor(m, row, col);
 
-    if (row + col % 2 == 0) do return minor;
+    if row + col % 2 == 0 do return minor;
     return -minor;
+}
+
+matrix_is_invertible :: proc(m: $T/matrix[$R, $C]Matrix_Element_Type) -> bool {
+    return matrix_determinant(m) != 0;
+}
+
+matrix_inverse :: proc(m: Matrix4) -> Matrix4 {
+
+    return inverse(m);
+    // determinant := matrix_determinant(m);
+    // assert(determinant != 0);
+    // // assert(matrix_is_invertible(m));
+
+    // return Matrix4 {
+    //      matrix_minor(m, 0, 0) / determinant,
+    //     -matrix_minor(m, 1, 0) / determinant,
+    //      matrix_minor(m, 2, 0) / determinant,
+    //     -matrix_minor(m, 3, 0) / determinant,
+
+    //     -matrix_minor(m, 0, 1) / determinant,
+    //      matrix_minor(m, 1, 1) / determinant,
+    //     -matrix_minor(m, 2, 1) / determinant,
+    //      matrix_minor(m, 3, 1) / determinant,
+
+    //      matrix_minor(m, 0, 2) / determinant,
+    //     -matrix_minor(m, 1, 2) / determinant,
+    //      matrix_minor(m, 2, 2) / determinant,
+    //     -matrix_minor(m, 3, 2) / determinant,
+
+    //     -matrix_minor(m, 0, 3) / determinant,
+    //      matrix_minor(m, 1, 3) / determinant,
+    //     -matrix_minor(m, 2, 3) / determinant,
+    //      matrix_minor(m, 3, 3) / determinant,
+    // };
 }
