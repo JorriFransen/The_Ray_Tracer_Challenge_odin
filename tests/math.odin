@@ -7,6 +7,7 @@ math_suite := Test_Suite {
         &vec_suite,
         &matrix_suite,
         &transform_suite,
+        &ray_suite,
     },
 }
 
