@@ -4,6 +4,7 @@ import "core:fmt"
 import "core:intrinsics"
 import "core:mem"
 import "core:strings"
+import "core:os"
 import m "core:math"
 import ml"core:math/linalg"
 
@@ -44,6 +45,13 @@ ppm_from_canvas :: proc(c: Canvas, allocator := context.allocator) -> string {
     }
 
     return strings.clone(strings.to_string(sb^), allocator);
+}
+
+ppm_write_to_file :: proc(file_name, ppm: string) -> (success: bool)  {
+
+    assert(ppm[:2] == PPM_MAGIC);
+
+    return os.write_entire_file(file_name, transmute([]u8)ppm);
 }
 
 @private

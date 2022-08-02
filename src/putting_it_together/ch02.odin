@@ -30,11 +30,10 @@ putting_it_together_CH02 :: proc () {
     ppm := g.ppm_from_canvas(c);
     defer delete(ppm);
 
-    ok := os.write_entire_file("images/putting_it_together_ch02.ppm", transmute([]u8)ppm);
+    ok := g.ppm_write_to_file("images/putting_it_together_ch02.ppm", ppm)
     if !ok {
         panic("Failed to write ppm file...");
     }
-
 }
 
 PROJECTILE_COLOR :: g.Color { 1, 0, 0, 0 };

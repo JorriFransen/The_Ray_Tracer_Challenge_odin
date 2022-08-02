@@ -1,5 +1,6 @@
-
 package graphics;
+
+import m "../math"
 
 Canvas :: struct {
     width, height: int,
@@ -26,11 +27,20 @@ canvas_clear :: proc(c: Canvas, color: Color) {
     }
 }
 
-canvas_write_pixel :: proc(c: Canvas, x, y: int, pixel: Color) {
+canvas_write_pixel_xy :: proc(c: Canvas, x, y: int, pixel: Color) {
     assert(x >= 0 && x < c.width);
     assert(y >= 0 && y < c.height);
 
     c.pixels[x + y * c.width] = pixel;
+}
+
+canvas_write_pixel_p :: proc(c: Canvas, p: m.Point, pixel: Color) {
+    canvas_write_pixel_xy(c, int(p.x), int(p.y), pixel);
+}
+
+canvas_write_pixel :: proc {
+    canvas_write_pixel_xy,
+    canvas_write_pixel_p,
 }
 
 canvas_get_pixel :: proc(c: Canvas, x, y: int) -> Color {
