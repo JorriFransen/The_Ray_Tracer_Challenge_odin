@@ -31,6 +31,8 @@ transform_suite := Test_Suite {
         test("Shear_YZ", Shear_YZ),
         test("Shear_ZX", Shear_ZX),
         test("Shear_ZY", Shear_ZY),
+        test("Sequenced", Sequenced),
+        test("Chained", Chained),
     },
 };
 
@@ -351,4 +353,50 @@ Shear_ZY :: proc(t: ^testing.T) {
 
     expect(t, rm.eq(result1, expected));
     expect(t, rm.eq(result2, expected));
+}
+
+@test
+Sequenced :: proc(t: ^testing.T) {
+
+    p := rm.point(1, 0, 1);
+    A := rm.rotation_x(PI / 2);
+    B := rm.scaling(5, 5, 5);
+    C := rm.translation(10, 5, 7);
+
+    p2 := rm.mul(A, p);
+    expect(t, rm.eq(p2, rm.point(1, -1, 0)))
+
+    p3 := rm.mul(B, p2);
+    expect(t, rm.eq(p3, rm.point(5, -5, 0)));
+
+    p4 := rm.mul(C, p3);
+    expect(t, rm.eq(p4, rm.point(15, 0, 7)));
+}
+
+@test
+Chained :: proc(t: ^testing.T) {
+
+    p := rm.point(1, 0, 1);
+    A := rm.rotation_x(PI / 2);
+    B := rm.scaling(5, 5, 5);
+    C := rm.translation(10, 5, 7);
+
+    T1 := rm.mul(C, rm.mul(B, A));
+    T2 := C * B * A;
+
+    expect(t, rm.eq(T1, T2));
+
+    expected := rm.point(15, 0, 7);
+
+    result1 := rm.mul(T1, p);
+    result11 := T1 * p;
+
+    result2 := rm.mul(T2, p);
+    result22 := T2 * p;
+
+    expect(t, rm.eq(result1, expected));
+    expect(t, rm.eq(result11, expected))
+
+    expect(t, rm.eq(result2, expected));
+    expect(t, rm.eq(result22, expected))
 }
