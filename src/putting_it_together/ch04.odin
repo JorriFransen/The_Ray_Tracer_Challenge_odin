@@ -8,10 +8,11 @@ import m "raytracer:math"
 
 PI :: math.PI;
 
-CANVAS_SIZE :: 1500;
+CANVAS_SIZE :: 500;
 CLOCK_SIZE :: CANVAS_SIZE / 8.0 * 3.0;
 
-canvas_transform := m.translation(CANVAS_SIZE / 2, CANVAS_SIZE / 2, 0) * m.scaling(CLOCK_SIZE, -CLOCK_SIZE, 1);
+canvas_transform := m.translate(m.scaling(CLOCK_SIZE, -CLOCK_SIZE, 1), CANVAS_SIZE / 2, CANVAS_SIZE / 2, 0);
+
 
 putting_it_together_CH04 :: proc() {
 
@@ -24,7 +25,7 @@ putting_it_together_CH04 :: proc() {
     for i in 0..<12 {
 
         fi := m.Tuple_Element_Type(i);
-        p := m.rotation_z(-fi * PI / 6.0) * zero_hour;
+        p := m.rotate_z(zero_hour, -fi * PI / 6.0);
 
         color := g.WHITE;
         if i % 3 == 0 {
@@ -39,7 +40,7 @@ putting_it_together_CH04 :: proc() {
     for i in 0..<60 {
 
         fi := m.Tuple_Element_Type(i);
-        p := m.rotation_z(-fi * PI / 30.0) * zero_min;
+        p := m.rotate_z(zero_min, -fi * PI / 30.0);
 
         color := g.WHITE;
         if i % 5 == 0 && i % 15 != 0 {
@@ -76,11 +77,17 @@ write_minute :: proc(c: g.Canvas, p: m.Point, color: g.Color) {
 write_rect :: proc(c: g.Canvas, p: m.Point, color: g.Color, dim: int) {
 
     dim := m.Tuple_Element_Type(dim);
-    p := m.mul(canvas_transform, p);
+    p := canvas_transform * p;
 
     for y := p.y - dim; y < p.y + dim; y += 1 {
         for x := p.x - dim; x < p.x + dim; x += 1 {
-            g.canvas_write_pixel(c, m.point(x, y, 0), color);
+            write_pixel(c, m.point(x, y, 0), color);
         }
+    }
+}
+
+write_pixel :: proc(c: g.Canvas, p: m.Point, color: g.Color) {
+    if p.x >= 0 && int(p.x) < c.width && p.y >= 0 && int(p.y) < c.height {
+        g.canvas_write_pixel(c, p, color);
     }
 }

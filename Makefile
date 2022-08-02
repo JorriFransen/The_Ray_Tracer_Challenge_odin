@@ -3,7 +3,7 @@ ODIN=odin
 ODINFLAGS := -debug
 COLLECTION_FLAGS := -collection:raytracer=src
 
-default: putting_it_together
+default: test
 
 all: raytracer odin_test custom_test putting_it_together
 
