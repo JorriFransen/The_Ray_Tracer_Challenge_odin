@@ -19,12 +19,18 @@ transform_suite := Test_Suite {
         test("V_Mul_Scale", V_Mul_Scale),
         test("V_Mul_Inv_Scale", V_Mul_Inv_Scale),
         test("Reflection_Is_Neg_Scale", Reflection_Is_Neg_Scale),
-        test("Rotate_Around_X", Rotate_Around_X),
-        test("Rotate_Around_X_Inv", Rotate_Around_X_Inv),
-        test("Rotate_Around_Y", Rotate_Around_Y),
-        test("Rotate_Around_Y_Inv", Rotate_Around_Y_Inv),
-        test("Rotate_Around_Z", Rotate_Around_Z),
-        test("Rotate_Around_Z_Inv", Rotate_Around_Z_Inv),
+        test("Rot_Around_X", Rot_Around_X),
+        test("Rot_Around_X_Inv", Rot_Around_X_Inv),
+        test("Rot_Around_Y", Rot_Around_Y),
+        test("Rot_Around_Y_Inv", Rot_Around_Y_Inv),
+        test("Rot_Around_Z", Rot_Around_Z),
+        test("Rot_Around_Z_Inv", Rot_Around_Z_Inv),
+        test("Shear_XY", Shear_XY),
+        test("Shear_XZ", Shear_XZ),
+        test("Shear_YX", Shear_YX),
+        test("Shear_YZ", Shear_YZ),
+        test("Shear_ZX", Shear_ZX),
+        test("Shear_ZY", Shear_ZY),
     },
 };
 
@@ -134,7 +140,7 @@ Reflection_Is_Neg_Scale :: proc(t: ^testing.T) {
 }
 
 @test
-Rotate_Around_X :: proc(t: ^testing.T) {
+Rot_Around_X :: proc(t: ^testing.T) {
 
     p := rm.point(0, 1, 0);
     half_quarter := rm.rotation_x(math.PI / 4);
@@ -158,7 +164,7 @@ Rotate_Around_X :: proc(t: ^testing.T) {
 }
 
 @test
-Rotate_Around_X_Inv :: proc(t: ^testing.T) {
+Rot_Around_X_Inv :: proc(t: ^testing.T) {
 
     p := rm.point(0, 1, 0);
     half_quarter := rm.rotation_x(math.PI / 4);
@@ -175,7 +181,7 @@ Rotate_Around_X_Inv :: proc(t: ^testing.T) {
 }
 
 @test
-Rotate_Around_Y :: proc(t: ^testing.T) {
+Rot_Around_Y :: proc(t: ^testing.T) {
 
     p := rm.point(0, 0, 1);
     half_quarter := rm.rotation_y(math.PI / 4);
@@ -199,7 +205,7 @@ Rotate_Around_Y :: proc(t: ^testing.T) {
 }
 
 @test
-Rotate_Around_Y_Inv :: proc(t: ^testing.T) {
+Rot_Around_Y_Inv :: proc(t: ^testing.T) {
 
     p := rm.point(0, 0, 1);
     half_quarter := rm.rotation_y(math.PI / 4);
@@ -216,7 +222,7 @@ Rotate_Around_Y_Inv :: proc(t: ^testing.T) {
 }
 
 @test
-Rotate_Around_Z :: proc(t: ^testing.T) {
+Rot_Around_Z :: proc(t: ^testing.T) {
 
     p := rm.point(0, 1, 0);
     half_quarter := rm.rotation_z(math.PI / 4);
@@ -240,7 +246,7 @@ Rotate_Around_Z :: proc(t: ^testing.T) {
 }
 
 @test
-Rotate_Around_Z_Inv :: proc(t: ^testing.T) {
+Rot_Around_Z_Inv :: proc(t: ^testing.T) {
 
     p := rm.point(0, 1, 0);
     half_quarter := rm.rotation_z(math.PI / 4);
@@ -251,6 +257,97 @@ Rotate_Around_Z_Inv :: proc(t: ^testing.T) {
 
     result1 := rm.mul(inv, p);
     result2 := inv * p;
+
+    expect(t, rm.eq(result1, expected));
+    expect(t, rm.eq(result2, expected));
+}
+
+@test
+Shear_XY :: proc(t: ^testing.T) {
+
+    transform := rm.shearing(1, 0, 0, 0, 0, 0);
+    p := rm.point(2, 3, 4);
+
+    expected := rm.point(5, 3, 4);
+
+    result1 := rm.mul(transform, p);
+    result2 := transform * p;
+
+    expect(t, rm.eq(result1, expected));
+    expect(t, rm.eq(result2, expected));
+}
+
+
+@test
+Shear_XZ :: proc(t: ^testing.T) {
+
+    transform := rm.shearing(0, 1, 0, 0, 0, 0);
+    p := rm.point(2, 3, 4);
+
+    expected := rm.point(6, 3, 4);
+
+    result1 := rm.mul(transform, p);
+    result2 := transform * p;
+
+    expect(t, rm.eq(result1, expected));
+    expect(t, rm.eq(result2, expected));
+}
+
+@test
+Shear_YX :: proc(t: ^testing.T) {
+
+    transform := rm.shearing(0, 0, 1, 0, 0, 0);
+    p := rm.point(2, 3, 4);
+
+    expected := rm.point(2, 5, 4);
+
+    result1 := rm.mul(transform, p);
+    result2 := transform * p;
+
+    expect(t, rm.eq(result1, expected));
+    expect(t, rm.eq(result2, expected));
+}
+
+@test
+Shear_YZ :: proc(t: ^testing.T) {
+
+    transform := rm.shearing(0, 0, 0, 1, 0, 0);
+    p := rm.point(2, 3, 4);
+
+    expected := rm.point(2, 7, 4);
+
+    result1 := rm.mul(transform, p);
+    result2 := transform * p;
+
+    expect(t, rm.eq(result1, expected));
+    expect(t, rm.eq(result2, expected));
+}
+
+@test
+Shear_ZX :: proc(t: ^testing.T) {
+
+    transform := rm.shearing(0, 0, 0, 0, 1, 0);
+    p := rm.point(2, 3, 4);
+
+    expected := rm.point(2, 3, 6);
+
+    result1 := rm.mul(transform, p);
+    result2 := transform * p;
+
+    expect(t, rm.eq(result1, expected));
+    expect(t, rm.eq(result2, expected));
+}
+
+@test
+Shear_ZY :: proc(t: ^testing.T) {
+
+    transform := rm.shearing(0, 0, 0, 0, 0, 1);
+    p := rm.point(2, 3, 4);
+
+    expected := rm.point(2, 3, 7);
+
+    result1 := rm.mul(transform, p);
+    result2 := transform * p;
 
     expect(t, rm.eq(result1, expected));
     expect(t, rm.eq(result2, expected));

@@ -47,3 +47,12 @@ rotation_z :: proc(r: Tuple_Element_Type) -> Matrix4 {
                   0,            0, 0, 1,
     };
 }
+
+shearing :: proc(xy, xz, yx, yz, zx, zy: Matrix_Element_Type) -> Matrix4 {
+    return Matrix4 {
+        1, xy, xz, 0,
+        yx, 1, yz, 0,
+        zx, zy, 1, 0,
+        0,  0,  0, 1,
+    };
+}
