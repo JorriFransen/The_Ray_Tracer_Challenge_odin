@@ -51,6 +51,8 @@ ppm_write_to_file :: proc(file_name, ppm: string) -> (success: bool)  {
 
     assert(ppm[:2] == PPM_MAGIC);
 
+    fmt.printf("Writing ppm to file: '%v'\n", file_name);
+
     return os.write_entire_file(file_name, transmute([]u8)ppm);
 }
 

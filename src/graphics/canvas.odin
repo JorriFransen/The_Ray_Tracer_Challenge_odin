@@ -21,7 +21,7 @@ canvas_destroy :: proc(c: ^Canvas) {
     delete(c.pixels);
 }
 
-canvas_clear :: proc(c: Canvas, color: Color) {
+canvas_clear :: proc(c: Canvas, color := BLACK) {
     for _,i in c.pixels {
         c.pixels[i] = color;
     }

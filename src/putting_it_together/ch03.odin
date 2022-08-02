@@ -3,7 +3,8 @@ package putting_it_together
 import "core:fmt"
 import rm "raytracer:math"
 
-putting_it_together_CH03 :: proc() {
+CH03 :: proc() {
+    fmt.println("Puttin it together for chapter 3");
 
     using rm;
 

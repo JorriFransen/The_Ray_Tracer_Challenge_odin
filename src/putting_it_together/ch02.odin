@@ -6,7 +6,7 @@ import "core:os"
 import rm "raytracer:math"
 import g "raytracer:graphics"
 
-putting_it_together_CH02 :: proc () {
+CH02 :: proc (c: g.Canvas) {
     fmt.println("Putting it together for chapter 2");
 
     start := rm.point(0, 1, 0);
@@ -17,8 +17,6 @@ putting_it_together_CH02 :: proc () {
     wind := rm.vector(-0.02, 0, 0);
     e := Environment { gravity, wind };
 
-    c := g.canvas(900, 550);
-    defer g.canvas_destroy(&c);
 
     write_projectile_to_canvas(c, p.position);
 
@@ -34,6 +32,8 @@ putting_it_together_CH02 :: proc () {
     if !ok {
         panic("Failed to write ppm file...");
     }
+
+    g.canvas_clear(c);
 }
 
 PROJECTILE_COLOR :: g.Color { 1, 0, 0, 0 };

@@ -1,8 +1,33 @@
 package putting_it_together
 
+import "core:fmt"
+import g "raytracer:graphics"
+
 main :: proc() {
-    // putting_it_together_CH01();
-    // putting_it_together_CH02();
-    // putting_it_together_CH03();
-    putting_it_together_CH04();
+
+    CH01();
+    fmt.println("\n");
+
+    with_canvas(900, 550, CH02);
+    fmt.println("\n");
+
+    CH03();
+    fmt.println("\n");
+
+    with_canvas(500, 500, CH04);
+    fmt.println("\n");
 }
+
+With_Canvas_Proc :: proc(c: g.Canvas);
+
+with_canvas :: proc(width, height: int, p: With_Canvas_Proc) {
+
+    assert(width > 0 && height > 0);
+
+    c := g.canvas(width, height);
+    defer g.canvas_destroy(&c);
+
+    p(c);
+}
+
+

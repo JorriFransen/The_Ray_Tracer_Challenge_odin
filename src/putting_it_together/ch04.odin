@@ -1,3 +1,4 @@
+//+private file
 package putting_it_together
 
 import "core:fmt"
@@ -8,17 +9,23 @@ import m "raytracer:math"
 
 PI :: math.PI;
 
-CANVAS_SIZE :: 500;
-CLOCK_SIZE :: CANVAS_SIZE / 8.0 * 3.0;
+canvas_transform : m.Matrix4;
+hour_size : int;
+minute_size : int;
 
-canvas_transform := m.translate(m.scaling(CLOCK_SIZE, -CLOCK_SIZE, 1), CANVAS_SIZE / 2, CANVAS_SIZE / 2, 0);
+@private
+CH04 :: proc(c: g.Canvas) {
+    fmt.println("Putting it together for chapter 4");
 
+    assert(c.width == c.height);
 
-putting_it_together_CH04 :: proc() {
+    canvas_size := f32(c.width);
+    clock_size := canvas_size / 8.0 * 3.0;
 
+    canvas_transform = m.translate(m.scaling(clock_size, -clock_size, 1), canvas_size / 2, canvas_size / 2, 0);
 
-    c := g.canvas(CANVAS_SIZE, CANVAS_SIZE);
-    defer g.canvas_destroy(&c);
+    hour_size = int(canvas_size / 100.0);
+    minute_size = int(canvas_size / 250.0);
 
     zero_hour := m.point(0, 1, 0);
 
@@ -32,7 +39,7 @@ putting_it_together_CH04 :: proc() {
             color = g.RED;
         }
 
-        write_hour(c, p, color);
+        write_rect(c, p, color, hour_size);
     }
 
     zero_min := m.point(0, 0.99, 0);
@@ -47,31 +54,17 @@ putting_it_together_CH04 :: proc() {
             color = g.RED;
         }
 
-        write_minute(c, p, color);
+        write_rect(c, p, color, minute_size);
     }
 
     ppm := g.ppm_from_canvas(c);
     defer delete(ppm);
 
-    ok := g.ppm_write_to_file("images/putting_it_together_ch03.ppm", ppm);
+    ok := g.ppm_write_to_file("images/putting_it_together_ch04.ppm", ppm);
     if !ok {
         panic("Failed to write ppm file...");
     }
 
-}
-
-write_hour :: proc(c: g.Canvas, p: m.Point, color: g.Color) {
-    DIM :: CANVAS_SIZE / 100;
-    #assert(DIM > 0);
-
-    write_rect(c, p, color, DIM);
-}
-
-write_minute :: proc(c: g.Canvas, p: m.Point, color: g.Color) {
-    DIM :: CANVAS_SIZE / 250;
-    #assert(DIM > 0);
-
-    write_rect(c, p, color, DIM);
 }
 
 write_rect :: proc(c: g.Canvas, p: m.Point, color: g.Color, dim: int) {

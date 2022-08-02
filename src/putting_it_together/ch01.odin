@@ -20,7 +20,7 @@ tick :: proc(env: ^Environment, proj: Projectile) -> Projectile {
     return Projectile { position = p, velocity = v };
 }
 
-putting_it_together_CH01 :: proc() {
+CH01 :: proc() {
     fmt.println("Putting it together for chapter 1...");
 
     using rm;
