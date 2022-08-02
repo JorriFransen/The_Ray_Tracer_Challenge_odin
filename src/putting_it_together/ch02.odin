@@ -17,7 +17,6 @@ CH02 :: proc (c: g.Canvas) {
     wind := rm.vector(-0.02, 0, 0);
     e := Environment { gravity, wind };
 
-
     write_projectile_to_canvas(c, p.position);
 
     for p.position.y > 0 {
@@ -32,8 +31,6 @@ CH02 :: proc (c: g.Canvas) {
     if !ok {
         panic("Failed to write ppm file...");
     }
-
-    g.canvas_clear(c);
 }
 
 PROJECTILE_COLOR :: g.Color { 1, 0, 0, 0 };
