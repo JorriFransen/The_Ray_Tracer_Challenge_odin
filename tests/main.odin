@@ -7,8 +7,8 @@ main_suite := Test_Suite {
     name = "",
     tests = {},
     child_suites = {
-        &math_suite,
         &graphics_suite,
+        &math_suite,
     },
 }
 
