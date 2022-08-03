@@ -8,8 +8,15 @@ display :: proc(c: Canvas, title: cstring) {
     width := i32(c.width);
     height := i32(c.height);
 
+    window_width := f32(c.width);
+    window_height := f32(c.height);
+
+    rl.SetConfigFlags({ .WINDOW_RESIZABLE });
+
     rl.InitWindow(width, height, title);
     defer rl.CloseWindow();
+
+    rl.SetWindowMinSize(width, height);
 
     target := rl.LoadRenderTexture(width, height);
     defer rl.UnloadRenderTexture(target);
@@ -29,12 +36,40 @@ display :: proc(c: Canvas, title: cstring) {
 
     for !rl.WindowShouldClose() {
 
+        resized := false;
+        if rl.IsWindowResized() {
+            window_width = f32(rl.GetScreenWidth());
+            window_height = f32(rl.GetScreenHeight());
+            resized = true;
+        }
+
         rl.BeginDrawing();
 
         rl.ClearBackground(rl.Color { 100, 100, 120, 0 });
 
-        source_rect := rl.Rectangle { 0, 0, f32(target.texture.width), -f32(target.texture.height) };
-        rl.DrawTextureRec(target.texture, source_rect, rl.Vector2 { 0, 0 }, rl.WHITE);
+        fwidth := f32(width);
+        fheight := f32(height);
+
+        image_ratio := fwidth / fheight;
+        window_ratio := window_width / window_height;
+
+        dest_x, dest_y, dest_width, dest_height: f32;
+
+        if window_ratio > image_ratio {
+            dest_width = fwidth * window_height / fheight;
+            dest_height = window_height;
+        } else {
+            dest_width = window_width;
+            dest_height = fheight * window_width / fwidth;
+        }
+
+        dest_x = (window_width - dest_width) / 2;
+        dest_y = (window_height - dest_height) / 2;
+
+        source_rect := rl.Rectangle { 0, 0, fwidth, -fheight };
+        dest_rect := rl.Rectangle { dest_x, dest_y, dest_width, dest_height }; // Relative to top left
+        origin := rl.Vector2 { 0, 0 }; // Opengl origin? seems to be relative to bottom left
+        rl.DrawTexturePro(target.texture, source_rect, dest_rect, origin, 0, rl.WHITE);
 
         rl.EndDrawing();
 
