@@ -1,15 +1,24 @@
 package rtmath
 
-@(private="file")
-
-_next_sphere_id := 1;
-
 Sphere :: struct {
-    _id: int,
+    transform: Matrix4,
 }
 
-sphere :: proc() -> (result: Sphere) {
-    result._id = _next_sphere_id;
-    _next_sphere_id += 1;
+sphere_default :: proc() -> (result: Sphere) {
+    result.transform = matrix4_identity;
     return;
+}
+
+sphere_t :: proc(t: Matrix4) -> (result: Sphere) {
+    result.transform = t;
+    return;
+}
+
+sphere :: proc {
+    sphere_default,
+    sphere_t,
+}
+
+sphere_set_transform :: proc(s: ^Sphere, t: Matrix4) {
+    s.transform = t;
 }

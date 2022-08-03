@@ -20,6 +20,11 @@ ray_suite := Test_Suite {
         test("Hit_Some_Negative", Hit_Some_Negative),
         test("Hit_All_Negative", Hit_All_Negative),
         test("Hit_Lowest_Non_Negative", Hit_Lowest_Non_Negative),
+        test("R_Translation", R_Translation),
+        test("R_Scaling", R_Scaling),
+        test("S_Default_Transform ", S_Default_Transform),
+        test("S_Modified_Transform", S_Modified_Transform),
+        test("S_Scaled_Intersect_R", S_Scaled_Intersect_R),
     },
 }
 
@@ -40,10 +45,10 @@ R_Distance_Along_Is_P :: proc(t: ^testing.T) {
 
     r := rm.ray(rm.point(2, 3, 4), rm.vector(1, 0, 0));
 
-    expect(t, rm.eq(rm.position(r, 0), rm.point(2, 3, 4)));
-    expect(t, rm.eq(rm.position(r, 1), rm.point(3, 3, 4)));
-    expect(t, rm.eq(rm.position(r, -1), rm.point(1, 3, 4)));
-    expect(t, rm.eq(rm.position(r, 2.5), rm.point(4.5, 3, 4)));
+    expect(t, rm.eq(rm.ray_position(r, 0), rm.point(2, 3, 4)));
+    expect(t, rm.eq(rm.ray_position(r, 1), rm.point(3, 3, 4)));
+    expect(t, rm.eq(rm.ray_position(r, -1), rm.point(1, 3, 4)));
+    expect(t, rm.eq(rm.ray_position(r, 2.5), rm.point(4.5, 3, 4)));
 }
 
 @test
@@ -52,7 +57,7 @@ R_Intersect_Sphere_2P :: proc(t: ^testing.T) {
     r := rm.ray(rm.point(0, 0, -5), rm.vector(0, 0, 1));
     s := rm.sphere();
 
-    xs := rm.intersect(s, r);
+    xs := rm.intersects(s, r);
     defer delete(xs);
 
     expect(t, len(xs) == 2);
@@ -66,7 +71,7 @@ R_Intersect_Sphere_Tangent :: proc(t: ^testing.T) {
     r := rm.ray(rm.point(0, 1, -5), rm.vector(0, 0, 1));
     s := rm.sphere();
 
-    xs := rm.intersect(s, r);
+    xs := rm.intersects(s, r);
     defer delete(xs);
 
     expect(t, len(xs) == 2);
@@ -80,7 +85,7 @@ R_Misses_Sphere :: proc(t: ^testing.T) {
     r := rm.ray(rm.point(0, 2, -5), rm.vector(0, 0, 1));
     s := rm.sphere();
 
-    xs := rm.intersect(s, r);
+    xs := rm.intersects(s, r);
     defer delete(xs);
 
     expect(t, len(xs) == 0);
@@ -92,7 +97,7 @@ R_Inside_Sphere :: proc(t: ^testing.T) {
     r := rm.ray(rm.point(0, 0, 0), rm.vector(0, 0, 1));
     s := rm.sphere();
 
-    xs := rm.intersect(s, r);
+    xs := rm.intersects(s, r);
     defer delete(xs);
 
     expect(t, len(xs) == 2);
@@ -106,7 +111,7 @@ R_Sphere_Behind :: proc(t: ^testing.T) {
     r := rm.ray(rm.point(0, 0, 5), rm.vector(0, 0, 1));
     s := rm.sphere();
 
-    xs := rm.intersect(s, r);
+    xs := rm.intersects(s, r);
     defer delete(xs);
 
     expect(t, len(xs) == 2);
@@ -149,12 +154,7 @@ Intersect_Sets_Ojb :: proc(t: ^testing.T) {
 
     s := rm.sphere();
 
-    {
-        s2 := rm.sphere();
-        expect(t, s != s2);
-    }
-
-    xs := rm.intersect(s, r);
+    xs := rm.intersects(s, r);
     defer delete(xs);
 
     expect(t, len(xs) == 2);
@@ -173,8 +173,9 @@ Hit_All_Positive :: proc(t: ^testing.T) {
     xs := rm.intersections(i1, i2);
     defer delete(xs);
 
-    i := rm.hit(xs[:]);
+    i, i_ok := rm.hit(xs[:]).?;
 
+    expect(t, i_ok);
     expect(t, i == i1);
 }
 
@@ -188,8 +189,9 @@ Hit_Some_Negative :: proc(t: ^testing.T) {
     xs := rm.intersections(i1, i2);
     defer delete(xs);
 
-    i := rm.hit(xs[:]);
+    i, i_ok := rm.hit(xs[:]).?;
 
+    expect(t, i_ok);
     expect(t, i == i2);
 }
 
@@ -203,10 +205,9 @@ Hit_All_Negative :: proc(t: ^testing.T) {
     xs := rm.intersections(i1, i2);
     defer delete(xs);
 
-    i := rm.hit(xs[:]);
+    _, i_ok := rm.hit(xs[:]).?;
 
-    expect(t, i.t == 0.0);
-    expect(t, i.object == rm.Sphere { 0 });
+    expect(t, !i_ok);
 }
 
 @test
@@ -224,7 +225,75 @@ Hit_Lowest_Non_Negative :: proc(t: ^testing.T) {
     xs = rm.intersections(xs, i3, i4);
     defer delete(xs);
 
-    i := rm.hit(xs[:]);
+    i, i_ok := rm.hit(xs[:]).?;
 
     expect(t, i == i4);
+}
+
+@test
+R_Translation :: proc(t: ^testing.T) {
+
+    r := rm.ray(rm.point(1, 2, 3), rm.vector(0, 1, 0));
+    m := rm.translation(3, 4, 5);
+
+    r2 := rm.ray_transform(r, m);
+
+    expect(t, r2.origin == rm.point(4, 6, 8));
+    expect(t, r2.direction == rm.vector(0, 1, 0));
+}
+
+@test
+R_Scaling :: proc(t: ^testing.T) {
+
+    r := rm.ray(rm.point(1, 2, 3), rm.vector(0, 1, 0));
+    m := rm.scaling(2, 3, 4);
+
+    r2 := rm.ray_transform(r, m);
+
+    expect(t, r2.origin == rm.point(2, 6, 12));
+    expect(t, r2.direction == rm.vector(0, 3, 0));
+}
+
+
+@test
+S_Default_Transform :: proc(t: ^testing.T) {
+
+    s := rm.sphere();
+
+    expect(t, s.transform == rm.matrix4_identity);
+}
+
+@test
+S_Modified_Transform :: proc(t: ^testing.T) {
+
+    {
+        s := rm.sphere()
+        m := rm.translation(2, 3, 4);
+
+        rm.sphere_set_transform(&s, m);
+
+        expect(t, s.transform == m);
+    }
+
+    {
+        m := rm.translation(2, 3, 4);
+        s := rm.sphere(m);
+
+        expect(t, s.transform == m);
+    }
+}
+
+@test
+S_Scaled_Intersect_R :: proc(t: ^testing.T) {
+
+    r := rm.ray(rm.point(0, 0, -5), rm.vector(0, 0, 1));
+    s := rm.sphere(rm.scaling(2, 2, 2));
+
+    xs := rm.intersects(s, r);
+    defer delete(xs);
+
+    expect(t, len(xs) == 2);
+    expect(t, xs[0].t == 3);
+    expect(t, xs[1].t == 7);
+
 }
