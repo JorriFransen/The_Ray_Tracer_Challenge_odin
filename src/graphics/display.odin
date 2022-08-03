@@ -9,6 +9,7 @@ display :: proc(c: Canvas, title: cstring) {
     height := i32(c.height);
 
     rl.InitWindow(width, height, title);
+    defer rl.CloseWindow();
 
     target := rl.LoadRenderTexture(width, height);
     defer rl.UnloadRenderTexture(target);
@@ -38,9 +39,6 @@ display :: proc(c: Canvas, title: cstring) {
         rl.EndDrawing();
 
     }
-
-    rl.CloseWindow();
-
 }
 
 @(private="file")
