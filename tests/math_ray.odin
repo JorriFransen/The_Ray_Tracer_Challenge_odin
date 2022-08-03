@@ -53,6 +53,7 @@ R_Intersect_Sphere_2P :: proc(t: ^testing.T) {
     s := rm.sphere();
 
     xs := rm.intersect(s, r);
+    defer delete(xs);
 
     expect(t, len(xs) == 2);
     expect(t, xs[0].t == 4.0);
@@ -66,6 +67,7 @@ R_Intersect_Sphere_Tangent :: proc(t: ^testing.T) {
     s := rm.sphere();
 
     xs := rm.intersect(s, r);
+    defer delete(xs);
 
     expect(t, len(xs) == 2);
     expect(t, xs[0].t == 5.0);
@@ -79,6 +81,7 @@ R_Misses_Sphere :: proc(t: ^testing.T) {
     s := rm.sphere();
 
     xs := rm.intersect(s, r);
+    defer delete(xs);
 
     expect(t, len(xs) == 0);
 }
@@ -90,6 +93,7 @@ R_Inside_Sphere :: proc(t: ^testing.T) {
     s := rm.sphere();
 
     xs := rm.intersect(s, r);
+    defer delete(xs);
 
     expect(t, len(xs) == 2);
     expect(t, xs[0].t == -1.0);
@@ -103,6 +107,7 @@ R_Sphere_Behind :: proc(t: ^testing.T) {
     s := rm.sphere();
 
     xs := rm.intersect(s, r);
+    defer delete(xs);
 
     expect(t, len(xs) == 2);
     expect(t, xs[0].t == -6.0);
@@ -128,11 +133,14 @@ Aggregating_Intersections :: proc(t: ^testing.T) {
     i2 := rm.intersection(2, s);
 
     xs := rm.intersections(i1, i2);
+    defer delete(xs);
 
     expect(t, len(xs) == 2);
     expect(t, xs[0].t == 1);
     expect(t, xs[1].t == 2);
 }
+
+import "core:fmt"
 
 @test
 Intersect_Sets_Ojb :: proc(t: ^testing.T) {
@@ -147,6 +155,7 @@ Intersect_Sets_Ojb :: proc(t: ^testing.T) {
     }
 
     xs := rm.intersect(s, r);
+    defer delete(xs);
 
     expect(t, len(xs) == 2);
     expect(t, xs[0].object == s);
@@ -156,36 +165,45 @@ Intersect_Sets_Ojb :: proc(t: ^testing.T) {
 
 @test
 Hit_All_Positive :: proc(t: ^testing.T) {
+
     s := rm.sphere();
     i1 := rm.intersection(1, s);
     i2 := rm.intersection(2, s);
-    xs := rm.intersections(i1, i2);
 
-    i := rm.hit(xs);
+    xs := rm.intersections(i1, i2);
+    defer delete(xs);
+
+    i := rm.hit(xs[:]);
 
     expect(t, i == i1);
 }
 
 @test
 Hit_Some_Negative :: proc(t: ^testing.T) {
+
     s := rm.sphere();
     i1 := rm.intersection(-1, s);
     i2 := rm.intersection(1, s);
-    xs := rm.intersections(i1, i2);
 
-    i := rm.hit(xs);
+    xs := rm.intersections(i1, i2);
+    defer delete(xs);
+
+    i := rm.hit(xs[:]);
 
     expect(t, i == i2);
 }
 
 @test
 Hit_All_Negative :: proc(t: ^testing.T) {
+
     s := rm.sphere();
     i1 := rm.intersection(-2, s);
     i2 := rm.intersection(-1, s);
-    xs := rm.intersections(i1, i2);
 
-    i := rm.hit(xs);
+    xs := rm.intersections(i1, i2);
+    defer delete(xs);
+
+    i := rm.hit(xs[:]);
 
     expect(t, i.t == 0.0);
     expect(t, i.object == rm.Sphere { 0 });
@@ -199,9 +217,14 @@ Hit_Lowest_Non_Negative :: proc(t: ^testing.T) {
     i2 := rm.intersection(7, s);
     i3 := rm.intersection(-3, s);
     i4 := rm.intersection(2, s);
-    xs := rm.intersections(i1, i2, i3, i4);
 
-    i := rm.hit(xs);
+    xs := rm.intersections(i1, i2);
+
+    // Testing this overload, normally the call above would be 'intersections(i1, i2, i3, i4);'
+    xs = rm.intersections(xs, i3, i4);
+    defer delete(xs);
+
+    i := rm.hit(xs[:]);
 
     expect(t, i == i4);
 }

@@ -1,6 +1,7 @@
 package rtmath
 
 import "core:math"
+import "core:slice"
 
 Ray :: struct {
     origin: Point,
@@ -20,8 +21,19 @@ intersection :: proc(t: Tuple_Element_Type, s: Sphere) -> Intersection {
     return Intersection { t, s };
 }
 
-intersections :: proc(intersections: .. Intersection) -> []Intersection {
-    return intersections;
+intersections_from_slice :: proc(intersections: .. Intersection) -> [dynamic]Intersection {
+    return slice.clone_to_dynamic(intersections);
+}
+
+intersections_from_dyn_arr_and_slice :: proc(dxs: [dynamic]Intersection, ixs: .. Intersection) -> [dynamic]Intersection {
+    dxs := dxs;
+    append(&dxs, .. ixs);
+    return dxs;
+}
+
+intersections :: proc {
+    intersections_from_slice,
+    intersections_from_dyn_arr_and_slice,
 }
 
 hit :: proc(xs: []Intersection) -> Intersection {
@@ -52,7 +64,7 @@ position :: proc(r: Ray, t: Tuple_Element_Type) -> Point {
     return add(r.origin, distance);
 }
 
-intersect :: proc(s: Sphere, r: Ray) -> []Intersection {
+intersect :: proc(s: Sphere, r: Ray) -> [dynamic]Intersection {
 
     // Sphere is always located at (0,0,0)
     sphere_to_ray := sub(r.origin, point(0, 0, 0));
@@ -65,7 +77,7 @@ intersect :: proc(s: Sphere, r: Ray) -> []Intersection {
 
 
     if discriminant < 0 {
-        return {};
+        return nil;
     }
 
     discriminant_sqrt := math.sqrt(discriminant);
@@ -73,6 +85,8 @@ intersect :: proc(s: Sphere, r: Ray) -> []Intersection {
 
     t1 := Tuple_Element_Type((-b - discriminant_sqrt) / a2);
     t2 := Tuple_Element_Type((-b + discriminant_sqrt) / a2);
+
+    assert(t1 <= t2);
 
     return { intersection(t1, s), intersection(t2, s) };
 }
