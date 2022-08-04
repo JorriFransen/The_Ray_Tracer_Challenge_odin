@@ -1,6 +1,5 @@
 package tests;
 
-import "core:fmt"
 import "core:testing"
 import "core:strings"
 
@@ -166,9 +165,10 @@ Ca_PPM_Header :: proc(t: ^testing.T) {
 
     ppm_lines := strings.split_lines(ppm, context.temp_allocator);
 
-    // expect(t, ppm_lines[0] == "P3");
-    // expect(t, ppm_lines[1] == "5 3");
-    // expect(t, ppm_lines[2] == "255");
+    expect(t, len(ppm_lines) >= 3);
+    expect(t, ppm_lines[0] == "P3");
+    expect(t, ppm_lines[1] == "5 3");
+    expect(t, ppm_lines[2] == "255");
 }
 
 @test

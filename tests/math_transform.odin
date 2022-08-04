@@ -1,6 +1,5 @@
 package tests;
 
-import "core:fmt"
 import "core:testing"
 import "core:math"
 

@@ -70,14 +70,12 @@ S_Normal_X_Axis :: proc(t: ^testing.T) {
     p := m.point(1, 0, 0);
 
     n := m.shape_normal_at(&s, p);
-    n1 := m.shape_normal_at_s(&s, p)
-    n2 := m.sphere_normal_at(&s, p);
+    n1 := m.sphere_normal_at(&s, p);
 
     expected := m.vector(1, 0, 0);
 
     expect(t, n == expected);
     expect(t, n1 == expected);
-    expect(t, n2 == expected);
 }
 
 @test
@@ -87,14 +85,12 @@ S_Normal_Y_Axis :: proc(t: ^testing.T) {
     p := m.point(0, 1, 0);
 
     n := m.shape_normal_at(&s, p);
-    n1 := m.shape_normal_at_s(&s, p)
-    n2 := m.sphere_normal_at(&s, p);
+    n1 := m.sphere_normal_at(&s, p);
 
     expected := m.vector(0, 1, 0);
 
     expect(t, n == expected);
     expect(t, n1 == expected);
-    expect(t, n2 == expected);
 }
 
 @test
@@ -104,14 +100,12 @@ S_Normal_Z_Axis :: proc(t: ^testing.T) {
     p := m.point(0, 0, 1);
 
     n := m.shape_normal_at(&s, p);
-    n1 := m.shape_normal_at_s(&s, p)
-    n2 := m.sphere_normal_at(&s, p);
+    n1 := m.sphere_normal_at(&s, p);
 
     expected := m.vector(0, 0, 1);
 
     expect(t, n == expected);
     expect(t, n1 == expected);
-    expect(t, n2 == expected);
 }
 
 @test
@@ -123,14 +117,12 @@ S_Normal_Nonaxial :: proc(t: ^testing.T) {
     p := m.point(v, v, v);
 
     n := m.shape_normal_at(&s, p);
-    n1 := m.shape_normal_at_s(&s, p);
-    n2:= m.sphere_normal_at(&s, p);
+    n1:= m.sphere_normal_at(&s, p);
 
     expected := m.vector(v, v, v);
 
     expect(t, m.eq(n, expected));
     expect(t, m.eq(n1, expected));
-    expect(t, m.eq(n2, expected));
 }
 
 @test
@@ -142,14 +134,12 @@ S_Normal_Normalized :: proc(t: ^testing.T) {
     p := m.point(v, v, v);
 
     n := m.shape_normal_at(&s, p);
-    n1 := m.shape_normal_at_s(&s, p);
-    n2 := m.sphere_normal_at(&s, p);
+    n1 := m.sphere_normal_at(&s, p);
 
     expected := m.normalize(n);
 
     expect(t, m.eq(n, expected));
     expect(t, m.eq(n1, expected));
-    expect(t, m.eq(n2, expected));
 }
 
 @test
@@ -160,14 +150,12 @@ S_Translated_Normal :: proc(t: ^testing.T) {
     p := m.point(0, 1.70711, -0.70711);
 
     n := m.shape_normal_at(&s, p);
-    n1 := m.shape_normal_at_s(&s, p);
-    n2 := m.sphere_normal_at(&s, p);
+    n1 := m.sphere_normal_at(&s, p);
 
     expected := m.vector(0, 0.70711, -0.70711);
 
     expect(t, m.eq(n, expected));
     expect(t, m.eq(n1, expected));
-    expect(t, m.eq(n2, expected));
 }
 
 @test
@@ -179,12 +167,10 @@ S_Scaled_Rotated_Normal :: proc(t: ^testing.T) {
     p := m.point(0, sqrt2_over_2, -sqrt2_over_2);
 
     n := m.shape_normal_at(&s, p);
-    n1 := m.shape_normal_at_s(&s, p);
-    n2:= m.sphere_normal_at(&s, p);
+    n1:= m.sphere_normal_at(&s, p);
 
     expected := m.vector(0, 0.97014, -0.24254);
 
     expect(t, m.eq(n, expected));
     expect(t, m.eq(n1, expected));
-    expect(t, m.eq(n2, expected));
 }

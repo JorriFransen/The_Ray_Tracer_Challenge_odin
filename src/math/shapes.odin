@@ -2,55 +2,40 @@ package rtmath
 
 Shape :: struct {
     transform: Matrix4,
-
-    derived: union { ^Sphere },
-};
-
+}
 
 Sphere :: struct {
     using base: Shape,
 }
 
-shape_default :: proc(derived: ^$T) -> Shape {
-    return Shape { matrix4_identity, derived };
+shape_default :: proc() -> Shape {
+    return shape(matrix4_identity);
 }
 
-shape_t :: proc(derived: ^$T, t: Matrix4) -> Shape {
-    return Shape { t, derived };
+shape_with_transform :: proc(t: Matrix4) -> Shape {
+    return Shape { t };
 }
 
 shape :: proc {
     shape_default,
-    shape_t,
+    shape_with_transform,
 }
 
-sphere_default :: proc() -> (s: Sphere) {
-    s.base = shape(&s);
-    return;
+sphere_default :: proc() -> Sphere {
+    return sphere(matrix4_identity);
 }
 
-sphere_t :: proc(t: Matrix4) -> (s: Sphere) {
-    s.base = shape(&s, t);
-    return;
+sphere_with_transform :: proc(t: Matrix4) -> Sphere {
+    return Sphere { shape(t) };
 }
 
 sphere :: proc {
     sphere_default,
-    sphere_t,
+    sphere_with_transform,
 }
 
 shape_set_transform :: proc(s: ^Shape, t: Matrix4) {
     s.transform = t;
-}
-
-shape_normal_at_s :: proc(s: ^Shape, p: Point) -> Vector {
-
-    switch d in s.derived {
-        case ^Sphere: return sphere_normal_at(s.derived.(^Sphere), p);
-    }
-
-    assert(false);
-    return Vector {};
 }
 
 sphere_normal_at :: proc(s: ^Sphere, p: Point) -> Vector {
@@ -71,6 +56,5 @@ sphere_normal_at :: proc(s: ^Sphere, p: Point) -> Vector {
 }
 
 shape_normal_at :: proc {
-    shape_normal_at_s,
     sphere_normal_at,
 }
