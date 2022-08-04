@@ -15,12 +15,30 @@ tuple :: proc(x, y, z, w: Tuple_Element_Type) -> Tuple {
     return Tuple { x, y, z, w };
 }
 
-point :: proc(x, y, z: Tuple_Element_Type) -> Point {
+point_xyz :: proc(x, y, z: Tuple_Element_Type) -> Point {
     return Point { x, y, z, 1.0 };
 }
 
-vector :: proc(x, y, z: Tuple_Element_Type) -> Vector {
+point_t :: proc(t: Tuple) -> Point {
+    return Point { t.x, t.y, t.z, 1.0 };
+}
+
+point :: proc {
+    point_xyz,
+    point_t,
+}
+
+vector_xyz :: proc(x, y, z: Tuple_Element_Type) -> Vector {
     return Vector { x, y, z, 0.0 };
+}
+
+vector_t :: proc(t: Tuple) -> Vector {
+    return Vector { t.x, t.y, t.z, 0.0 };
+}
+
+vector :: proc {
+    vector_xyz,
+    vector_t,
 }
 
 is_point :: proc(t: $T/Tuple) -> bool {

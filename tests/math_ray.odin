@@ -22,9 +22,6 @@ ray_suite := Test_Suite {
         test("Hit_Lowest_Non_Negative", Hit_Lowest_Non_Negative),
         test("R_Translation", R_Translation),
         test("R_Scaling", R_Scaling),
-        test("S_Default_Transform ", S_Default_Transform),
-        test("S_Modified_Transform", S_Modified_Transform),
-        test("S_Scaled_Intersect_R", S_Scaled_Intersect_R),
     },
 }
 
@@ -249,48 +246,4 @@ R_Scaling :: proc(t: ^testing.T) {
 
     expect(t, r2.origin == rm.point(2, 6, 12));
     expect(t, r2.direction == rm.vector(0, 3, 0));
-}
-
-
-@test
-S_Default_Transform :: proc(t: ^testing.T) {
-
-    s := rm.sphere();
-
-    expect(t, s.transform == rm.matrix4_identity);
-}
-
-@test
-S_Modified_Transform :: proc(t: ^testing.T) {
-
-    {
-        s := rm.sphere()
-        m := rm.translation(2, 3, 4);
-
-        rm.sphere_set_transform(&s, m);
-
-        expect(t, s.transform == m);
-    }
-
-    {
-        m := rm.translation(2, 3, 4);
-        s := rm.sphere(m);
-
-        expect(t, s.transform == m);
-    }
-}
-
-@test
-S_Scaled_Intersect_R :: proc(t: ^testing.T) {
-
-    r := rm.ray(rm.point(0, 0, -5), rm.vector(0, 0, 1));
-    s := rm.sphere(rm.scaling(2, 2, 2));
-
-    xs, ok := rm.intersects(s, r).?;
-
-    expect(t, ok);
-    expect(t, len(xs) == 2);
-    expect(t, xs[0].t == 3);
-    expect(t, xs[1].t == 7);
-
 }

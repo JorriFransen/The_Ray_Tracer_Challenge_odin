@@ -8,6 +8,7 @@ math_suite := Test_Suite {
         &matrix_suite,
         &transform_suite,
         &ray_suite,
+        &shape_suite,
     },
 }
 
