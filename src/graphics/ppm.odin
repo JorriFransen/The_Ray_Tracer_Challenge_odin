@@ -67,6 +67,8 @@ ppm_write_element :: proc(sb: ^strings.Builder, e: $T, line_start: ^int, last_on
 
     real_value := ml.clamp(e, 0.0, 1.0)
     int_value := int(m.ceil(PPM_ELEMENT_RESOLUTION * real_value));
+    assert(int_value >= 0);
+    assert(int_value <= 255);
     fmt.sbprintf(sb, "%v", int_value);
 
     line_len = len(sb.buf) - line_start^;

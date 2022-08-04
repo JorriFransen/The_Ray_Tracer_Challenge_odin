@@ -16,6 +16,9 @@ main :: proc() {
 
     with_canvas(500, 500, CH04, "CH04");
     fmt.println("\n");
+
+    with_canvas(500, 500, CH05, "CH05");
+    fmt.println("\n");
 }
 
 With_Canvas_Proc :: proc(c: g.Canvas);

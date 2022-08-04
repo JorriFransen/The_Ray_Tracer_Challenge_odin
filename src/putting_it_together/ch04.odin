@@ -19,7 +19,7 @@ CH04 :: proc(c: g.Canvas) {
 
     assert(c.width == c.height);
 
-    canvas_size := f32(c.width);
+    canvas_size := m.Tuple_Element_Type(c.width);
     clock_size := canvas_size / 8.0 * 3.0;
 
     canvas_transform = m.translate(m.scaling(clock_size, -clock_size, 1), canvas_size / 2, canvas_size / 2, 0);
@@ -35,7 +35,9 @@ CH04 :: proc(c: g.Canvas) {
         p := m.rotate_z(zero_hour, -fi * PI / 6.0);
 
         color := g.WHITE;
-        if i % 3 == 0 {
+        if i == 0 {
+            color = g.BLUE;
+        } else if i % 3 == 0 {
             color = g.RED;
         }
 

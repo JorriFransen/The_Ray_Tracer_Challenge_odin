@@ -12,8 +12,8 @@ intersection :: proc(t: Tuple_Element_Type, s: Sphere) -> Intersection {
     return Intersection { t, s };
 }
 
-intersections_from_slice :: proc(intersections: .. Intersection) -> [dynamic]Intersection {
-    return slice.clone_to_dynamic(intersections);
+intersections_from_slice :: proc(intersections: .. Intersection, allocator := context.allocator) -> [dynamic]Intersection {
+    return slice.clone_to_dynamic(intersections, allocator);
 }
 
 intersections_from_dyn_arr_and_slice :: proc(dxs: [dynamic]Intersection, ixs: .. Intersection) -> [dynamic]Intersection {
@@ -29,7 +29,7 @@ intersections :: proc {
 
 hit :: proc(xs: []Intersection) -> Maybe(Intersection) {
 
-    assert(len(xs) > 0);
+    if len(xs) <= 0 do return nil;
 
     p_res : ^Intersection = nil;
 
@@ -50,7 +50,7 @@ hit :: proc(xs: []Intersection) -> Maybe(Intersection) {
     }
 }
 
-intersects_sr :: proc(s: Sphere, r: Ray) -> [dynamic]Intersection {
+intersects_sr :: proc(s: Sphere, r: Ray, allocator := context.allocator) -> Maybe([2]Intersection) {
 
     r := ray_transform(r, matrix_inverse(s.transform));
 
@@ -74,7 +74,7 @@ intersects_sr :: proc(s: Sphere, r: Ray) -> [dynamic]Intersection {
 
     assert(t1 <= t2);
 
-    return { intersection(t1, s), intersection(t2, s) };
+    return [?]Intersection { intersection(t1, s), intersection(t2, s) };
 }
 
 intersects :: proc {

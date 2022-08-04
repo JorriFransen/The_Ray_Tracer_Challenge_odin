@@ -57,9 +57,9 @@ R_Intersect_Sphere_2P :: proc(t: ^testing.T) {
     r := rm.ray(rm.point(0, 0, -5), rm.vector(0, 0, 1));
     s := rm.sphere();
 
-    xs := rm.intersects(s, r);
-    defer delete(xs);
+    xs, ok := rm.intersects(s, r).?;
 
+    expect(t, ok);
     expect(t, len(xs) == 2);
     expect(t, xs[0].t == 4.0);
     expect(t, xs[1].t == 6.0);
@@ -71,9 +71,9 @@ R_Intersect_Sphere_Tangent :: proc(t: ^testing.T) {
     r := rm.ray(rm.point(0, 1, -5), rm.vector(0, 0, 1));
     s := rm.sphere();
 
-    xs := rm.intersects(s, r);
-    defer delete(xs);
+    xs, ok := rm.intersects(s, r).?;
 
+    expect(t, ok);
     expect(t, len(xs) == 2);
     expect(t, xs[0].t == 5.0);
     expect(t, xs[1].t == 5.0);
@@ -85,10 +85,9 @@ R_Misses_Sphere :: proc(t: ^testing.T) {
     r := rm.ray(rm.point(0, 2, -5), rm.vector(0, 0, 1));
     s := rm.sphere();
 
-    xs := rm.intersects(s, r);
-    defer delete(xs);
+    xs, ok := rm.intersects(s, r).?;
 
-    expect(t, len(xs) == 0);
+    expect(t, !ok);
 }
 
 @test
@@ -97,9 +96,9 @@ R_Inside_Sphere :: proc(t: ^testing.T) {
     r := rm.ray(rm.point(0, 0, 0), rm.vector(0, 0, 1));
     s := rm.sphere();
 
-    xs := rm.intersects(s, r);
-    defer delete(xs);
+    xs, ok := rm.intersects(s, r).?;
 
+    expect(t, ok);
     expect(t, len(xs) == 2);
     expect(t, xs[0].t == -1.0);
     expect(t, xs[1].t == 1.0);
@@ -111,9 +110,9 @@ R_Sphere_Behind :: proc(t: ^testing.T) {
     r := rm.ray(rm.point(0, 0, 5), rm.vector(0, 0, 1));
     s := rm.sphere();
 
-    xs := rm.intersects(s, r);
-    defer delete(xs);
+    xs, ok := rm.intersects(s, r).?;
 
+    expect(t, ok);
     expect(t, len(xs) == 2);
     expect(t, xs[0].t == -6.0);
     expect(t, xs[1].t == -4.0);
@@ -145,8 +144,6 @@ Aggregating_Intersections :: proc(t: ^testing.T) {
     expect(t, xs[1].t == 2);
 }
 
-import "core:fmt"
-
 @test
 Intersect_Sets_Ojb :: proc(t: ^testing.T) {
 
@@ -154,9 +151,9 @@ Intersect_Sets_Ojb :: proc(t: ^testing.T) {
 
     s := rm.sphere();
 
-    xs := rm.intersects(s, r);
-    defer delete(xs);
+    xs, ok := rm.intersects(s, r).?;
 
+    expect(t, ok);
     expect(t, len(xs) == 2);
     expect(t, xs[0].object == s);
     expect(t, xs[1].object == s);
@@ -289,9 +286,9 @@ S_Scaled_Intersect_R :: proc(t: ^testing.T) {
     r := rm.ray(rm.point(0, 0, -5), rm.vector(0, 0, 1));
     s := rm.sphere(rm.scaling(2, 2, 2));
 
-    xs := rm.intersects(s, r);
-    defer delete(xs);
+    xs, ok := rm.intersects(s, r).?;
 
+    expect(t, ok);
     expect(t, len(xs) == 2);
     expect(t, xs[0].t == 3);
     expect(t, xs[1].t == 7);
