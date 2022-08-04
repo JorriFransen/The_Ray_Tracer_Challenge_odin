@@ -3,7 +3,10 @@ package putting_it_together;
 import m "raytracer:math"
 import g "raytracer:graphics"
 
+import "core:math"
 import "core:fmt";
+
+PI :: math.PI;
 
 CH05 :: proc(c: g.Canvas) {
 
@@ -20,6 +23,9 @@ CH05 :: proc(c: g.Canvas) {
 
     color :: g.RED;
     shape := m.sphere();
+    // shape := m.sphere(m.scaling(0.5, 1, 1));
+    // shape := m.sphere(m.rotation_z(PI / 4) * m.scaling(0.5, 1, 1));
+    // shape := m.sphere(m.shearing(1, 0, 0, 0, 0, 0) * m.scaling(0.5, 1, 1));
 
     for y in 0..<canvas_pixels {
         world_y := half_wall_size - pixel_size * m.Tuple_Element_Type(y);
