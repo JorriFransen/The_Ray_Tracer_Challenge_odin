@@ -2,6 +2,7 @@ package tests
 
 import "core:intrinsics"
 import "core:testing"
+import "core:math"
 
 import cm "core:math"
 import rm "raytracer:math"
@@ -36,6 +37,8 @@ vec_suite := Test_Suite {
         test("V_Normalize_X1_Y2_Z3", V_Normalize_X1_Y2_Z3),
         test("V_Dot", V_Dot),
         test("V_Cross", V_Cross),
+        test("V_Reflect", V_Reflect),
+        test("V_Reflect_Slanted_Surface", V_Reflect_Slanted_Surface),
     },
 }
 
@@ -396,3 +399,25 @@ V_Cross :: proc(t: ^testing.T) {
     expect(t, rm.eq(result_ba, expected_ba));
 }
 
+@test
+V_Reflect :: proc(t: ^testing.T) {
+
+    v := rm.vector(1, -1, 0);
+    n := rm.vector(0, 1, 0);
+
+    r := rm.reflect(v, n);
+
+    expect(t, rm.eq(r, rm.vector(1, 1, 0)));
+}
+
+@test
+V_Reflect_Slanted_Surface :: proc(t: ^testing.T) {
+
+    v := rm.vector(0, -1, 0);
+    sqrt2_over_2 := math.sqrt(rm.Tuple_Element_Type(2))/2;
+    n := rm.vector(sqrt2_over_2, sqrt2_over_2, 0);
+
+    r := rm.reflect(v, n);
+
+    expect(t, rm.eq(r, rm.vector(1, 0, 0)));
+}

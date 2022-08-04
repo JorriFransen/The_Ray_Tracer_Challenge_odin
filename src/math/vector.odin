@@ -178,3 +178,7 @@ cross :: proc(a_, b_: Vector) -> Vector {
     a, b := a_, b_; // @HACK: Can't use array arithmatic on arguments directly
     return a.yzxw * b.zxyw - a.zxyw * b.yzxw;
 }
+
+reflect :: proc(v, n: Vector) ->  Vector {
+    return sub(v, mul(n, 2 * dot(v, n)));
+}
