@@ -2,7 +2,7 @@ package putting_it_together;
 
 import m "raytracer:math"
 import g "raytracer:graphics"
-import s "raytracer:shapes"
+import w "raytracer:world"
 
 import "core:math"
 import "core:fmt";
@@ -22,7 +22,7 @@ CH05 :: proc(c: g.Canvas) {
     half_wall_size := wall_size / 2;
 
     color :: g.RED;
-    shape := s.sphere();
+    shape := w.sphere();
     // shape := m.sphere(m.scaling(0.5, 1, 1));
     // shape := m.sphere(m.rotation_z(PI / 4) * m.scaling(0.5, 1, 1));
     // shape := m.sphere(m.shearing(1, 0, 0, 0, 0, 0) * m.scaling(0.5, 1, 1));
@@ -36,11 +36,11 @@ CH05 :: proc(c: g.Canvas) {
             position := m.point(world_x, world_y, wall_z);
 
             r := m.ray(ray_origin, m.normalize(m.sub(position, ray_origin)));
-            xs, did_intersect := s.intersects(shape, r).?;
+            xs, did_intersect := w.intersects(shape, r).?;
 
             if !did_intersect do continue;
 
-            if i, ok := s.hit(xs[:]).?; ok {
+            if i, ok := w.hit(xs[:]).?; ok {
                 g.canvas_write_pixel(c, x, y, color);
             }
         }

@@ -1,54 +1,56 @@
-package rtshapes
+package world
 
 import m "raytracer:math"
 import g "raytracer:graphics"
 
-Shape :: struct {
+Shape_Base :: struct {
     transform: m.Matrix4,
     material: g.Material,
 }
 
 Sphere :: struct {
-    using base: Shape,
+    using base: Shape_Base,
 }
 
-shape_default :: proc() -> Shape {
-    return shape(m.matrix4_identity, g.material());
+Shape :: union { Sphere };
+
+shape_base_default :: proc() -> Shape_Base {
+    return shape_base(m.matrix4_identity, g.material());
 }
 
-shape_t :: proc(t: m.Matrix4) -> Shape {
-    return shape(t, g.material());
+shape_base_t :: proc(t: m.Matrix4) -> Shape_Base {
+    return shape_base(t, g.material());
 }
 
-shape_m :: proc(mat: g.Material) -> Shape {
-    return shape(m.matrix4_identity, mat);
+shape_base_m :: proc(mat: g.Material) -> Shape_Base {
+    return shape_base(m.matrix4_identity, mat);
 }
 
-shape_tm :: proc(t: m.Matrix4, m: g.Material) -> Shape {
-    return Shape { t, m };
+shape_base_tm :: proc(t: m.Matrix4, m: g.Material) -> Shape_Base {
+    return Shape_Base { t, m };
 }
 
-shape :: proc {
-    shape_default,
-    shape_t,
-    shape_m,
-    shape_tm,
+shape_base :: proc {
+    shape_base_default,
+    shape_base_t,
+    shape_base_m,
+    shape_base_tm,
 }
 
 sphere_default :: proc() -> Sphere {
-    return Sphere { shape() };
+    return Sphere { shape_base() };
 }
 
 sphere_t :: proc(t: m.Matrix4) -> Sphere {
-    return Sphere { shape(t) };
+    return Sphere { shape_base(t) };
 }
 
 sphere_m :: proc(m: g.Material) -> Sphere {
-    return Sphere { shape(m) };
+    return Sphere { shape_base(m) };
 }
 
 sphere_tm :: proc(t: m.Matrix4, m: g.Material) -> Sphere {
-    return Sphere { shape(t, m) };
+    return Sphere { shape_base(t, m) };
 }
 
 sphere :: proc {
@@ -58,11 +60,11 @@ sphere :: proc {
     sphere_tm,
 }
 
-shape_set_transform :: proc(s: ^Shape, t: m.Matrix4) {
+shape_set_transform :: proc(s: ^Shape_Base, t: m.Matrix4) {
     s.transform = t;
 }
 
-shape_set_material :: proc(s: ^Shape, m: g.Material) {
+shape_set_material :: proc(s: ^Shape_Base, m: g.Material) {
     s.material = m;
 }
 

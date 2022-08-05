@@ -1,4 +1,4 @@
-package rtshapes
+package world
 
 import "core:math"
 import "core:slice"
@@ -52,7 +52,15 @@ hit :: proc(xs: []Intersection) -> Maybe(Intersection) {
     }
 }
 
-intersects_sr :: proc(s: Sphere, r: m.Ray, allocator := context.allocator) -> Maybe([2]Intersection) {
+intersects_shape :: proc(s: Shape, r: m.Ray) -> Maybe([2]Intersection) {
+
+    switch k in s {
+        case Sphere: return intersects(k, r);
+        case: assert(false); return nil;
+    }
+}
+
+intersects_sphere :: proc(s: Sphere, r: m.Ray) -> Maybe([2]Intersection) {
 
     r := m.ray_transform(r, m.matrix_inverse(s.transform));
 
@@ -80,5 +88,6 @@ intersects_sr :: proc(s: Sphere, r: m.Ray, allocator := context.allocator) -> Ma
 }
 
 intersects :: proc {
-    intersects_sr,
+    intersects_shape,
+    intersects_sphere,
 }

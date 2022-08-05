@@ -7,6 +7,8 @@ import "core:strings"
 import "core:c/libc"
 import "core:io"
 
+T :: testing.T;
+
 Test :: struct {
     using internal: testing.Internal_Test,
 }

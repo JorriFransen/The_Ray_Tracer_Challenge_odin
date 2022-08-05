@@ -59,6 +59,7 @@ ppm_write_to_file :: proc(file_name, ppm: string) -> (success: bool)  {
     return os.write_entire_file(file_name, transmute([]u8)ppm);
 }
 
+@(private="file")
 append_element :: #force_inline proc(state: ^PPM_Print_State, e: $T) where intrinsics.type_is_float(T) {
 
     real_value := ml.clamp(e, 0.0, 1.0)

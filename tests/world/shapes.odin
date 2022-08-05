@@ -1,9 +1,9 @@
-package tests_shapes
+package tests_world
 
 import "core:testing"
 import "core:math"
 
-import "raytracer:shapes"
+import w "raytracer:world"
 import g "raytracer:graphics"
 import m "raytracer:math"
 
@@ -27,16 +27,12 @@ shape_suite := r.Test_Suite {
         r.test("Sphere_Default_Material", Sphere_Default_Material),
         r.test("Sphere_Modified_Material", Sphere_Modified_Material),
     },
-
-    child_suites = {
-        &intersect_suite,
-    },
 }
 
 @test
 S_Default_Transform :: proc(t: ^testing.T) {
 
-    s := shapes.sphere();
+    s := w.sphere();
 
     r.expect(t, s.transform == m.matrix4_identity);
 }
@@ -45,17 +41,17 @@ S_Default_Transform :: proc(t: ^testing.T) {
 S_Modified_Transform :: proc(t: ^testing.T) {
 
     {
-        s := shapes.sphere()
+        s := w.sphere()
         tf := m.translation(2, 3, 4);
 
-        shapes.shape_set_transform(&s, tf);
+        w.shape_set_transform(&s, tf);
 
         r.expect(t, s.transform == tf);
     }
 
     {
         tf := m.translation(2, 3, 4);
-        s := shapes.sphere(tf);
+        s := w.sphere(tf);
 
         r.expect(t, s.transform == tf);
     }
@@ -65,9 +61,9 @@ S_Modified_Transform :: proc(t: ^testing.T) {
 S_Scaled_Intersect_R :: proc(t: ^testing.T) {
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
-    s := shapes.sphere(m.scaling(2, 2, 2));
+    s := w.sphere(m.scaling(2, 2, 2));
 
-    xs, ok := shapes.intersects(s, ray).?;
+    xs, ok := w.intersects(s, ray).?;
 
     r.expect(t, ok);
     r.expect(t, len(xs) == 2);
@@ -79,11 +75,11 @@ S_Scaled_Intersect_R :: proc(t: ^testing.T) {
 @test
 S_Normal_X_Axis :: proc(t: ^testing.T) {
 
-    s := shapes.sphere();
+    s := w.sphere();
     p := m.point(1, 0, 0);
 
-    n := shapes.shape_normal_at(&s, p);
-    n1 := shapes.sphere_normal_at(&s, p);
+    n := w.shape_normal_at(&s, p);
+    n1 := w.sphere_normal_at(&s, p);
 
     expected := m.vector(1, 0, 0);
 
@@ -94,11 +90,11 @@ S_Normal_X_Axis :: proc(t: ^testing.T) {
 @test
 S_Normal_Y_Axis :: proc(t: ^testing.T) {
 
-    s := shapes.sphere();
+    s := w.sphere();
     p := m.point(0, 1, 0);
 
-    n := shapes.shape_normal_at(&s, p);
-    n1 := shapes.sphere_normal_at(&s, p);
+    n := w.shape_normal_at(&s, p);
+    n1 := w.sphere_normal_at(&s, p);
 
     expected := m.vector(0, 1, 0);
 
@@ -109,11 +105,11 @@ S_Normal_Y_Axis :: proc(t: ^testing.T) {
 @test
 S_Normal_Z_Axis :: proc(t: ^testing.T) {
 
-    s := shapes.sphere();
+    s := w.sphere();
     p := m.point(0, 0, 1);
 
-    n := shapes.shape_normal_at(&s, p);
-    n1 := shapes.sphere_normal_at(&s, p);
+    n := w.shape_normal_at(&s, p);
+    n1 := w.sphere_normal_at(&s, p);
 
     expected := m.vector(0, 0, 1);
 
@@ -124,13 +120,13 @@ S_Normal_Z_Axis :: proc(t: ^testing.T) {
 @test
 S_Normal_Nonaxial :: proc(t: ^testing.T) {
 
-    s := shapes.sphere();
+    s := w.sphere();
 
     v := math.sqrt(f32(3.0)) / 3;
     p := m.point(v, v, v);
 
-    n := shapes.shape_normal_at(&s, p);
-    n1:= shapes.sphere_normal_at(&s, p);
+    n := w.shape_normal_at(&s, p);
+    n1:= w.sphere_normal_at(&s, p);
 
     expected := m.vector(v, v, v);
 
@@ -141,13 +137,13 @@ S_Normal_Nonaxial :: proc(t: ^testing.T) {
 @test
 S_Normal_Normalized :: proc(t: ^testing.T) {
 
-    s := shapes.sphere();
+    s := w.sphere();
 
     v := math.sqrt(f32(3.0)) / 3;
     p := m.point(v, v, v);
 
-    n := shapes.shape_normal_at(&s, p);
-    n1 := shapes.sphere_normal_at(&s, p);
+    n := w.shape_normal_at(&s, p);
+    n1 := w.sphere_normal_at(&s, p);
 
     expected := m.normalize(n);
 
@@ -158,12 +154,12 @@ S_Normal_Normalized :: proc(t: ^testing.T) {
 @test
 S_Translated_Normal :: proc(t: ^testing.T) {
 
-    s := shapes.sphere(m.translation(0, 1, 0));
+    s := w.sphere(m.translation(0, 1, 0));
 
     p := m.point(0, 1.70711, -0.70711);
 
-    n := shapes.shape_normal_at(&s, p);
-    n1 := shapes.sphere_normal_at(&s, p);
+    n := w.shape_normal_at(&s, p);
+    n1 := w.sphere_normal_at(&s, p);
 
     expected := m.vector(0, 0.70711, -0.70711);
 
@@ -174,13 +170,13 @@ S_Translated_Normal :: proc(t: ^testing.T) {
 @test
 S_Scaled_Rotated_Normal :: proc(t: ^testing.T) {
 
-    s := shapes.sphere(m.scaling(1, 0.5, 1) * m.rotation_z(PI / 5));
+    s := w.sphere(m.scaling(1, 0.5, 1) * m.rotation_z(PI / 5));
 
     sqrt2_over_2 := math.sqrt(m.Matrix_Element_Type(2.0)) / 2;
     p := m.point(0, sqrt2_over_2, -sqrt2_over_2);
 
-    n := shapes.shape_normal_at(&s, p);
-    n1:= shapes.sphere_normal_at(&s, p);
+    n := w.shape_normal_at(&s, p);
+    n1:= w.sphere_normal_at(&s, p);
 
     expected := m.vector(0, 0.97014, -0.24254);
 
@@ -191,7 +187,7 @@ S_Scaled_Rotated_Normal :: proc(t: ^testing.T) {
 @test
 Sphere_Default_Material :: proc(t: ^testing.T) {
 
-    s := shapes.sphere();
+    s := w.sphere();
 
     m := s.material;
 
@@ -202,11 +198,11 @@ Sphere_Default_Material :: proc(t: ^testing.T) {
 Sphere_Modified_Material :: proc(t: ^testing.T) {
 
     {
-        s := shapes.sphere();
+        s := w.sphere();
         m := g.material();
         m.ambient = 1;
 
-        shapes.shape_set_material(&s, m);
+        w.shape_set_material(&s, m);
 
         r.expect(t, s.material == m);
     }
@@ -214,13 +210,13 @@ Sphere_Modified_Material :: proc(t: ^testing.T) {
     {
         m := g.material();
         m.ambient = 1;
-        s := shapes.sphere(m);
+        s := w.sphere(m);
 
         r.expect(t, s.material == m);
     }
 
     {
-        s := shapes.sphere();
+        s := w.sphere();
         m := g.material();
         m.ambient = 1;
 

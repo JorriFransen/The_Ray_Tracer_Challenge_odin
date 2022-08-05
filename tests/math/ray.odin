@@ -2,7 +2,7 @@ package tests_math
 
 import "core:testing"
 import rm "raytracer:math"
-import shapes "raytracer:shapes"
+import w "raytracer:world"
 
 import r "../runner"
 

@@ -8,7 +8,7 @@ import r "runner"
 
 import math_tests "math"
 import graphics_tests "graphics"
-import shapes_tests "shapes"
+import world_tests "world"
 
 main_suite := r.Test_Suite {
     name = "",
@@ -16,7 +16,7 @@ main_suite := r.Test_Suite {
     child_suites = {
         &math_tests.math_suite,
         &graphics_tests.graphics_suite,
-        &shapes_tests.shape_suite,
+        &world_tests.world_suite,
     },
 }
 
