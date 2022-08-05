@@ -418,7 +418,7 @@ M3_Minor :: proc(t: ^testing.T) {
 
     B := rm.matrix_submatrix(A, row, col);
 
-    expected_determinant : rm.Matrix_Element_Type : 25;
+    expected_determinant : rm.real : 25;
     result_determinant := rm.matrix_determinant(B);
 
     r.expect(t, result_determinant == expected_determinant);

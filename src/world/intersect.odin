@@ -6,11 +6,11 @@ import "core:slice"
 import m "raytracer:math"
 
 Intersection :: struct {
-    t: m.Tuple_Element_Type,
+    t: m.real,
     object: Sphere,
 }
 
-intersection :: proc(t: m.Tuple_Element_Type, s: Sphere) -> Intersection {
+intersection :: proc(t: m.real, s: Sphere) -> Intersection {
     return Intersection { t, s };
 }
 
@@ -79,8 +79,8 @@ intersects_sphere :: proc(s: Sphere, r: m.Ray) -> Maybe([2]Intersection) {
     discriminant_sqrt := math.sqrt(discriminant);
     a2 := 2 * a;
 
-    t1 := m.Tuple_Element_Type((-b - discriminant_sqrt) / a2);
-    t2 := m.Tuple_Element_Type((-b + discriminant_sqrt) / a2);
+    t1 := m.real((-b - discriminant_sqrt) / a2);
+    t2 := m.real((-b + discriminant_sqrt) / a2);
 
     assert(t1 <= t2);
 

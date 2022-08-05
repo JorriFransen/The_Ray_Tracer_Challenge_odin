@@ -3,37 +3,35 @@ package rtmath
 import "core:fmt"
 import "core:intrinsics"
 
-Matrix_Element_Type :: Tuple_Element_Type;
-
-Matrix4 :: distinct matrix[4, 4]Matrix_Element_Type;
-Matrix3 :: distinct matrix[3, 3]Matrix_Element_Type;
-Matrix2 :: distinct matrix[2, 2]Matrix_Element_Type;
+Matrix4 :: distinct matrix[4, 4]real;
+Matrix3 :: distinct matrix[3, 3]real;
+Matrix2 :: distinct matrix[2, 2]real;
 
 matrix4_identity :: Matrix4 { 1, 0, 0, 0,
                               0, 1, 0, 0,
                               0, 0, 1, 0,
                               0, 0, 0, 1 };
 
-matrix4 :: proc(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33: Matrix_Element_Type) -> Matrix4 {
+matrix4 :: proc(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33: real) -> Matrix4 {
     return Matrix4 { m00, m01, m02, m03,
                      m10, m11, m12, m13,
                      m20, m21, m22, m23,
                      m30, m31, m32, m33 };
 }
 
-matrix3 :: proc(m00, m01, m02, m10, m11, m12, m20, m21, m22: Matrix_Element_Type) -> Matrix3 {
+matrix3 :: proc(m00, m01, m02, m10, m11, m12, m20, m21, m22: real) -> Matrix3 {
     return Matrix3 { m00, m01, m02,
                      m10, m11, m12,
                      m20, m21, m22 };
 }
 
-matrix2 :: proc(m00, m01, m10, m11: Matrix_Element_Type) -> Matrix2 {
+matrix2 :: proc(m00, m01, m10, m11: real) -> Matrix2 {
     return Matrix2 { m00, m01,
                      m10, m11 };
                  }
 
 matrix4_eq :: proc(a, b: Matrix4) -> bool {
-    Flat_Type :: [16]Matrix_Element_Type;
+    Flat_Type :: [16]real;
 
     a_flat := transmute(Flat_Type)a;
     b_flat := transmute(Flat_Type)b;
@@ -42,7 +40,7 @@ matrix4_eq :: proc(a, b: Matrix4) -> bool {
 }
 
 matrix3_eq :: proc(a, b: Matrix3) -> bool {
-    Flat_Type :: [9]Matrix_Element_Type;
+    Flat_Type :: [9]real;
 
     a_flat := transmute(Flat_Type)a;
     b_flat := transmute(Flat_Type)b;
@@ -51,7 +49,7 @@ matrix3_eq :: proc(a, b: Matrix3) -> bool {
 }
 
 matrix2_eq :: proc(a, b: Matrix2) -> bool {
-    Flat_Type :: [4]Matrix_Element_Type;
+    Flat_Type :: [4]real;
 
     a_flat := transmute(Flat_Type)a;
     b_flat := transmute(Flat_Type)b;
@@ -108,17 +106,17 @@ matrix_transpose :: proc {
     matrix4_transpose,
 }
 
-// matrix2_determinant :: proc(a: Matrix2) -> Matrix_Element_Type {
+// matrix2_determinant :: proc(a: Matrix2) -> real {
 //     return a[0, 0] * a[1, 1] - a[0, 1] * a[1, 0];
 // }
 
-// matrix3_determinant :: proc(a: Matrix3) -> Matrix_Element_Type {
+// matrix3_determinant :: proc(a: Matrix3) -> real {
 //     return matrix_cofactor(a, 0, 0) * a[0, 0] +
 //            matrix_cofactor(a, 0, 1) * a[0, 1] +
 //            matrix_cofactor(a, 0, 2) * a[0, 2];
 // }
 
-// matrix4_determinant :: proc(a: Matrix4) -> Matrix_Element_Type {
+// matrix4_determinant :: proc(a: Matrix4) -> real {
 //     return matrix_cofactor(a, 0, 0) * a[0, 0] +
 //            matrix_cofactor(a, 0, 1) * a[0, 1] +
 //            matrix_cofactor(a, 0, 2) * a[0, 2] +
@@ -131,7 +129,7 @@ matrix_transpose :: proc {
 //     matrix4_determinant,
 // }
 
-matrix_determinant :: #force_inline proc(m: $T/matrix[$R, $C]Matrix_Element_Type) -> Matrix_Element_Type {
+matrix_determinant :: #force_inline proc(m: $T/matrix[$R, $C]real) -> real {
     return determinant(m);
 }
 
@@ -204,7 +202,7 @@ matrix_submatrix :: proc {
     matrix4_submatrix,
 }
 
-matrix_minor :: proc(m: $T/matrix[$R, $C]Matrix_Element_Type, row, col: int) -> Matrix_Element_Type {
+matrix_minor :: proc(m: $T/matrix[$R, $C]real, row, col: int) -> real {
     assert(row >= 0 && row < R);
     assert(col >= 0 && col < C);
 
@@ -212,7 +210,7 @@ matrix_minor :: proc(m: $T/matrix[$R, $C]Matrix_Element_Type, row, col: int) -> 
     return matrix_determinant(sub);
 }
 
-matrix_cofactor :: proc(m: $T/matrix[$R, $C]Matrix_Element_Type, row, col: int) -> Matrix_Element_Type {
+matrix_cofactor :: proc(m: $T/matrix[$R, $C]real, row, col: int) -> real {
     assert(row >= 0 && row < R);
     assert(col >= 0 && col < C);
 
@@ -222,7 +220,7 @@ matrix_cofactor :: proc(m: $T/matrix[$R, $C]Matrix_Element_Type, row, col: int) 
     return -minor;
 }
 
-matrix_is_invertible :: proc(m: $T/matrix[$R, $C]Matrix_Element_Type) -> bool {
+matrix_is_invertible :: proc(m: $T/matrix[$R, $C]real) -> bool {
     return matrix_determinant(m) != 0;
 }
 

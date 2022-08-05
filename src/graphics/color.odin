@@ -11,7 +11,7 @@ RED   :: Color { 1, 0, 0, 0 };
 GREEN :: Color { 0, 1, 0, 0 };
 BLUE  :: Color { 0, 0, 1, 0 };
 
-color :: proc(r, g, b: rm.Tuple_Element_Type) -> Color {
+color :: proc(r, g, b: rm.real) -> Color {
     return Color  { r, g, b, 0.0 };
 }
 
@@ -31,7 +31,7 @@ mul_c :: #force_inline proc(a, b: Color) -> Color {
     return a * b;
 }
 
-mul_s :: #force_inline proc(c: Color, s: rm.Tuple_Element_Type) -> Color {
+mul_s :: #force_inline proc(c: Color, s: rm.real) -> Color {
     return Color(rm.mul_t(rm.Tuple(c), s));
 }
 

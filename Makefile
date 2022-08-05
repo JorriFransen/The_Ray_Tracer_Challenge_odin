@@ -13,7 +13,7 @@ release: ODINFLAGS := ${ODINFLAGS:N-debug}
 release: raytracer
 
 raytracer: builddir
-	$(ODIN) build src -out:build/raytracer.bin $(ODINFLAGS)
+	$(ODIN) build src -out:build/raytracer.bin $(ODINFLAGS) && build/raytracer.bin
 
 run: raytracer
 	build/raytracer.bin

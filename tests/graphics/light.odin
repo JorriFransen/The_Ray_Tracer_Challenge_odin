@@ -54,7 +54,7 @@ L_Light_Eye45_Surface :: proc(t: ^testing.T) {
     mat := g.material();
     position := m.point(0, 0, 0);
 
-    sqrt2_over_2 := math.sqrt(m.Tuple_Element_Type(2)) / 2;
+    sqrt2_over_2 := math.sqrt(m.real(2)) / 2;
     eyev := m.vector(0, sqrt2_over_2, -sqrt2_over_2);
     normalv := m.vector(0, 0, -1);
     light := g.point_light(m.point(0, 0, -10), g.color(1, 1, 1));
@@ -85,7 +85,7 @@ L_Light45_Eyen45_Surface :: proc(t: ^testing.T) {
     mat := g.material();
     position := m.point(0, 0, 0);
 
-    sqrt2_over_2 := math.sqrt(m.Tuple_Element_Type(2)) / 2;
+    sqrt2_over_2 := math.sqrt(m.real(2)) / 2;
     eyev := m.vector(0, -sqrt2_over_2, -sqrt2_over_2);
     normalv := m.vector(0, 0, -1);
     light := g.point_light(m.point(0, 10, -10), g.color(1, 1, 1));

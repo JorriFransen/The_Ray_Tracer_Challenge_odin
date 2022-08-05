@@ -9,7 +9,7 @@ ray :: proc(o: Point, d: Vector) -> Ray {
     return Ray { o, d };
 }
 
-ray_position :: proc(r: Ray, t: Tuple_Element_Type) -> Point {
+ray_position :: proc(r: Ray, t: real) -> Point {
     distance := r.direction * t;
     return add(r.origin, distance);
 }

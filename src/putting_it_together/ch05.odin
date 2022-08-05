@@ -13,12 +13,12 @@ CH05 :: proc(c: g.Canvas) {
     assert(c.width == c.height);
 
     ray_origin := m.point(0, 0, -5);
-    wall_z : m.Tuple_Element_Type = 10;
+    wall_z : m.real = 10;
 
     wall_size := calculate_wall_size(ray_origin, wall_z);
 
     canvas_pixels := c.width;
-    pixel_size := wall_size / m.Tuple_Element_Type(canvas_pixels);
+    pixel_size := wall_size / m.real(canvas_pixels);
     half_wall_size := wall_size / 2;
 
     color :: g.RED;
@@ -28,10 +28,10 @@ CH05 :: proc(c: g.Canvas) {
     // shape := m.sphere(m.shearing(1, 0, 0, 0, 0, 0) * m.scaling(0.5, 1, 1));
 
     for y in 0..<canvas_pixels {
-        world_y := half_wall_size - pixel_size * m.Tuple_Element_Type(y);
+        world_y := half_wall_size - pixel_size * m.real(y);
 
         for x in 0..<canvas_pixels {
-            world_x := -half_wall_size + pixel_size * m.Tuple_Element_Type(x);
+            world_x := -half_wall_size + pixel_size * m.real(x);
 
             position := m.point(world_x, world_y, wall_z);
 
@@ -57,18 +57,18 @@ CH05 :: proc(c: g.Canvas) {
 }
 
 @(private="file")
-calculate_wall_size :: proc(o: m.Point, wall_z: m.Tuple_Element_Type) -> m.Tuple_Element_Type {
+calculate_wall_size :: proc(o: m.Point, wall_z: m.real) -> m.real {
 
     // https://www.desmos.com/calculator/u5mhu61div
 
-    sy : m.Tuple_Element_Type = 1;
+    sy : m.real = 1;
     if o.x < 0 {
         sy = -1;
     }
 
     a := (sy - o.y) / -o.z; // (sy - ray_origin.y) / (sx - ray_origin.y) but sx is always zero
     b := sy; // (sy - a * sx) but sx is always zero
-    iy : m.Tuple_Element_Type = a * wall_z + b;
+    iy : m.real = a * wall_z + b;
 
     return  abs(iy) * 2 + abs(sy);
 }

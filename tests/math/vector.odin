@@ -416,7 +416,7 @@ V_Reflect :: proc(t: ^testing.T) {
 V_Reflect_Slanted_Surface :: proc(t: ^testing.T) {
 
     v := rm.vector(0, -1, 0);
-    sqrt2_over_2 := math.sqrt(rm.Tuple_Element_Type(2))/2;
+    sqrt2_over_2 := math.sqrt(rm.real(2))/2;
     n := rm.vector(sqrt2_over_2, sqrt2_over_2, 0);
 
     ref := rm.reflect(v, n);

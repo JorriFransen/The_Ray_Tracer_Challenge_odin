@@ -8,16 +8,14 @@ Material :: struct {
     ambient,
     diffuse,
     specular,
-    shininess: m.Tuple_Element_Type,
+    shininess: m.real,
 }
 
-float :: m.Tuple_Element_Type;
-
 material :: proc(color     := WHITE,
-                 ambient   : float = 0.1,
-                 diffuse   : float = 0.9,
-                 specular  : float = 0.9,
-                 shininess : float = 200) -> Material {
+                 ambient   : m.real = 0.1,
+                 diffuse   : m.real = 0.9,
+                 specular  : m.real = 0.9,
+                 shininess : m.real = 200) -> Material {
 
     return Material { color, ambient, diffuse, specular, shininess };
 }

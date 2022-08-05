@@ -5,17 +5,17 @@ import "core:intrinsics"
 import "core:simd"
 import cm "core:math"
 
-Tuple_Element_Type :: f32;
+real :: f32;
 
-Tuple :: distinct [4]Tuple_Element_Type;
+Tuple :: distinct [4]real;
 Point :: distinct Tuple;
 Vector :: distinct Tuple;
 
-tuple :: proc(x, y, z, w: Tuple_Element_Type) -> Tuple {
+tuple :: proc(x, y, z, w: real) -> Tuple {
     return Tuple { x, y, z, w };
 }
 
-point_xyz :: proc(x, y, z: Tuple_Element_Type) -> Point {
+point_xyz :: proc(x, y, z: real) -> Point {
     return Point { x, y, z, 1.0 };
 }
 
@@ -28,7 +28,7 @@ point :: proc {
     point_t,
 }
 
-vector_xyz :: proc(x, y, z: Tuple_Element_Type) -> Vector {
+vector_xyz :: proc(x, y, z: real) -> Vector {
     return Vector { x, y, z, 0.0 };
 }
 
@@ -49,10 +49,10 @@ is_vector :: proc(t: $T/Tuple) -> bool {
     return t.w == 0.0;
 }
 
-tuple_eq :: proc(a_, b_: $T/[4]Tuple_Element_Type) -> bool {
+tuple_eq :: proc(a_, b_: $T/[4]real) -> bool {
     a, b := a_, b_; // @HACK: Cant use array arithmatic on arguments directly
     simd_diff := simd.abs(simd.from_array(a - b));
-    simd_epsilon : #simd[4]Tuple_Element_Type : { FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON };
+    simd_epsilon : #simd[4]real : { FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON };
 
     simd_neq := simd.lanes_ge(simd_diff, simd_epsilon);
     res := simd.reduce_max(simd_neq);
@@ -137,25 +137,25 @@ negate :: #force_inline proc(t_: $T/Tuple) -> T {
     return -t;
 }
 
-mul_t :: #force_inline proc(t_: Tuple, s: Tuple_Element_Type) -> Tuple {
+mul_t :: #force_inline proc(t_: Tuple, s: real) -> Tuple {
     t := t_; // @HACK: Cant use array arithmatic on arguments directly
     return t * s;
 }
 
-mul_v :: #force_inline proc(v_: Vector, s: Tuple_Element_Type) -> Vector {
+mul_v :: #force_inline proc(v_: Vector, s: real) -> Vector {
     v := v_; // @HACK: Cant use array arithmatic on arguments directly
     return Vector(mul_t(Tuple(v), s));
 }
 
 
-div_t :: #force_inline proc(t_: Tuple, s: Tuple_Element_Type) -> Tuple {
+div_t :: #force_inline proc(t_: Tuple, s: real) -> Tuple {
     t := t_; // @HACK: Cant use array arithmatic on arguments directly
     return t / s;
 }
 
 div :: proc { div_t };
 
-magnitude :: proc(v_: Vector) -> Tuple_Element_Type {
+magnitude :: proc(v_: Vector) -> real {
     v := v_; // @HACK: Cant use array arithmatic on arguments directly
     sum := simd.reduce_add_ordered(simd.from_array(v * v));
     return cm.sqrt(sum);
@@ -169,7 +169,7 @@ normalize :: proc(v_: Vector) -> Vector {
     return v / m;
 }
 
-dot :: proc(a_, b_: Vector) -> Tuple_Element_Type {
+dot :: proc(a_, b_: Vector) -> real {
     a, b := a_, b_; // @HACK: Can't use array arithmatic on arguments directly
     return simd.reduce_add_ordered(simd.from_array(a * b));
 }

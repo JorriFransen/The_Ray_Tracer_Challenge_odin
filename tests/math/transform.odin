@@ -173,7 +173,7 @@ Rot_Around_X :: proc(t: ^testing.T) {
     half_quarter := rm.rotation_x(PI / 4);
     full_quarter := rm.rotation_x(PI / 2);
 
-    sqrt2_d2 := sqrt(rm.Tuple_Element_Type(2)) / 2.0;
+    sqrt2_d2 := sqrt(rm.real(2)) / 2.0;
     expected1 := rm.point(0, sqrt2_d2, sqrt2_d2);
     expected2 := rm.point(0, 0, 1);
 
@@ -199,7 +199,7 @@ Rot_Around_X_Inv :: proc(t: ^testing.T) {
     half_quarter := rm.rotation_x(PI / 4);
     inv := rm.matrix_inverse(half_quarter);
 
-    sqrt2_d2 := sqrt(rm.Tuple_Element_Type(2)) / 2.0;
+    sqrt2_d2 := sqrt(rm.real(2)) / 2.0;
     expected := rm.point(0, sqrt2_d2, -sqrt2_d2);
 
     result1 := rm.mul(inv, p);
@@ -222,7 +222,7 @@ Rot_Around_Y :: proc(t: ^testing.T) {
     half_quarter := rm.rotation_y(PI / 4);
     full_quarter := rm.rotation_y(PI / 2);
 
-    sqrt2_d2 := sqrt(rm.Tuple_Element_Type(2)) / 2.0;
+    sqrt2_d2 := sqrt(rm.real(2)) / 2.0;
     expected1 := rm.point(sqrt2_d2, 0, sqrt2_d2);
     expected2 := rm.point(1, 0, 0);
 
@@ -248,7 +248,7 @@ Rot_Around_Y_Inv :: proc(t: ^testing.T) {
     half_quarter := rm.rotation_y(PI / 4);
     inv := rm.matrix_inverse(half_quarter);
 
-    sqrt2_d2 := sqrt(rm.Tuple_Element_Type(2)) / 2.0;
+    sqrt2_d2 := sqrt(rm.real(2)) / 2.0;
     expected := rm.point(-sqrt2_d2, 0, sqrt2_d2);
 
     result1 := rm.mul(inv, p);
@@ -271,7 +271,7 @@ Rot_Around_Z :: proc(t: ^testing.T) {
     half_quarter := rm.rotation_z(PI / 4);
     full_quarter := rm.rotation_z(PI / 2);
 
-    sqrt2_d2 := sqrt(rm.Tuple_Element_Type(2)) / 2.0;
+    sqrt2_d2 := sqrt(rm.real(2)) / 2.0;
     expected1 := rm.point(-sqrt2_d2, sqrt2_d2, 0);
     expected2 := rm.point(-1, 0, 0);
 
@@ -297,7 +297,7 @@ Rot_Around_Z_Inv :: proc(t: ^testing.T) {
     half_quarter := rm.rotation_z(math.PI / 4);
     inv := rm.matrix_inverse(half_quarter);
 
-    sqrt2_d2 := sqrt(rm.Tuple_Element_Type(2)) / 2.0;
+    sqrt2_d2 := sqrt(rm.real(2)) / 2.0;
     expected := rm.point(sqrt2_d2, sqrt2_d2, 0);
 
     result1 := rm.mul(inv, p);

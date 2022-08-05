@@ -19,7 +19,7 @@ CH04 :: proc(c: g.Canvas) {
 
     assert(c.width == c.height);
 
-    canvas_size := m.Tuple_Element_Type(c.width);
+    canvas_size := m.real(c.width);
     clock_size := canvas_size / 8.0 * 3.0;
 
     canvas_transform = m.translate(m.scaling(clock_size, -clock_size, 1), canvas_size / 2, canvas_size / 2, 0);
@@ -31,7 +31,7 @@ CH04 :: proc(c: g.Canvas) {
 
     for i in 0..<12 {
 
-        fi := m.Tuple_Element_Type(i);
+        fi := m.real(i);
         p := m.rotate_z(zero_hour, -fi * PI / 6.0);
 
         color := g.WHITE;
@@ -48,7 +48,7 @@ CH04 :: proc(c: g.Canvas) {
 
     for i in 0..<60 {
 
-        fi := m.Tuple_Element_Type(i);
+        fi := m.real(i);
         p := m.rotate_z(zero_min, -fi * PI / 30.0);
 
         color := g.WHITE;
@@ -71,7 +71,7 @@ CH04 :: proc(c: g.Canvas) {
 
 write_rect :: proc(c: g.Canvas, p: m.Point, color: g.Color, dim: int) {
 
-    dim := m.Tuple_Element_Type(dim);
+    dim := m.real(dim);
     p := canvas_transform * p;
 
     for y := p.y - dim; y < p.y + dim; y += 1 {
