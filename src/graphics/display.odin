@@ -78,10 +78,15 @@ display :: proc(c: Canvas, title: cstring) {
 
 @(private="file")
 to_raylib_color :: proc(c: Color) -> rl.Color {
+
+    r := clamp(c.r, 0, 1);
+    g := clamp(c.g, 0, 1);
+    b := clamp(c.b, 0, 1);
+
     return rl.Color {
-        u8(math.ceil(255 * c.r)),
-        u8(math.ceil(255 * c.g)),
-        u8(math.ceil(255 * c.b)),
+        u8(math.ceil(255 * r)),
+        u8(math.ceil(255 * g)),
+        u8(math.ceil(255 * b)),
         255,
     };
 }
