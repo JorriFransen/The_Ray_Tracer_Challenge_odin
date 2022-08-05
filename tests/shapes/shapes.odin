@@ -1,4 +1,4 @@
-package tests;
+package tests_shapes
 
 import "core:testing"
 import "core:math"
@@ -7,7 +7,7 @@ import "raytracer:shapes"
 import g "raytracer:graphics"
 import m "raytracer:math"
 
-import r "runner"
+import r "../runner"
 
 PI :: math.PI;
 

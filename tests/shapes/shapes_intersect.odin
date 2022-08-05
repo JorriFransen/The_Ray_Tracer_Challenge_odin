@@ -1,11 +1,11 @@
-package tests
+package tests_shapes
 
 import "core:testing"
 
 import rm "raytracer:math"
 import "raytracer:shapes"
 
-import r "runner"
+import r "../runner"
 
 intersect_suite := r.Test_Suite {
     name = "Intersect/",
