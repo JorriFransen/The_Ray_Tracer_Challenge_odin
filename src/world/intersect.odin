@@ -18,15 +18,18 @@ intersections_from_slice :: proc(intersections: .. Intersection, allocator := co
     return slice.clone_to_dynamic(intersections, allocator);
 }
 
-intersections_from_dyn_arr_and_slice :: proc(dxs: [dynamic]Intersection, ixs: .. Intersection) -> [dynamic]Intersection {
-    dxs := dxs;
-    append(&dxs, .. ixs);
-    return dxs;
+intersections_from_dyn_arr_and_slice :: proc(dxs: ^[dynamic]Intersection, ixs: .. Intersection) {
+    append(dxs, .. ixs);
 }
 
 intersections :: proc {
     intersections_from_slice,
     intersections_from_dyn_arr_and_slice,
+}
+
+@private
+intersection_less :: proc(a, b: Intersection) -> bool {
+    return a.t < b.t;
 }
 
 hit :: proc(xs: []Intersection) -> Maybe(Intersection) {
@@ -56,8 +59,10 @@ intersects_shape :: proc(s: Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
     switch k in s {
         case Sphere: return intersects(k, r);
-        case: assert(false); return nil;
     }
+
+    assert(false);
+    return nil;
 }
 
 intersects_sphere :: proc(s: Sphere, r: m.Ray) -> Maybe([2]Intersection) {

@@ -19,7 +19,7 @@ world_suite := r.Test_Suite {
     child_suites = {
         &shape_suite,
         &intersect_suite,
-    }
+    },
 }
 
 @(private="file")

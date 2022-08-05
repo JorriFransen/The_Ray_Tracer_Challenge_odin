@@ -194,7 +194,7 @@ Hit_Lowest_Non_Negative :: proc(t: ^testing.T) {
     xs := w.intersections(i1, i2);
 
     // Testing this overload, normally the call above would be 'intersections(i1, i2, i3, i4);'
-    xs = w.intersections(xs, i3, i4);
+    w.intersections(&xs, i3, i4);
     defer delete(xs);
 
     i, i_ok := w.hit(xs[:]).?;

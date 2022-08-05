@@ -4,7 +4,6 @@ import "core:slice"
 
 import "raytracer:graphics"
 import m "raytracer:math"
-import world "raytracer:world"
 
 World :: struct {
     objects: []Shape,
@@ -12,7 +11,7 @@ World :: struct {
 }
 
 world_default :: proc() -> World {
-    return world.world(nil, nil);
+    return world(nil, nil);
 }
 
 world_ol :: proc(o: []Shape, l: Maybe(graphics.Point_Light)) -> World {
@@ -26,15 +25,15 @@ world :: proc {
 
 intersect_world :: proc(w: ^World, r: m.Ray, allocator := context.allocator) -> [dynamic]Intersection {
 
-    result := make([dynamic]world.Intersection, allocator);
+    result := make([dynamic]Intersection, allocator);
 
     for obj in w.objects {
-        if xs, ok := world.intersects(obj, r).?; ok {
+        if xs, ok := intersects(obj, r).?; ok {
             append(&result, .. xs[:]);
         }
     }
 
-    slice.sort_by(result[:], proc(a, b: world.Intersection) -> bool { return a.t < b.t;});
+    slice.sort_by(result[:], intersection_less);
 
     return result;
 }
