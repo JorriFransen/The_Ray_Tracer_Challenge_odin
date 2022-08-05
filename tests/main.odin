@@ -7,13 +7,14 @@ import "core:mem"
 import r "runner"
 
 import math_tests "math"
+import graphics_tests "graphics"
 
 main_suite := r.Test_Suite {
     name = "",
     tests = {},
     child_suites = {
         &math_tests.math_suite,
-        &graphics_suite,
+        &graphics_tests.graphics_suite,
         &shape_suite,
     },
 }

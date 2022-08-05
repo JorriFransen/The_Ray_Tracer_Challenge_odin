@@ -1,11 +1,11 @@
-package tests;
+package tests_graphics
 
 import "core:testing"
 
 import g "raytracer:graphics"
 import m "raytracer:math"
 
-import r "runner"
+import r "../runner"
 
 graphics_suite := r.Test_Suite {
     name = "GFX/",

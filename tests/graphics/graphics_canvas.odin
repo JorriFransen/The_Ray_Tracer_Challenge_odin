@@ -1,11 +1,11 @@
-package tests
+package tests_graphics
 
 import "core:testing"
 import "core:strings"
 
 import g "raytracer:graphics"
 
-import r "runner"
+import r "../runner"
 
 canvas_suite := r.Test_Suite {
     name = "Cvs/",
