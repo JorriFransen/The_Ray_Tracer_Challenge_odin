@@ -1,6 +1,7 @@
 package tests_graphics
 
 import "core:testing"
+
 import g "raytracer:graphics"
 import rm "raytracer:math"
 
