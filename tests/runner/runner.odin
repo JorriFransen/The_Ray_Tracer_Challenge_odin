@@ -91,8 +91,8 @@ execute_test_suite_csp :: proc(c: ^Test_Context, s: ^Test_Suite, prefix: string 
 
     tests_ok := true;
 
-    for _,i in s.tests {
-        if !execute_test(c, &s.tests[i], current_prefix) do tests_ok = false;
+    for t in &s.tests {
+        if !execute_test(c, &t, current_prefix) do tests_ok = false;
     }
 
     suites_ok := true;

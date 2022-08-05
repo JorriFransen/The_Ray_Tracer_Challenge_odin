@@ -3,7 +3,7 @@ package tests_world
 import "core:testing"
 
 import w "raytracer:world"
-import rm "raytracer:math"
+import m "raytracer:math"
 
 import r "../runner"
 
@@ -23,13 +23,16 @@ intersect_suite := r.Test_Suite {
         r.test("Hit_Some_Negative", Hit_Some_Negative),
         r.test("Hit_All_Negative", Hit_All_Negative),
         r.test("Hit_Lowest_Non_Negative", Hit_Lowest_Non_Negative),
+        r.test("Hit_Info", Hit_Info),
+        r.test("Hit_Info_Outside", Hit_Info_Outside),
+        r.test("Hit_Info_Inside", Hit_Info_Inside),
     },
 }
 
 @test
 R_Intersect_Sphere_2P :: proc(t: ^testing.T) {
 
-    ray := rm.ray(rm.point(0, 0, -5), rm.vector(0, 0, 1));
+    ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
     s := w.sphere();
 
     xs, ok := w.intersects(s, ray).?;
@@ -43,7 +46,7 @@ R_Intersect_Sphere_2P :: proc(t: ^testing.T) {
 @test
 R_Intersect_Sphere_Tangent :: proc(t: ^testing.T) {
 
-    ray := rm.ray(rm.point(0, 1, -5), rm.vector(0, 0, 1));
+    ray := m.ray(m.point(0, 1, -5), m.vector(0, 0, 1));
     s := w.sphere();
 
     xs, ok := w.intersects(s, ray).?;
@@ -57,7 +60,7 @@ R_Intersect_Sphere_Tangent :: proc(t: ^testing.T) {
 @test
 R_Misses_Sphere :: proc(t: ^testing.T) {
 
-    ray := rm.ray(rm.point(0, 2, -5), rm.vector(0, 0, 1));
+    ray := m.ray(m.point(0, 2, -5), m.vector(0, 0, 1));
     s := w.sphere();
 
     xs, ok := w.intersects(s, ray).?;
@@ -68,7 +71,7 @@ R_Misses_Sphere :: proc(t: ^testing.T) {
 @test
 R_Inside_Sphere :: proc(t: ^testing.T) {
 
-    ray := rm.ray(rm.point(0, 0, 0), rm.vector(0, 0, 1));
+    ray := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
     s := w.sphere();
 
     xs, ok := w.intersects(s, ray).?;
@@ -82,7 +85,7 @@ R_Inside_Sphere :: proc(t: ^testing.T) {
 @test
 R_Sphere_Behind :: proc(t: ^testing.T) {
 
-    ray := rm.ray(rm.point(0, 0, 5), rm.vector(0, 0, 1));
+    ray := m.ray(m.point(0, 0, 5), m.vector(0, 0, 1));
     s := w.sphere();
 
     xs, ok := w.intersects(s, ray).?;
@@ -122,7 +125,7 @@ Aggregating_Intersections :: proc(t: ^testing.T) {
 @test
 Intersect_Sets_Ojb :: proc(t: ^testing.T) {
 
-    ray := rm.ray(rm.point(0, 0, -5), rm.vector(0, 0, 1));
+    ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
     s := w.sphere();
 
@@ -202,3 +205,48 @@ Hit_Lowest_Non_Negative :: proc(t: ^testing.T) {
     r.expect(t, i == i4);
 }
 
+@test
+Hit_Info :: proc(t: ^testing.T) {
+
+    ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
+    shape := w.sphere();
+    i := w.intersection(4, shape);
+
+    comps := w.hit_info(i, ray);
+
+    r.expect(t, comps.t == i.t);
+    r.expect(t, comps.object == i.object);
+    r.expect(t, m.eq(comps.point, m.point(0, 0, -1)));
+    r.expect(t, m.eq(comps.eye_v, m.vector(0, 0, -1)));
+    r.expect(t, m.eq(comps.normal_v, m.vector(0, 0, -1)));
+}
+
+@test
+Hit_Info_Outside :: proc(t: ^testing.T) {
+
+    ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
+    shape := w.sphere();
+    i := w.intersection(4, shape);
+
+    comps := w.hit_info(i, ray);
+
+    r.expect(t, comps.inside == false);
+}
+
+@test
+Hit_Info_Inside :: proc(t: ^testing.T) {
+
+    ray := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
+    shape := w.sphere();
+    i := w.intersection(1, shape);
+
+    comps := w.hit_info(i, ray);
+
+    r.expect(t, comps.t == i.t);
+    r.expect(t, comps.object == i.object);
+    r.expect(t, m.eq(comps.point, m.point(0, 0, 1)));
+    r.expect(t, m.eq(comps.eye_v, m.vector(0, 0, -1)));
+    r.expect(t, m.eq(comps.normal_v, m.vector(0, 0, -1)));
+
+    r.expect(t, comps.inside);
+}

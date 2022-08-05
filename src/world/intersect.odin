@@ -7,7 +7,17 @@ import m "raytracer:math"
 
 Intersection :: struct {
     t: m.real,
-    object: Sphere,
+    object: Shape,
+}
+
+Hit_Info :: struct {
+    t: m.real,
+    object: Shape,
+    point: m.Point,
+    eye_v: m.Vector,
+    normal_v: m.Vector,
+
+    inside: bool,
 }
 
 intersection :: proc(t: m.real, s: Sphere) -> Intersection {
@@ -15,16 +25,43 @@ intersection :: proc(t: m.real, s: Sphere) -> Intersection {
 }
 
 intersections_from_slice :: proc(intersections: .. Intersection, allocator := context.allocator) -> [dynamic]Intersection {
-    return slice.clone_to_dynamic(intersections, allocator);
+    result := slice.clone_to_dynamic(intersections, allocator);
+    slice.sort_by(result[:], intersection_less);
+    return result;
 }
 
 intersections_from_dyn_arr_and_slice :: proc(dxs: ^[dynamic]Intersection, ixs: .. Intersection) {
     append(dxs, .. ixs);
+    slice.sort_by(dxs[:], intersection_less);
 }
 
 intersections :: proc {
     intersections_from_slice,
     intersections_from_dyn_arr_and_slice,
+}
+
+hit_info :: proc(i: Intersection, r: m.Ray) -> Hit_Info {
+
+    obj := i.object;
+    point := m.ray_position(r, i.t);
+
+    eye_v := m.negate(r.direction);
+    normal_v := shape_normal_at(&obj, point);
+
+    inside := false;
+    if m.dot(normal_v, eye_v) < 0 {
+        inside = true;
+        normal_v = m.negate(normal_v);
+    }
+
+    return Hit_Info {
+        t = i.t,
+        object = i.object,
+        point = point,
+        eye_v = eye_v,
+        normal_v = normal_v,
+        inside = inside,
+    };
 }
 
 @private
@@ -34,25 +71,11 @@ intersection_less :: proc(a, b: Intersection) -> bool {
 
 hit :: proc(xs: []Intersection) -> Maybe(Intersection) {
 
-    if len(xs) <= 0 do return nil;
-
-    p_res : ^Intersection = nil;
-
-    for it,i in xs {
-
-        if it.t >= 0 {
-
-            if p_res == nil || p_res.t > it.t {
-                p_res = &xs[i];
-            }
-        }
+    for i in xs {
+        if i.t >= 0 do return i;
     }
 
-    if p_res == nil {
-        return nil;
-    } else {
-        return p_res^;
-    }
+    return nil;
 }
 
 intersects_shape :: proc(s: Shape, r: m.Ray) -> Maybe([2]Intersection) {

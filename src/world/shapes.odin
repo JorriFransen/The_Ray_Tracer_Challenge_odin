@@ -68,6 +68,15 @@ shape_set_material :: proc(s: ^Shape_Base, m: g.Material) {
     s.material = m;
 }
 
+shape_normal_at_ :: proc(s: ^Shape, p: m.Point) -> m.Vector {
+    switch in s {
+        case Sphere: return sphere_normal_at(&s.?, p);
+    }
+
+    assert(false);
+    return m.Vector {};
+}
+
 sphere_normal_at :: proc(s: ^Sphere, p: m.Point) -> m.Vector {
 
     s_tf_inv := m.matrix_inverse(s.transform);
@@ -86,5 +95,6 @@ sphere_normal_at :: proc(s: ^Sphere, p: m.Point) -> m.Vector {
 }
 
 shape_normal_at :: proc {
+    shape_normal_at_,
     sphere_normal_at,
 }

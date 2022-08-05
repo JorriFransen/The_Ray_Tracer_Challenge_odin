@@ -3,8 +3,8 @@ package rtmath
 eq_arr :: proc(a, b: $T/[$N]$E) -> bool where N != 4 {
     diff := a - b;
 
-    for _,i in diff {
-        if abs(diff[i]) >= FLOAT_EPSILON do return false;
+    for it in diff {
+        if abs(it) >= FLOAT_EPSILON do return false;
     }
     return true;
 }

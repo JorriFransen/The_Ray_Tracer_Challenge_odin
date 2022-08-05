@@ -48,7 +48,8 @@ CH06 :: proc(c: g.Canvas) {
                 hitnormal := w.shape_normal_at(&hit.object, hitpoint);
                 eye_v := m.negate(r.direction);
 
-                color := g.lighting(hit.object.material, light, hitpoint, eye_v, hitnormal);
+
+                color := g.lighting(hit.object.?.material, light, hitpoint, eye_v, hitnormal);
 
                 g.canvas_write_pixel(c, x, y, color);
             }

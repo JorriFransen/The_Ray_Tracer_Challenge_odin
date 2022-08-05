@@ -119,16 +119,29 @@ Ca_Clear :: proc(t: ^testing.T) {
     width := 2;
     height := 2;
 
-    c := g.canvas(width, height);
+    {
+        c := g.canvas(width, height);
 
-    clear_color := g.color(1, 2, 3);
+        clear_color := g.color(1, 2, 3);
 
-    g.canvas_clear(c, clear_color);
+        g.canvas_clear(&c, clear_color);
 
-    r.expect(t, g.canvas_get_pixel(c, 0, 0) == clear_color);
-    r.expect(t, g.canvas_get_pixel(c, 1, 0) == clear_color);
-    r.expect(t, g.canvas_get_pixel(c, 0, 1) == clear_color);
-    r.expect(t, g.canvas_get_pixel(c, 1, 1) == clear_color);
+        r.expect(t, g.canvas_get_pixel(c, 0, 0) == clear_color);
+        r.expect(t, g.canvas_get_pixel(c, 1, 0) == clear_color);
+        r.expect(t, g.canvas_get_pixel(c, 0, 1) == clear_color);
+        r.expect(t, g.canvas_get_pixel(c, 1, 1) == clear_color);
+    }
+
+    {
+        c := g.canvas(width, height);
+
+        g.canvas_clear(&c);
+
+        r.expect(t, g.canvas_get_pixel(c, 0, 0) == g.BLACK);
+        r.expect(t, g.canvas_get_pixel(c, 1, 0) == g.BLACK);
+        r.expect(t, g.canvas_get_pixel(c, 0, 1) == g.BLACK);
+        r.expect(t, g.canvas_get_pixel(c, 1, 1) == g.BLACK);
+    }
 }
 
 @test
@@ -139,7 +152,7 @@ Ca_PPM_Line_Splitting :: proc(t: ^testing.T) {
 
     c := g.canvas(10, 2);
 
-    g.canvas_clear(c, g.color(1, 0.8, 0.6));
+    g.canvas_clear(&c, g.color(1, 0.8, 0.6));
 
     ppm := g.ppm_from_canvas(c);
 
