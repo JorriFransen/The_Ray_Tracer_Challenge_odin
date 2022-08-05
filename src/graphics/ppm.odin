@@ -72,7 +72,7 @@ ppm_write_element :: proc(sb: ^strings.Builder, e: $T, line_start: ^int, last_on
     fmt.sbprintf(sb, "%v", int_value);
 
     line_len = len(sb.buf) - line_start^;
-    if !last_on_line && line_len + 4 < PPM_MAX_LINE_LENGTH {
+    if !last_on_line && line_len + 1 < PPM_MAX_LINE_LENGTH {
         fmt.sbprint(sb, " ");
     }
 }
