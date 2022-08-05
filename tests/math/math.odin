@@ -1,6 +1,8 @@
-package tests
+package tests_math
 
-math_suite := Test_Suite {
+import t "../runner"
+
+math_suite := t.Test_Suite {
     name = "Math/",
     tests = { },
     child_suites = {

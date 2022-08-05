@@ -5,90 +5,92 @@ import "core:testing"
 import rm "raytracer:math"
 import "raytracer:shapes"
 
-intersect_suite := Test_Suite {
+import r "runner"
+
+intersect_suite := r.Test_Suite {
     name = "Intersect/",
     tests = {
 
-        test("R_Intersect_Sphere_2P", R_Intersect_Sphere_2P),
-        test("R_Intersect_Sphere_Tangent", R_Intersect_Sphere_Tangent),
-        test("R_Misses_Sphere", R_Misses_Sphere),
-        test("R_Inside_Sphere", R_Inside_Sphere),
-        test("R_Sphere_Behind", R_Sphere_Behind),
-        test("Intersection_Constructor", Intersection_Constructor),
-        test("Aggregating_Intersections", Aggregating_Intersections),
-        test("Intersect_Sets_Ojb", Intersect_Sets_Ojb),
-        test("Hit_All_Positive", Hit_All_Positive),
-        test("Hit_Some_Negative", Hit_Some_Negative),
-        test("Hit_All_Negative", Hit_All_Negative),
-        test("Hit_Lowest_Non_Negative", Hit_Lowest_Non_Negative),
+        r.test("R_Intersect_Sphere_2P", R_Intersect_Sphere_2P),
+        r.test("R_Intersect_Sphere_Tangent", R_Intersect_Sphere_Tangent),
+        r.test("R_Misses_Sphere", R_Misses_Sphere),
+        r.test("R_Inside_Sphere", R_Inside_Sphere),
+        r.test("R_Sphere_Behind", R_Sphere_Behind),
+        r.test("Intersection_Constructor", Intersection_Constructor),
+        r.test("Aggregating_Intersections", Aggregating_Intersections),
+        r.test("Intersect_Sets_Ojb", Intersect_Sets_Ojb),
+        r.test("Hit_All_Positive", Hit_All_Positive),
+        r.test("Hit_Some_Negative", Hit_Some_Negative),
+        r.test("Hit_All_Negative", Hit_All_Negative),
+        r.test("Hit_Lowest_Non_Negative", Hit_Lowest_Non_Negative),
     },
 }
 
 @test
 R_Intersect_Sphere_2P :: proc(t: ^testing.T) {
 
-    r := rm.ray(rm.point(0, 0, -5), rm.vector(0, 0, 1));
+    ray := rm.ray(rm.point(0, 0, -5), rm.vector(0, 0, 1));
     s := shapes.sphere();
 
-    xs, ok := shapes.intersects(s, r).?;
+    xs, ok := shapes.intersects(s, ray).?;
 
-    expect(t, ok);
-    expect(t, len(xs) == 2);
-    expect(t, xs[0].t == 4.0);
-    expect(t, xs[1].t == 6.0);
+    r.expect(t, ok);
+    r.expect(t, len(xs) == 2);
+    r.expect(t, xs[0].t == 4.0);
+    r.expect(t, xs[1].t == 6.0);
 }
 
 @test
 R_Intersect_Sphere_Tangent :: proc(t: ^testing.T) {
 
-    r := rm.ray(rm.point(0, 1, -5), rm.vector(0, 0, 1));
+    ray := rm.ray(rm.point(0, 1, -5), rm.vector(0, 0, 1));
     s := shapes.sphere();
 
-    xs, ok := shapes.intersects(s, r).?;
+    xs, ok := shapes.intersects(s, ray).?;
 
-    expect(t, ok);
-    expect(t, len(xs) == 2);
-    expect(t, xs[0].t == 5.0);
-    expect(t, xs[1].t == 5.0);
+    r.expect(t, ok);
+    r.expect(t, len(xs) == 2);
+    r.expect(t, xs[0].t == 5.0);
+    r.expect(t, xs[1].t == 5.0);
 }
 
 @test
 R_Misses_Sphere :: proc(t: ^testing.T) {
 
-    r := rm.ray(rm.point(0, 2, -5), rm.vector(0, 0, 1));
+    ray := rm.ray(rm.point(0, 2, -5), rm.vector(0, 0, 1));
     s := shapes.sphere();
 
-    xs, ok := shapes.intersects(s, r).?;
+    xs, ok := shapes.intersects(s, ray).?;
 
-    expect(t, !ok);
+    r.expect(t, !ok);
 }
 
 @test
 R_Inside_Sphere :: proc(t: ^testing.T) {
 
-    r := rm.ray(rm.point(0, 0, 0), rm.vector(0, 0, 1));
+    ray := rm.ray(rm.point(0, 0, 0), rm.vector(0, 0, 1));
     s := shapes.sphere();
 
-    xs, ok := shapes.intersects(s, r).?;
+    xs, ok := shapes.intersects(s, ray).?;
 
-    expect(t, ok);
-    expect(t, len(xs) == 2);
-    expect(t, xs[0].t == -1.0);
-    expect(t, xs[1].t == 1.0);
+    r.expect(t, ok);
+    r.expect(t, len(xs) == 2);
+    r.expect(t, xs[0].t == -1.0);
+    r.expect(t, xs[1].t == 1.0);
 }
 
 @test
 R_Sphere_Behind :: proc(t: ^testing.T) {
 
-    r := rm.ray(rm.point(0, 0, 5), rm.vector(0, 0, 1));
+    ray := rm.ray(rm.point(0, 0, 5), rm.vector(0, 0, 1));
     s := shapes.sphere();
 
-    xs, ok := shapes.intersects(s, r).?;
+    xs, ok := shapes.intersects(s, ray).?;
 
-    expect(t, ok);
-    expect(t, len(xs) == 2);
-    expect(t, xs[0].t == -6.0);
-    expect(t, xs[1].t == -4.0);
+    r.expect(t, ok);
+    r.expect(t, len(xs) == 2);
+    r.expect(t, xs[0].t == -6.0);
+    r.expect(t, xs[1].t == -4.0);
 }
 
 @test
@@ -98,8 +100,8 @@ Intersection_Constructor :: proc(t: ^testing.T) {
 
     i := shapes.intersection(3.5, s);
 
-    expect(t, i.t == 3.5);
-    expect(t, i.object == s);
+    r.expect(t, i.t == 3.5);
+    r.expect(t, i.object == s);
 }
 
 @test
@@ -112,24 +114,24 @@ Aggregating_Intersections :: proc(t: ^testing.T) {
     xs := shapes.intersections(i1, i2);
     defer delete(xs);
 
-    expect(t, len(xs) == 2);
-    expect(t, xs[0].t == 1);
-    expect(t, xs[1].t == 2);
+    r.expect(t, len(xs) == 2);
+    r.expect(t, xs[0].t == 1);
+    r.expect(t, xs[1].t == 2);
 }
 
 @test
 Intersect_Sets_Ojb :: proc(t: ^testing.T) {
 
-    r := rm.ray(rm.point(0, 0, -5), rm.vector(0, 0, 1));
+    ray := rm.ray(rm.point(0, 0, -5), rm.vector(0, 0, 1));
 
     s := shapes.sphere();
 
-    xs, ok := shapes.intersects(s, r).?;
+    xs, ok := shapes.intersects(s, ray).?;
 
-    expect(t, ok);
-    expect(t, len(xs) == 2);
-    expect(t, xs[0].object == s);
-    expect(t, xs[1].object == s);
+    r.expect(t, ok);
+    r.expect(t, len(xs) == 2);
+    r.expect(t, xs[0].object == s);
+    r.expect(t, xs[1].object == s);
 }
 
 
@@ -145,8 +147,8 @@ Hit_All_Positive :: proc(t: ^testing.T) {
 
     i, i_ok := shapes.hit(xs[:]).?;
 
-    expect(t, i_ok);
-    expect(t, i == i1);
+    r.expect(t, i_ok);
+    r.expect(t, i == i1);
 }
 
 @test
@@ -161,8 +163,8 @@ Hit_Some_Negative :: proc(t: ^testing.T) {
 
     i, i_ok := shapes.hit(xs[:]).?;
 
-    expect(t, i_ok);
-    expect(t, i == i2);
+    r.expect(t, i_ok);
+    r.expect(t, i == i2);
 }
 
 @test
@@ -177,7 +179,7 @@ Hit_All_Negative :: proc(t: ^testing.T) {
 
     _, i_ok := shapes.hit(xs[:]).?;
 
-    expect(t, !i_ok);
+    r.expect(t, !i_ok);
 }
 
 @test
@@ -197,6 +199,6 @@ Hit_Lowest_Non_Negative :: proc(t: ^testing.T) {
 
     i, i_ok := shapes.hit(xs[:]).?;
 
-    expect(t, i == i4);
+    r.expect(t, i == i4);
 }
 

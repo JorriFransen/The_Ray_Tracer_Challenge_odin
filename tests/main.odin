@@ -2,14 +2,17 @@ package tests
 
 import "core:fmt"
 import "core:os"
-
 import "core:mem"
 
-main_suite := Test_Suite {
+import r "runner"
+
+import math_tests "math"
+
+main_suite := r.Test_Suite {
     name = "",
     tests = {},
     child_suites = {
-        &math_suite,
+        &math_tests.math_suite,
         &graphics_suite,
         &shape_suite,
     },
@@ -24,7 +27,7 @@ main :: proc() {
     options, options_ok := parse_options(os.args[1:]);
     if !options_ok do return;
 
-    if !execute_test_suite(&main_suite, options) {
+    if !r.execute_test_suite(&main_suite, options) {
         os.exit(1);
     }
 
@@ -37,8 +40,8 @@ main :: proc() {
     }
 }
 
-parse_options :: proc(args: []string) -> (result: Test_Options, ok: bool) {
-    result = default_test_options();
+parse_options :: proc(args: []string) -> (result: r.Test_Options, ok: bool) {
+    result = r.default_test_options();
     ok = true;
 
     for arg in args {

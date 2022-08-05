@@ -1,4 +1,4 @@
-package tests
+package tests_runner
 
 import "core:fmt"
 import "core:os"

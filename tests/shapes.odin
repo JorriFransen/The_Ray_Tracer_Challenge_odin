@@ -7,21 +7,25 @@ import "raytracer:shapes"
 import g "raytracer:graphics"
 import m "raytracer:math"
 
-shape_suite := Test_Suite {
+import r "runner"
+
+PI :: math.PI;
+
+shape_suite := r.Test_Suite {
     name = "Shape/",
     tests = {
-        test("S_Default_Transform ", S_Default_Transform),
-        test("S_Modified_Transform", S_Modified_Transform),
-        test("S_Scaled_Intersect_R", S_Scaled_Intersect_R),
-        test("S_Normal_X_Axis", S_Normal_X_Axis),
-        test("S_Normal_Y_Axis", S_Normal_Y_Axis),
-        test("S_Normal_Z_Axis", S_Normal_Z_Axis),
-        test("S_Normal_Nonaxial", S_Normal_Nonaxial),
-        test("S_Normal_Normalized", S_Normal_Normalized),
-        test("S_Translated_Normal", S_Translated_Normal),
-        test("S_Scaled_Rotated_Normal", S_Scaled_Rotated_Normal),
-        test("Sphere_Default_Material", Sphere_Default_Material),
-        test("Sphere_Modified_Material", Sphere_Modified_Material),
+        r.test("S_Default_Transform ", S_Default_Transform),
+        r.test("S_Modified_Transform", S_Modified_Transform),
+        r.test("S_Scaled_Intersect_R", S_Scaled_Intersect_R),
+        r.test("S_Normal_X_Axis", S_Normal_X_Axis),
+        r.test("S_Normal_Y_Axis", S_Normal_Y_Axis),
+        r.test("S_Normal_Z_Axis", S_Normal_Z_Axis),
+        r.test("S_Normal_Nonaxial", S_Normal_Nonaxial),
+        r.test("S_Normal_Normalized", S_Normal_Normalized),
+        r.test("S_Translated_Normal", S_Translated_Normal),
+        r.test("S_Scaled_Rotated_Normal", S_Scaled_Rotated_Normal),
+        r.test("Sphere_Default_Material", Sphere_Default_Material),
+        r.test("Sphere_Modified_Material", Sphere_Modified_Material),
     },
 
     child_suites = {
@@ -34,7 +38,7 @@ S_Default_Transform :: proc(t: ^testing.T) {
 
     s := shapes.sphere();
 
-    expect(t, s.transform == m.matrix4_identity);
+    r.expect(t, s.transform == m.matrix4_identity);
 }
 
 @test
@@ -46,29 +50,29 @@ S_Modified_Transform :: proc(t: ^testing.T) {
 
         shapes.shape_set_transform(&s, tf);
 
-        expect(t, s.transform == tf);
+        r.expect(t, s.transform == tf);
     }
 
     {
         tf := m.translation(2, 3, 4);
         s := shapes.sphere(tf);
 
-        expect(t, s.transform == tf);
+        r.expect(t, s.transform == tf);
     }
 }
 
 @test
 S_Scaled_Intersect_R :: proc(t: ^testing.T) {
 
-    r := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
+    ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
     s := shapes.sphere(m.scaling(2, 2, 2));
 
-    xs, ok := shapes.intersects(s, r).?;
+    xs, ok := shapes.intersects(s, ray).?;
 
-    expect(t, ok);
-    expect(t, len(xs) == 2);
-    expect(t, xs[0].t == 3);
-    expect(t, xs[1].t == 7);
+    r.expect(t, ok);
+    r.expect(t, len(xs) == 2);
+    r.expect(t, xs[0].t == 3);
+    r.expect(t, xs[1].t == 7);
 
 }
 
@@ -83,8 +87,8 @@ S_Normal_X_Axis :: proc(t: ^testing.T) {
 
     expected := m.vector(1, 0, 0);
 
-    expect(t, n == expected);
-    expect(t, n1 == expected);
+    r.expect(t, n == expected);
+    r.expect(t, n1 == expected);
 }
 
 @test
@@ -98,8 +102,8 @@ S_Normal_Y_Axis :: proc(t: ^testing.T) {
 
     expected := m.vector(0, 1, 0);
 
-    expect(t, n == expected);
-    expect(t, n1 == expected);
+    r.expect(t, n == expected);
+    r.expect(t, n1 == expected);
 }
 
 @test
@@ -113,8 +117,8 @@ S_Normal_Z_Axis :: proc(t: ^testing.T) {
 
     expected := m.vector(0, 0, 1);
 
-    expect(t, n == expected);
-    expect(t, n1 == expected);
+    r.expect(t, n == expected);
+    r.expect(t, n1 == expected);
 }
 
 @test
@@ -130,8 +134,8 @@ S_Normal_Nonaxial :: proc(t: ^testing.T) {
 
     expected := m.vector(v, v, v);
 
-    expect(t, m.eq(n, expected));
-    expect(t, m.eq(n1, expected));
+    r.expect(t, m.eq(n, expected));
+    r.expect(t, m.eq(n1, expected));
 }
 
 @test
@@ -147,8 +151,8 @@ S_Normal_Normalized :: proc(t: ^testing.T) {
 
     expected := m.normalize(n);
 
-    expect(t, m.eq(n, expected));
-    expect(t, m.eq(n1, expected));
+    r.expect(t, m.eq(n, expected));
+    r.expect(t, m.eq(n1, expected));
 }
 
 @test
@@ -163,8 +167,8 @@ S_Translated_Normal :: proc(t: ^testing.T) {
 
     expected := m.vector(0, 0.70711, -0.70711);
 
-    expect(t, m.eq(n, expected));
-    expect(t, m.eq(n1, expected));
+    r.expect(t, m.eq(n, expected));
+    r.expect(t, m.eq(n1, expected));
 }
 
 @test
@@ -180,8 +184,8 @@ S_Scaled_Rotated_Normal :: proc(t: ^testing.T) {
 
     expected := m.vector(0, 0.97014, -0.24254);
 
-    expect(t, m.eq(n, expected));
-    expect(t, m.eq(n1, expected));
+    r.expect(t, m.eq(n, expected));
+    r.expect(t, m.eq(n1, expected));
 }
 
 @test
@@ -191,7 +195,7 @@ Sphere_Default_Material :: proc(t: ^testing.T) {
 
     m := s.material;
 
-    expect(t, m == g.material());
+    r.expect(t, m == g.material());
 }
 
 @test
@@ -204,7 +208,7 @@ Sphere_Modified_Material :: proc(t: ^testing.T) {
 
         shapes.shape_set_material(&s, m);
 
-        expect(t, s.material == m);
+        r.expect(t, s.material == m);
     }
 
     {
@@ -212,7 +216,7 @@ Sphere_Modified_Material :: proc(t: ^testing.T) {
         m.ambient = 1;
         s := shapes.sphere(m);
 
-        expect(t, s.material == m);
+        r.expect(t, s.material == m);
     }
 
     {
@@ -222,6 +226,6 @@ Sphere_Modified_Material :: proc(t: ^testing.T) {
 
         s.material = m;
 
-        expect(t, s.material == m);
+        r.expect(t, s.material == m);
     }
 }
