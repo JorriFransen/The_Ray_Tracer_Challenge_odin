@@ -1,14 +1,16 @@
-package rtmath
+package rtshapes
 
 import "core:math"
 import "core:slice"
 
+import m "raytracer:math"
+
 Intersection :: struct {
-    t: Tuple_Element_Type,
+    t: m.Tuple_Element_Type,
     object: Sphere,
 }
 
-intersection :: proc(t: Tuple_Element_Type, s: Sphere) -> Intersection {
+intersection :: proc(t: m.Tuple_Element_Type, s: Sphere) -> Intersection {
     return Intersection { t, s };
 }
 
@@ -50,15 +52,15 @@ hit :: proc(xs: []Intersection) -> Maybe(Intersection) {
     }
 }
 
-intersects_sr :: proc(s: Sphere, r: Ray, allocator := context.allocator) -> Maybe([2]Intersection) {
+intersects_sr :: proc(s: Sphere, r: m.Ray, allocator := context.allocator) -> Maybe([2]Intersection) {
 
-    r := ray_transform(r, matrix_inverse(s.transform));
+    r := m.ray_transform(r, m.matrix_inverse(s.transform));
 
-    sphere_to_ray := sub(r.origin, point(0, 0, 0));
+    sphere_to_ray := m.sub(r.origin, m.point(0, 0, 0));
 
-    a := dot(r.direction, r.direction);
-    b := 2 * dot(r.direction, sphere_to_ray);
-    c := dot(sphere_to_ray, sphere_to_ray) - 1;
+    a := m.dot(r.direction, r.direction);
+    b := 2 * m.dot(r.direction, sphere_to_ray);
+    c := m.dot(sphere_to_ray, sphere_to_ray) - 1;
 
     discriminant := (b * b) - 4 * a * c;
 
@@ -69,8 +71,8 @@ intersects_sr :: proc(s: Sphere, r: Ray, allocator := context.allocator) -> Mayb
     discriminant_sqrt := math.sqrt(discriminant);
     a2 := 2 * a;
 
-    t1 := Tuple_Element_Type((-b - discriminant_sqrt) / a2);
-    t2 := Tuple_Element_Type((-b + discriminant_sqrt) / a2);
+    t1 := m.Tuple_Element_Type((-b - discriminant_sqrt) / a2);
+    t2 := m.Tuple_Element_Type((-b + discriminant_sqrt) / a2);
 
     assert(t1 <= t2);
 
