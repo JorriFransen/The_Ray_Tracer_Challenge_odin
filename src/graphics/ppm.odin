@@ -12,6 +12,11 @@ PPM_MAGIC :: "P3"
 PPM_ELEMENT_RESOLUTION :: 255;
 PPM_MAX_LINE_LENGTH :: 70;
 
+PPM_Print_State :: struct {
+    sb: ^strings.Builder,
+    current_line_length: int,
+}
+
 ppm_from_canvas :: proc(c: Canvas, allocator := context.allocator) -> string {
 
     _sb := strings.builder_make_none(allocator);
@@ -25,23 +30,21 @@ ppm_from_canvas :: proc(c: Canvas, allocator := context.allocator) -> string {
 
 
     // Body
-    pixel_count := c.width * c.height;
-    line_start := len(sb.buf);
+    state := PPM_Print_State { sb, 0 };
 
-    for i := 0; i < pixel_count; i += 1 {
+    for y in 0..<c.height {
 
-        p := c.pixels[i];
+        for x in 0..<c.width {
 
-        last_on_line := (i + 1) % c.width == 0;
+            p := canvas_get_pixel(c, x, y);
 
-        ppm_write_element(sb, p.r, &line_start, false);
-        ppm_write_element(sb, p.g, &line_start, false);
-        ppm_write_element(sb, p.b, &line_start, last_on_line);
-
-        if last_on_line {
-            fmt.sbprint(sb, "\n");
-            line_start = len(sb.buf);
+            append_element(&state, p.r);
+            append_element(&state, p.g);
+            append_element(&state, p.b);
         }
+
+        fmt.sbprint(state.sb, '\n');
+        state.current_line_length = 0;
     }
 
     return strings.clone(strings.to_string(sb^), allocator);
@@ -56,23 +59,35 @@ ppm_write_to_file :: proc(file_name, ppm: string) -> (success: bool)  {
     return os.write_entire_file(file_name, transmute([]u8)ppm);
 }
 
-@private
-ppm_write_element :: proc(sb: ^strings.Builder, e: $T, line_start: ^int, last_on_line: bool) where intrinsics.type_is_float(T) {
-
-    line_len := len(sb.buf) - line_start^;
-    if line_len + 3 >= PPM_MAX_LINE_LENGTH {
-        fmt.sbprint(sb, "\n");
-        line_start^ = len(sb.buf);
-    }
+append_element :: #force_inline proc(state: ^PPM_Print_State, e: $T) where intrinsics.type_is_float(T) {
 
     real_value := ml.clamp(e, 0.0, 1.0)
     int_value := int(m.ceil(PPM_ELEMENT_RESOLUTION * real_value));
     assert(int_value >= 0);
     assert(int_value <= 255);
-    fmt.sbprintf(sb, "%v", int_value);
 
-    line_len = len(sb.buf) - line_start^;
-    if !last_on_line && line_len + 1 < PPM_MAX_LINE_LENGTH {
-        fmt.sbprint(sb, " ");
+    // leading space included
+    length := 2;
+    if int_value > 9 do length = 3;
+    if int_value > 99 do length = 4;
+
+    format := "%v";
+
+    if state.current_line_length + length > PPM_MAX_LINE_LENGTH {
+
+        fmt.sbprint(state.sb, '\n');
+        state.current_line_length = 0;
+        length -= 1; // don't print leading space
+
+    } else if state.current_line_length == 0 {
+
+        // Newline from outside this function
+        length -= 1; // don't print leading space
+
+    } else {
+        format = " %v";
     }
+
+    fmt.sbprintf(state.sb, format, int_value);
+    state.current_line_length += length;
 }

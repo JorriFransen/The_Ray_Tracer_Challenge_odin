@@ -98,6 +98,10 @@ Ca_PPM_Pixel_Data_Construction :: proc(t: ^testing.T) {
 
     r.expect(t, len(ppm_lines) == 7);
 
+    for pl in ppm_lines {
+        r.expect(t, len(pl) <= g.PPM_MAX_LINE_LENGTH);
+    }
+
     r.expect(t, ppm_lines[0] == "P3");
     r.expect(t, ppm_lines[1] == "5 3");
     r.expect(t, ppm_lines[2] == "255");
@@ -142,6 +146,10 @@ Ca_PPM_Line_Splitting :: proc(t: ^testing.T) {
     ppm_lines := strings.split_lines(ppm);
 
     r.expect(t, len(ppm_lines) == 8);
+
+    for pl in ppm_lines {
+        r.expect(t, len(pl) <= g.PPM_MAX_LINE_LENGTH);
+    }
 
     r.expect(t, ppm_lines[0] == "P3");
     r.expect(t, ppm_lines[1] == "10 2");
