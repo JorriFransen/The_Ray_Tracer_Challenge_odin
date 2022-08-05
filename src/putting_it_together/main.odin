@@ -1,7 +1,11 @@
 package putting_it_together
 
 import "core:fmt"
+import "core:math"
+
 import g "raytracer:graphics"
+
+PI :: math.PI;
 
 main :: proc() {
 
@@ -18,6 +22,9 @@ main :: proc() {
     fmt.println("\n");
 
     with_canvas(500, 500, CH05, "CH05");
+    fmt.println("\n");
+
+    with_canvas(500, 500, CH06, "CH06");
     fmt.println("\n");
 }
 

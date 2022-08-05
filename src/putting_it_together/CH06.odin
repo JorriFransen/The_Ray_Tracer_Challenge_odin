@@ -7,8 +7,8 @@ import s "raytracer:shapes"
 import "core:math"
 import "core:fmt";
 
-CH05 :: proc(c: g.Canvas) {
-    fmt.println("Putting it together for chapter 5");
+CH06 :: proc(c: g.Canvas) {
+    fmt.println("Putting it together for chapter 6");
 
     assert(c.width == c.height);
 
@@ -21,11 +21,13 @@ CH05 :: proc(c: g.Canvas) {
     pixel_size := wall_size / m.Tuple_Element_Type(canvas_pixels);
     half_wall_size := wall_size / 2;
 
-    color :: g.RED;
-    shape := s.sphere();
+    mat := g.material(g.color(1, 0.2, 1));
+    shape := s.sphere(mat);
     // shape := m.sphere(m.scaling(0.5, 1, 1));
     // shape := m.sphere(m.rotation_z(PI / 4) * m.scaling(0.5, 1, 1));
     // shape := m.sphere(m.shearing(1, 0, 0, 0, 0, 0) * m.scaling(0.5, 1, 1));
+
+    light := g.point_light(m.point(-10, 10, -10), g.color(1, 1, 1));
 
     for y in 0..<canvas_pixels {
         world_y := half_wall_size - pixel_size * m.Tuple_Element_Type(y);
@@ -40,16 +42,24 @@ CH05 :: proc(c: g.Canvas) {
 
             if !did_intersect do continue;
 
-            if i, ok := s.hit(xs[:]).?; ok {
+            if hit, ok : = s.hit(xs[:]).?; ok {
+
+                hitpoint := m.ray_position(r, hit.t);
+                hitnormal := s.shape_normal_at(&hit.object, hitpoint);
+                eye_v := m.negate(r.direction);
+
+                color := g.lighting(hit.object.material, light, hitpoint, eye_v, hitnormal);
+
                 g.canvas_write_pixel(c, x, y, color);
             }
+
         }
     }
 
     ppm := g.ppm_from_canvas(c);
     defer delete(ppm);
 
-    ok := g.ppm_write_to_file("images/putting_it_together_ch05.ppm", ppm);
+    ok := g.ppm_write_to_file("images/putting_it_together_ch06.ppm", ppm);
     if !ok {
         panic("Failed to write ppm file...");
     }
