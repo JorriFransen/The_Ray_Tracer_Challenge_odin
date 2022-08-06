@@ -134,3 +134,19 @@ shear :: proc {
     shear_t,
     shear_m,
 }
+
+view_transform :: proc(from, to: Point, up: Vector) -> Matrix4 {
+
+    forward := normalize(sub(to, from));
+    left := cross(forward, normalize(up));
+    true_up := cross(left, forward);
+
+    orientation := Matrix4 {
+            left.x,     left.y,     left.z, 0,
+         true_up.x,  true_up.y,  true_up.z, 0,
+        -forward.x, -forward.y, -forward.z, 0,
+                 0,          0,          0, 1,
+    };
+
+    return orientation * translation(-from.x, -from.y, -from.z);
+}
