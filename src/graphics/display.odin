@@ -11,6 +11,8 @@ display :: proc(c: Canvas, title: cstring) {
     window_width := f32(c.width);
     window_height := f32(c.height);
 
+    rl.SetTraceLogLevel(rl.TraceLogLevel.WARNING);
+
     rl.SetConfigFlags({ .WINDOW_RESIZABLE });
 
     rl.InitWindow(width, height, title);
