@@ -77,15 +77,10 @@ World_Test_Default :: proc(t: ^r.T) {
     r.expect(t, len(w.lights) == 1);
     r.expect(t, w.lights[0] == light);
 
-    fmt.println(s1.material);
-    fmt.println(w.objects[0].?.material);
-
     r.expect(t, len(w.objects) == 2);
     r.expect(t, slice.contains(w.objects, s1));
     r.expect(t, slice.contains(w.objects, s2));
 }
-
-import "core:fmt"
 
 @test
 World_Intersect_Ray :: proc(t: ^r.T) {
@@ -166,10 +161,6 @@ Color_At_Hit_Behind :: proc(t: ^r.T) {
     ray := m.ray(m.point(0, 0, 0.75), m.vector(0, 0, -1));
 
     c := world.color_at(w, ray);
-
-    fmt.println(inner.material);
-    fmt.println(inner.material.color);
-    fmt.println(c);
 
     r.expect(t, m.eq(c, inner.material.color));
 }
