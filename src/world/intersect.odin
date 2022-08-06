@@ -20,7 +20,7 @@ Hit_Info :: struct {
     inside: bool,
 }
 
-intersection :: proc(t: m.real, s: Sphere) -> Intersection {
+intersection :: proc(t: m.real, s: Shape) -> Intersection {
     return Intersection { t, s };
 }
 
