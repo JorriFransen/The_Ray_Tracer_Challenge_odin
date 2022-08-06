@@ -7,8 +7,6 @@ import "core:math"
 import g "raytracer:graphics"
 import m "raytracer:math"
 
-PI :: math.PI;
-
 canvas_transform : m.Matrix4;
 hour_size : int;
 minute_size : int;

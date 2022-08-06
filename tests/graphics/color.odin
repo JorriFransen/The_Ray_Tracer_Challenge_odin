@@ -5,7 +5,7 @@ import "core:testing"
 import g "raytracer:graphics"
 import rm "raytracer:math"
 
-import r "../runner"
+import r "raytracer:test_runner"
 
 color_suite := r.Test_Suite {
     name = "Col/",

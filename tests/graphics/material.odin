@@ -5,7 +5,7 @@ import "core:testing"
 import g "raytracer:graphics"
 import m "raytracer:math"
 
-import r "../runner"
+import r "raytracer:test_runner"
 
 material_suite := r.Test_Suite {
     name = "Mat/",

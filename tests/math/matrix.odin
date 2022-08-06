@@ -4,7 +4,7 @@ import "core:testing";
 
 import rm "raytracer:math";
 
-import r "../runner"
+import r "raytracer:test_runner"
 
 matrix_suite := r.Test_Suite {
     name = "Mtx/",

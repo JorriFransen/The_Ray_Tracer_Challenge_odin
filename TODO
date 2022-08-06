@@ -1,0 +1,5 @@
+
+Pass canvas by pointer
+
+Use the context to pass the test_context around
+ this way we don't have to pass it to expect() on every test assertion.

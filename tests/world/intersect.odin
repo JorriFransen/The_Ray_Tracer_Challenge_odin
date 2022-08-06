@@ -5,7 +5,7 @@ import "core:testing"
 import w "raytracer:world"
 import m "raytracer:math"
 
-import r "../runner"
+import r "raytracer:test_runner"
 
 intersect_suite := r.Test_Suite {
     name = "Intersect/",
@@ -37,10 +37,10 @@ R_Intersect_Sphere_2P :: proc(t: ^testing.T) {
 
     xs, ok := w.intersects(s, ray).?;
 
-    r.expect(t, ok);
-    r.expect(t, len(xs) == 2);
-    r.expect(t, xs[0].t == 4.0);
-    r.expect(t, xs[1].t == 6.0);
+    expect(t, ok);
+    expect(t, len(xs) == 2);
+    expect(t, xs[0].t == 4.0);
+    expect(t, xs[1].t == 6.0);
 }
 
 @test
@@ -51,10 +51,10 @@ R_Intersect_Sphere_Tangent :: proc(t: ^testing.T) {
 
     xs, ok := w.intersects(s, ray).?;
 
-    r.expect(t, ok);
-    r.expect(t, len(xs) == 2);
-    r.expect(t, xs[0].t == 5.0);
-    r.expect(t, xs[1].t == 5.0);
+    expect(t, ok);
+    expect(t, len(xs) == 2);
+    expect(t, xs[0].t == 5.0);
+    expect(t, xs[1].t == 5.0);
 }
 
 @test
@@ -65,7 +65,7 @@ R_Misses_Sphere :: proc(t: ^testing.T) {
 
     xs, ok := w.intersects(s, ray).?;
 
-    r.expect(t, !ok);
+    expect(t, !ok);
 }
 
 @test
@@ -76,10 +76,10 @@ R_Inside_Sphere :: proc(t: ^testing.T) {
 
     xs, ok := w.intersects(s, ray).?;
 
-    r.expect(t, ok);
-    r.expect(t, len(xs) == 2);
-    r.expect(t, xs[0].t == -1.0);
-    r.expect(t, xs[1].t == 1.0);
+    expect(t, ok);
+    expect(t, len(xs) == 2);
+    expect(t, xs[0].t == -1.0);
+    expect(t, xs[1].t == 1.0);
 }
 
 @test
@@ -90,10 +90,10 @@ R_Sphere_Behind :: proc(t: ^testing.T) {
 
     xs, ok := w.intersects(s, ray).?;
 
-    r.expect(t, ok);
-    r.expect(t, len(xs) == 2);
-    r.expect(t, xs[0].t == -6.0);
-    r.expect(t, xs[1].t == -4.0);
+    expect(t, ok);
+    expect(t, len(xs) == 2);
+    expect(t, xs[0].t == -6.0);
+    expect(t, xs[1].t == -4.0);
 }
 
 @test
@@ -103,8 +103,8 @@ Intersection_Constructor :: proc(t: ^testing.T) {
 
     i := w.intersection(3.5, s);
 
-    r.expect(t, i.t == 3.5);
-    r.expect(t, i.object == s);
+    expect(t, i.t == 3.5);
+    expect(t, i.object == s);
 }
 
 @test
@@ -117,9 +117,9 @@ Aggregating_Intersections :: proc(t: ^testing.T) {
     xs := w.intersections(i1, i2);
     defer delete(xs);
 
-    r.expect(t, len(xs) == 2);
-    r.expect(t, xs[0].t == 1);
-    r.expect(t, xs[1].t == 2);
+    expect(t, len(xs) == 2);
+    expect(t, xs[0].t == 1);
+    expect(t, xs[1].t == 2);
 }
 
 @test
@@ -131,10 +131,10 @@ Intersect_Sets_Ojb :: proc(t: ^testing.T) {
 
     xs, ok := w.intersects(s, ray).?;
 
-    r.expect(t, ok);
-    r.expect(t, len(xs) == 2);
-    r.expect(t, xs[0].object == s);
-    r.expect(t, xs[1].object == s);
+    expect(t, ok);
+    expect(t, len(xs) == 2);
+    expect(t, xs[0].object == s);
+    expect(t, xs[1].object == s);
 }
 
 
@@ -150,8 +150,8 @@ Hit_All_Positive :: proc(t: ^testing.T) {
 
     i, i_ok := w.hit(xs[:]).?;
 
-    r.expect(t, i_ok);
-    r.expect(t, i == i1);
+    expect(t, i_ok);
+    expect(t, i == i1);
 }
 
 @test
@@ -166,8 +166,8 @@ Hit_Some_Negative :: proc(t: ^testing.T) {
 
     i, i_ok := w.hit(xs[:]).?;
 
-    r.expect(t, i_ok);
-    r.expect(t, i == i2);
+    expect(t, i_ok);
+    expect(t, i == i2);
 }
 
 @test
@@ -182,7 +182,7 @@ Hit_All_Negative :: proc(t: ^testing.T) {
 
     _, i_ok := w.hit(xs[:]).?;
 
-    r.expect(t, !i_ok);
+    expect(t, !i_ok);
 }
 
 @test
@@ -202,7 +202,7 @@ Hit_Lowest_Non_Negative :: proc(t: ^testing.T) {
 
     i, i_ok := w.hit(xs[:]).?;
 
-    r.expect(t, i == i4);
+    expect(t, i == i4);
 }
 
 @test
@@ -214,11 +214,11 @@ Hit_Info :: proc(t: ^testing.T) {
 
     comps := w.hit_info(i, ray);
 
-    r.expect(t, comps.t == i.t);
-    r.expect(t, comps.object == i.object);
-    r.expect(t, m.eq(comps.point, m.point(0, 0, -1)));
-    r.expect(t, m.eq(comps.eye_v, m.vector(0, 0, -1)));
-    r.expect(t, m.eq(comps.normal_v, m.vector(0, 0, -1)));
+    expect(t, comps.t == i.t);
+    expect(t, comps.object == i.object);
+    expect(t, m.eq(comps.point, m.point(0, 0, -1)));
+    expect(t, m.eq(comps.eye_v, m.vector(0, 0, -1)));
+    expect(t, m.eq(comps.normal_v, m.vector(0, 0, -1)));
 }
 
 @test
@@ -230,7 +230,7 @@ Hit_Info_Outside :: proc(t: ^testing.T) {
 
     comps := w.hit_info(i, ray);
 
-    r.expect(t, comps.inside == false);
+    expect(t, comps.inside == false);
 }
 
 @test
@@ -242,11 +242,11 @@ Hit_Info_Inside :: proc(t: ^testing.T) {
 
     comps := w.hit_info(i, ray);
 
-    r.expect(t, comps.t == i.t);
-    r.expect(t, comps.object == i.object);
-    r.expect(t, m.eq(comps.point, m.point(0, 0, 1)));
-    r.expect(t, m.eq(comps.eye_v, m.vector(0, 0, -1)));
-    r.expect(t, m.eq(comps.normal_v, m.vector(0, 0, -1)));
+    expect(t, comps.t == i.t);
+    expect(t, comps.object == i.object);
+    expect(t, m.eq(comps.point, m.point(0, 0, 1)));
+    expect(t, m.eq(comps.eye_v, m.vector(0, 0, -1)));
+    expect(t, m.eq(comps.normal_v, m.vector(0, 0, -1)));
 
-    r.expect(t, comps.inside);
+    expect(t, comps.inside);
 }

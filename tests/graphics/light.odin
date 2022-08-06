@@ -6,7 +6,7 @@ import "core:math"
 import g "raytracer:graphics"
 import m "raytracer:math"
 
-import r "../runner"
+import r "raytracer:test_runner"
 
 light_suite := r.Test_Suite {
     name = "Light/",

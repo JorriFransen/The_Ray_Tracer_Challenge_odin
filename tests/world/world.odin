@@ -2,11 +2,13 @@ package tests_world
 
 import "core:slice"
 
-import r "../runner"
+import r "raytracer:test_runner"
 
 import g "raytracer:graphics"
 import m "raytracer:math"
 import world "raytracer:world"
+
+expect :: r.expect;
 
 world_suite := r.Test_Suite {
     name = "World/",
@@ -24,11 +26,12 @@ world_suite := r.Test_Suite {
     child_suites = {
         &shape_suite,
         &intersect_suite,
+        &camera_suite,
     },
 }
 
 
-@(private="file") @(deferred_out=destroy_default_world)
+@(private) @(deferred_out=destroy_default_world)
 default_world :: proc() -> ^world.World {
 
     shapes : [dynamic]world.Shape = {
@@ -59,8 +62,8 @@ World_Default :: proc(t: ^r.T) {
 
     w := world.world();
 
-    r.expect(t, len(w.objects) == 0);
-    r.expect(t, len(w.lights) == 0);
+    expect(t, len(w.objects) == 0);
+    expect(t, len(w.lights) == 0);
 }
 
 @test
@@ -74,12 +77,12 @@ World_Test_Default :: proc(t: ^r.T) {
 
     w := default_world();
 
-    r.expect(t, len(w.lights) == 1);
-    r.expect(t, w.lights[0] == light);
+    expect(t, len(w.lights) == 1);
+    expect(t, w.lights[0] == light);
 
-    r.expect(t, len(w.objects) == 2);
-    r.expect(t, slice.contains(w.objects, s1));
-    r.expect(t, slice.contains(w.objects, s2));
+    expect(t, len(w.objects) == 2);
+    expect(t, slice.contains(w.objects, s1));
+    expect(t, slice.contains(w.objects, s2));
 }
 
 @test
@@ -93,11 +96,11 @@ World_Intersect_Ray :: proc(t: ^r.T) {
 
     xs := world.intersect_world(w, ray);
 
-    r.expect(t, len(xs) == 4);
-    r.expect(t, xs[0].t == 4);
-    r.expect(t, xs[1].t == 4.5);
-    r.expect(t, xs[2].t == 5.5);
-    r.expect(t, xs[3].t == 6);
+    expect(t, len(xs) == 4);
+    expect(t, xs[0].t == 4);
+    expect(t, xs[1].t == 4.5);
+    expect(t, xs[2].t == 5.5);
+    expect(t, xs[3].t == 6);
 }
 
 @test
@@ -111,7 +114,7 @@ Shade_Intersection :: proc(t: ^r.T) {
     comps := world.hit_info(i, ray);
     c := world.shade_hit(w, comps);
 
-    r.expect(t, m.eq(c, g.color(0.38066, 0.47583, 0.2855)));
+    expect(t, m.eq(c, g.color(0.38066, 0.47583, 0.2855)));
 }
 
 @test
@@ -125,7 +128,7 @@ Shade_Intersection_Inside :: proc(t: ^r.T) {
     comps := world.hit_info(i, ray);
     c := world.shade_hit(w, comps);
 
-    r.expect(t, m.eq(c, g.color(0.90498, 0.90498, 0.90498)));
+    expect(t, m.eq(c, g.color(0.90498, 0.90498, 0.90498)));
 }
 
 @test
@@ -136,7 +139,7 @@ Color_At_Miss :: proc(t: ^r.T) {
 
     c := world.color_at(w, ray);
 
-    r.expect(t, m.eq(c, g.color(0, 0, 0)));
+    expect(t, m.eq(c, g.color(0, 0, 0)));
 }
 
 @test
@@ -147,7 +150,7 @@ Color_At_Hit :: proc(t: ^r.T) {
 
     c := world.color_at(w, ray);
 
-    r.expect(t, m.eq(c, g.color(0.38066, 0.47583, 0.2855)));
+    expect(t, m.eq(c, g.color(0.38066, 0.47583, 0.2855)));
 }
 
 @test
@@ -162,5 +165,5 @@ Color_At_Hit_Behind :: proc(t: ^r.T) {
 
     c := world.color_at(w, ray);
 
-    r.expect(t, m.eq(c, inner.material.color));
+    expect(t, m.eq(c, inner.material.color));
 }

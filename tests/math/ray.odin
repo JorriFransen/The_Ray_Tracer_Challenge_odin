@@ -4,7 +4,7 @@ import "core:testing"
 import rm "raytracer:math"
 import w "raytracer:world"
 
-import r "../runner"
+import r "raytracer:test_runner"
 
 ray_suite := r.Test_Suite {
     name = "Ray/",

@@ -7,9 +7,9 @@ import w "raytracer:world"
 import g "raytracer:graphics"
 import m "raytracer:math"
 
-import r "../runner"
+import r "raytracer:test_runner"
 
-PI :: math.PI;
+PI :: m.real(math.PI);
 
 shape_suite := r.Test_Suite {
     name = "Shape/",
@@ -30,15 +30,15 @@ shape_suite := r.Test_Suite {
 }
 
 @test
-S_Default_Transform :: proc(t: ^testing.T) {
+S_Default_Transform :: proc(t: ^r.T) {
 
     s := w.sphere();
 
-    r.expect(t, s.transform == m.matrix4_identity);
+    expect(t, s.transform == m.matrix4_identity);
 }
 
 @test
-S_Modified_Transform :: proc(t: ^testing.T) {
+S_Modified_Transform :: proc(t: ^r.T) {
 
     {
         s := w.sphere()
@@ -46,34 +46,34 @@ S_Modified_Transform :: proc(t: ^testing.T) {
 
         w.shape_set_transform(&s, tf);
 
-        r.expect(t, s.transform == tf);
+        expect(t, s.transform == tf);
     }
 
     {
         tf := m.translation(2, 3, 4);
         s := w.sphere(tf);
 
-        r.expect(t, s.transform == tf);
+        expect(t, s.transform == tf);
     }
 }
 
 @test
-S_Scaled_Intersect_R :: proc(t: ^testing.T) {
+S_Scaled_Intersect_R :: proc(t: ^r.T) {
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
     s := w.sphere(m.scaling(2, 2, 2));
 
     xs, ok := w.intersects(s, ray).?;
 
-    r.expect(t, ok);
-    r.expect(t, len(xs) == 2);
-    r.expect(t, xs[0].t == 3);
-    r.expect(t, xs[1].t == 7);
+    expect(t, ok);
+    expect(t, len(xs) == 2);
+    expect(t, xs[0].t == 3);
+    expect(t, xs[1].t == 7);
 
 }
 
 @test
-S_Normal_X_Axis :: proc(t: ^testing.T) {
+S_Normal_X_Axis :: proc(t: ^r.T) {
 
     s := w.sphere();
     p := m.point(1, 0, 0);
@@ -83,12 +83,12 @@ S_Normal_X_Axis :: proc(t: ^testing.T) {
 
     expected := m.vector(1, 0, 0);
 
-    r.expect(t, n == expected);
-    r.expect(t, n1 == expected);
+    expect(t, n == expected);
+    expect(t, n1 == expected);
 }
 
 @test
-S_Normal_Y_Axis :: proc(t: ^testing.T) {
+S_Normal_Y_Axis :: proc(t: ^r.T) {
 
     s := w.sphere();
     p := m.point(0, 1, 0);
@@ -98,12 +98,12 @@ S_Normal_Y_Axis :: proc(t: ^testing.T) {
 
     expected := m.vector(0, 1, 0);
 
-    r.expect(t, n == expected);
-    r.expect(t, n1 == expected);
+    expect(t, n == expected);
+    expect(t, n1 == expected);
 }
 
 @test
-S_Normal_Z_Axis :: proc(t: ^testing.T) {
+S_Normal_Z_Axis :: proc(t: ^r.T) {
 
     s := w.sphere();
     p := m.point(0, 0, 1);
@@ -113,12 +113,12 @@ S_Normal_Z_Axis :: proc(t: ^testing.T) {
 
     expected := m.vector(0, 0, 1);
 
-    r.expect(t, n == expected);
-    r.expect(t, n1 == expected);
+    expect(t, n == expected);
+    expect(t, n1 == expected);
 }
 
 @test
-S_Normal_Nonaxial :: proc(t: ^testing.T) {
+S_Normal_Nonaxial :: proc(t: ^r.T) {
 
     s := w.sphere();
 
@@ -130,12 +130,12 @@ S_Normal_Nonaxial :: proc(t: ^testing.T) {
 
     expected := m.vector(v, v, v);
 
-    r.expect(t, m.eq(n, expected));
-    r.expect(t, m.eq(n1, expected));
+    expect(t, m.eq(n, expected));
+    expect(t, m.eq(n1, expected));
 }
 
 @test
-S_Normal_Normalized :: proc(t: ^testing.T) {
+S_Normal_Normalized :: proc(t: ^r.T) {
 
     s := w.sphere();
 
@@ -147,12 +147,12 @@ S_Normal_Normalized :: proc(t: ^testing.T) {
 
     expected := m.normalize(n);
 
-    r.expect(t, m.eq(n, expected));
-    r.expect(t, m.eq(n1, expected));
+    expect(t, m.eq(n, expected));
+    expect(t, m.eq(n1, expected));
 }
 
 @test
-S_Translated_Normal :: proc(t: ^testing.T) {
+S_Translated_Normal :: proc(t: ^r.T) {
 
     s := w.sphere(m.translation(0, 1, 0));
 
@@ -163,12 +163,12 @@ S_Translated_Normal :: proc(t: ^testing.T) {
 
     expected := m.vector(0, 0.70711, -0.70711);
 
-    r.expect(t, m.eq(n, expected));
-    r.expect(t, m.eq(n1, expected));
+    expect(t, m.eq(n, expected));
+    expect(t, m.eq(n1, expected));
 }
 
 @test
-S_Scaled_Rotated_Normal :: proc(t: ^testing.T) {
+S_Scaled_Rotated_Normal :: proc(t: ^r.T) {
 
     s := w.sphere(m.scaling(1, 0.5, 1) * m.rotation_z(PI / 5));
 
@@ -180,22 +180,22 @@ S_Scaled_Rotated_Normal :: proc(t: ^testing.T) {
 
     expected := m.vector(0, 0.97014, -0.24254);
 
-    r.expect(t, m.eq(n, expected));
-    r.expect(t, m.eq(n1, expected));
+    expect(t, m.eq(n, expected));
+    expect(t, m.eq(n1, expected));
 }
 
 @test
-Sphere_Default_Material :: proc(t: ^testing.T) {
+Sphere_Default_Material :: proc(t: ^r.T) {
 
     s := w.sphere();
 
     m := s.material;
 
-    r.expect(t, m == g.material());
+    expect(t, m == g.material());
 }
 
 @test
-Sphere_Modified_Material :: proc(t: ^testing.T) {
+Sphere_Modified_Material :: proc(t: ^r.T) {
 
     {
         s := w.sphere();
@@ -204,7 +204,7 @@ Sphere_Modified_Material :: proc(t: ^testing.T) {
 
         w.shape_set_material(&s, m);
 
-        r.expect(t, s.material == m);
+        expect(t, s.material == m);
     }
 
     {
@@ -212,7 +212,7 @@ Sphere_Modified_Material :: proc(t: ^testing.T) {
         m.ambient = 1;
         s := w.sphere(m);
 
-        r.expect(t, s.material == m);
+        expect(t, s.material == m);
     }
 
     {
@@ -222,6 +222,6 @@ Sphere_Modified_Material :: proc(t: ^testing.T) {
 
         s.material = m;
 
-        r.expect(t, s.material == m);
+        expect(t, s.material == m);
     }
 }

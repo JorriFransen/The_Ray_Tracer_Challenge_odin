@@ -5,9 +5,9 @@ import "core:math"
 
 import m "raytracer:math"
 
-import r "../runner"
+import r "raytracer:test_runner"
 
-PI :: math.PI;
+PI :: m.real(math.PI);
 sqrt :: math.sqrt;
 
 transform_suite := r.Test_Suite {
@@ -298,7 +298,7 @@ Rot_Around_Z :: proc(t: ^r.T) {
 Rot_Around_Z_Inv :: proc(t: ^r.T) {
 
     p := m.point(0, 1, 0);
-    half_quarter := m.rotation_z(math.PI / 4);
+    half_quarter := m.rotation_z(PI / 4);
     inv := m.matrix_inverse(half_quarter);
 
     sqrt2_d2 := sqrt(m.real(2)) / 2.0;

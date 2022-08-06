@@ -1,8 +1,8 @@
 package tests_math
 
-import t "../runner"
+import r "raytracer:test_runner"
 
-math_suite := t.Test_Suite {
+math_suite := r.Test_Suite {
     name = "Math/",
     tests = { },
     child_suites = {

@@ -4,7 +4,7 @@ import "core:fmt"
 import "core:os"
 import "core:mem"
 
-import r "runner"
+import r "raytracer:test_runner"
 
 import math_tests "math"
 import graphics_tests "graphics"

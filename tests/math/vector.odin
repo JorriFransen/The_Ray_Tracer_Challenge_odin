@@ -7,7 +7,7 @@ import "core:math"
 import cm "core:math"
 import rm "raytracer:math"
 
-import r "../runner"
+import r "raytracer:test_runner"
 
 vec_suite := r.Test_Suite {
     name = "Vec/",

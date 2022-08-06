@@ -4,8 +4,9 @@ import "core:fmt"
 import "core:math"
 
 import g "raytracer:graphics"
+import m "raytracer:math"
 
-PI :: math.PI;
+PI :: m.real(math.PI);
 
 main :: proc() {
 
