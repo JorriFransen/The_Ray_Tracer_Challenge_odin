@@ -14,6 +14,7 @@ Hit_Info :: struct {
     t: m.real,
     object: Shape,
     point: m.Point,
+    over_point: m.Point,
     eye_v: m.Vector,
     normal_v: m.Vector,
 
@@ -54,10 +55,17 @@ hit_info :: proc(i: Intersection, r: m.Ray) -> Hit_Info {
         normal_v = m.negate(normal_v);
     }
 
+    offset := m.mul(normal_v, m.OVER_POINT_EPSILON);
+    over_point := m.add(point, offset);
+    over_point.w = 1.0;
+
+    assert(m.is_point(over_point));
+
     return Hit_Info {
         t = i.t,
         object = i.object,
         point = point,
+        over_point = over_point,
         eye_v = eye_v,
         normal_v = normal_v,
         inside = inside,

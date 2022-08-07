@@ -38,17 +38,19 @@ intersect_world :: proc(w: ^World, r: m.Ray, allocator := context.allocator) -> 
     return result;
 }
 
-shade_hit :: proc(w: ^World, hi: Hit_Info) -> (result: graphics.Color) {
+shade_hit :: proc(w: ^World, hi: Hit_Info, shadows := true) -> (result: graphics.Color) {
     assert(len(w.lights) > 0);
 
+    is_shadowed :=  shadows && is_shadowed(w, hi.over_point);
+
     for l in w.lights {
-        result += graphics.lighting(hi.object.?.material, l, hi.point, hi.eye_v, hi.normal_v)
+        result += graphics.lighting(hi.object.?.material, l, hi.point, hi.eye_v, hi.normal_v, is_shadowed)
     }
 
     return;
 }
 
-color_at :: proc(w: ^World, r: m.Ray, allocator := context.allocator) -> graphics.Color {
+color_at :: proc(w: ^World, r: m.Ray, shadows := true, allocator := context.allocator) -> graphics.Color {
 
     xs := intersect_world(w, r, allocator);
     defer delete(xs);
@@ -57,9 +59,30 @@ color_at :: proc(w: ^World, r: m.Ray, allocator := context.allocator) -> graphic
 
         hi := hit_info(hit, r);
 
-        return shade_hit(w, hi);
+        return shade_hit(w, hi, shadows);
 
     } else {
         return graphics.BLACK;
     }
+}
+
+is_shadowed :: proc(w: ^World, p: m.Point, allocator := context.allocator) -> bool {
+
+    if len(w.lights) < 1 do return false;
+
+    light := w.lights[0];
+
+    point_to_light := m.sub(light.position, p);
+    distance := m.magnitude(point_to_light);
+
+    ray := m.ray(p, m.normalize(point_to_light));
+
+    intersections := intersect_world(w, ray, allocator);
+    defer delete(intersections);
+
+    if hit, ok := hit(intersections[:]).?; ok {
+        return hit.t < distance;
+    }
+
+    return false;
 }

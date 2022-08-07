@@ -26,6 +26,7 @@ intersect_suite := r.Test_Suite {
         r.test("Hit_Info", Hit_Info),
         r.test("Hit_Info_Outside", Hit_Info_Outside),
         r.test("Hit_Info_Inside", Hit_Info_Inside),
+        r.test("Hit_Info_Point_Offset", Hit_Info_Point_Offset),
     },
 }
 
@@ -249,4 +250,17 @@ Hit_Info_Inside :: proc(t: ^testing.T) {
     expect(t, m.eq(comps.normal_v, m.vector(0, 0, -1)));
 
     expect(t, comps.inside);
+}
+
+@test
+Hit_Info_Point_Offset :: proc(t: ^testing.T) {
+
+    ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
+    shape := w.sphere(m.translation(0, 0, 1));
+    i := w.intersection(5, shape);
+
+    hit_info := w.hit_info(i, ray);
+
+    expect(t, hit_info.over_point.z < -m.FLOAT_EPSILON / 2);
+    expect(t, hit_info.point.z > hit_info.over_point.z);
 }

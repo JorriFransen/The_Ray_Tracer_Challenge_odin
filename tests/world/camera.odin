@@ -41,7 +41,7 @@ HC_Pixel_Size :: proc(t: ^r.T) {
 
     c := w.camera(200, 125, PI / 2);
 
-    expect(t, c.pixel_size == 0.01);
+    expect(t, m.eq(c.pixel_size, 0.01));
 }
 
 @test
@@ -49,7 +49,7 @@ VC_Pixel_Size :: proc(t: ^r.T) {
 
     c := w.camera(125, 200, PI / 2);
 
-    expect(t, c.pixel_size == 0.01);
+    expect(t, m.eq(c.pixel_size, 0.01));
 }
 
 @test

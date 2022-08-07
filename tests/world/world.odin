@@ -21,6 +21,11 @@ world_suite := r.Test_Suite {
         r.test("Color_At_Miss", Color_At_Miss),
         r.test("Color_At_Hit", Color_At_Hit),
         r.test("Color_At_Hit_Behind", Color_At_Hit_Behind),
+        r.test("No_Shadow_Complete_Miss", No_Shadow_Complete_Miss),
+        r.test("Shadow_Point_Object_Light", Shadow_Point_Object_Light),
+        r.test("Shadow_Point_Light_Object", Shadow_Point_Light_Object),
+        r.test("Shadow_Light_Point_Object", Shadow_Light_Point_Object),
+        r.test("Shade_Shadowed_Intersection", Shade_Shadowed_Intersection),
     },
 
     child_suites = {
@@ -166,4 +171,61 @@ Color_At_Hit_Behind :: proc(t: ^r.T) {
     c := world.color_at(w, ray);
 
     expect(t, m.eq(c, inner.material.color));
+}
+
+@test
+No_Shadow_Complete_Miss :: proc(t: ^r.T) {
+
+    w := default_world();
+    p := m.point(0, 10, 0);
+
+    expect(t, world.is_shadowed(w, p) == false);
+}
+
+@test
+Shadow_Point_Object_Light :: proc(t: ^r.T) {
+
+    w := default_world();
+    p := m.point(10, -10, 10);
+
+    expect(t, world.is_shadowed(w, p));
+}
+
+@test
+Shadow_Point_Light_Object :: proc(t: ^r.T) {
+
+    w := default_world();
+    p := m.point(-20, 20, -20);
+
+    expect(t, world.is_shadowed(w, p) == false);
+}
+
+@test
+Shadow_Light_Point_Object :: proc(t: ^r.T) {
+
+    w := default_world();
+    p := m.point(-2, 2, -2);
+
+    expect(t, world.is_shadowed(w, p) == false);
+}
+
+@test
+Shade_Shadowed_Intersection :: proc(t: ^r.T) {
+
+    s1 := world.sphere();
+    s2 := world.sphere(m.translation(0, 0, 10));
+    shapes : []world.Shape = { s1, s2 };
+
+    lights : []g.Point_Light = { g.point_light(m.point(0, 0, -10), g.color(1, 1, 1)) };
+
+    w := world.world(shapes, lights);
+
+    ray := m.ray(m.point(0, 0, 5), m.vector(0, 0, 1));
+    i := world.intersection(4, s2);
+
+    hit_info := world.hit_info(i, ray);
+
+    c := world.shade_hit(&w, hit_info);
+
+    expect(t, m.eq(c, g.color(0.1, 0.1, 0.1)));
 }

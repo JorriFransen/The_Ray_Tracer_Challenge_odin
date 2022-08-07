@@ -14,7 +14,7 @@ point_light :: proc(p: m.Point, i: Color) -> Point_Light {
     return Point_Light { p, i };
 }
 
-lighting :: proc(mat: Material, l: Point_Light, p: m.Point, eye_v: m.Vector, normal_v: m.Vector) -> g.Color {
+lighting :: proc(mat: Material, l: Point_Light, p: m.Point, eye_v: m.Vector, normal_v: m.Vector, in_shadow := false) -> g.Color {
 
     effective_color := mat.color * l.intensity;
 
@@ -43,5 +43,6 @@ lighting :: proc(mat: Material, l: Point_Light, p: m.Point, eye_v: m.Vector, nor
         }
     }
 
+    if in_shadow do return ambient;
     return ambient + diffuse + specular;
 }

@@ -123,7 +123,7 @@ S_Normal_Nonaxial :: proc(t: ^r.T) {
 
     s := w.sphere();
 
-    v := math.sqrt(f32(3.0)) / 3;
+    v := math.sqrt(m.real(3.0)) / 3;
     p := m.point(v, v, v);
 
     n := w.shape_normal_at(&s, p);
@@ -140,7 +140,7 @@ S_Normal_Normalized :: proc(t: ^r.T) {
 
     s := w.sphere();
 
-    v := math.sqrt(f32(3.0)) / 3;
+    v := math.sqrt(m.real(3.0)) / 3;
     p := m.point(v, v, v);
 
     n := w.shape_normal_at(&s, p);

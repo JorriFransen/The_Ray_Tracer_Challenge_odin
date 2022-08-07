@@ -5,8 +5,6 @@ import "core:intrinsics"
 import "core:simd"
 import cm "core:math"
 
-real :: f32;
-
 Tuple :: distinct [4]real;
 Point :: distinct Tuple;
 Vector :: distinct Tuple;

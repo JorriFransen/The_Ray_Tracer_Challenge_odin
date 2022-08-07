@@ -30,7 +30,7 @@ CH07 :: proc(c: g.Canvas) {
     view_transform := m.view_transform(m.point(0, 1.5, -5), m.point(0, 1, 0), m.vector(0, 1, 0));
     camera := w.camera(c.width, c.height, PI / 3, view_transform)
 
-    w.render(&c, &camera, &world);
+    w.render(&c, &camera, &world, false);
 
     ppm := g.ppm_from_canvas(c);
     defer delete(ppm);

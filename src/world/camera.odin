@@ -66,18 +66,16 @@ render_to_new_canvas :: proc(c: ^Camera, w: ^World, allocator := context.allocat
     return canvas;
 }
 
-render_to_canvas :: proc(canvas: ^g.Canvas, c: ^Camera, w: ^World, allocator := context.allocator) {
+render_to_canvas :: proc(canvas: ^g.Canvas, c: ^Camera, w: ^World, shadows := true, allocator := context.allocator) {
 
     assert(canvas.width == c.size.x);
     assert(canvas.height == c.size.y);
-
-    ray_origin := c.inverse_transform * m.point(0, 0, 0);
 
     for y in 0..<c.size.y {
         for x in 0..<c.size.x {
 
             ray := camera_ray_for_pixel(c, x, y);
-            color := color_at(w, ray, allocator);
+            color := color_at(w, ray, shadows, allocator);
             g.canvas_write_pixel(canvas^, x, y, color);
         }
     }
