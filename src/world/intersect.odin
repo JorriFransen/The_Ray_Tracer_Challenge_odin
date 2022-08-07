@@ -90,7 +90,7 @@ intersects_shape :: proc(s: Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
 intersects_sphere :: proc(s: Sphere, r: m.Ray) -> Maybe([2]Intersection) {
 
-    r := m.ray_transform(r, m.matrix_inverse(s.transform));
+    r := m.ray_transform(r, s.inverse_transform);
 
     sphere_to_ray := m.sub(r.origin, m.point(0, 0, 0));
 

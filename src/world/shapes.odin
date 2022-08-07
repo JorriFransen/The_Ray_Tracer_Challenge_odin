@@ -4,7 +4,7 @@ import m "raytracer:math"
 import g "raytracer:graphics"
 
 Shape_Base :: struct {
-    transform: m.Matrix4,
+    inverse_transform: m.Matrix4,
     material: g.Material,
 }
 
@@ -26,8 +26,11 @@ shape_base_m :: proc(mat: g.Material) -> Shape_Base {
     return shape_base(m.matrix4_identity, mat);
 }
 
-shape_base_tm :: proc(t: m.Matrix4, m: g.Material) -> Shape_Base {
-    return Shape_Base { t, m };
+shape_base_tm :: proc(t: m.Matrix4, mat: g.Material) -> Shape_Base {
+    r : Shape_Base;
+    shape_set_transform(&r, t);
+    r.material = mat;
+    return r;
 }
 
 shape_base :: proc {
@@ -61,7 +64,7 @@ sphere :: proc {
 }
 
 shape_set_transform :: proc(s: ^Shape_Base, t: m.Matrix4) {
-    s.transform = t;
+    s.inverse_transform = m.matrix_inverse(t);
 }
 
 shape_set_material :: proc(s: ^Shape_Base, m: g.Material) {
@@ -79,12 +82,10 @@ shape_normal_at_ :: proc(s: ^Shape, p: m.Point) -> m.Vector {
 
 sphere_normal_at :: proc(s: ^Sphere, p: m.Point) -> m.Vector {
 
-    s_tf_inv := m.matrix_inverse(s.transform);
-
-    op : m.Point = s_tf_inv * p;
+    op : m.Point = s.inverse_transform * p;
     on := m.sub(op, m.point(0, 0, 0));
 
-    wn := m.matrix4_transpose(s_tf_inv) * on;
+    wn := m.matrix4_transpose(s.inverse_transform) * on;
 
     // s_tf_inv should be matrix_inverse(matrix_submatrix(s.transform, 3, 3)).
     // But not using the submatrix will only change the w component.

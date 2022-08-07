@@ -34,26 +34,27 @@ S_Default_Transform :: proc(t: ^r.T) {
 
     s := w.sphere();
 
-    expect(t, s.transform == m.matrix4_identity);
+    expect(t, m.eq(s.inverse_transform, m.matrix4_identity));
 }
 
 @test
 S_Modified_Transform :: proc(t: ^r.T) {
 
+    tf := m.translation(2, 3, 4);
+    tf_inv := m.matrix_inverse(tf);
+
     {
         s := w.sphere()
-        tf := m.translation(2, 3, 4);
 
         w.shape_set_transform(&s, tf);
 
-        expect(t, s.transform == tf);
+        expect(t, m.eq(s.inverse_transform, tf_inv));
     }
 
     {
-        tf := m.translation(2, 3, 4);
         s := w.sphere(tf);
 
-        expect(t, s.transform == tf);
+        expect(t, s.inverse_transform == tf_inv);
     }
 }
 
