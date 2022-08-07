@@ -179,7 +179,7 @@ No_Shadow_Complete_Miss :: proc(t: ^r.T) {
     w := default_world();
     p := m.point(0, 10, 0);
 
-    expect(t, world.is_shadowed(w, p) == false);
+    expect(t, world.is_shadowed(w, p, &w.lights[0]) == false);
 }
 
 @test
@@ -188,7 +188,7 @@ Shadow_Point_Object_Light :: proc(t: ^r.T) {
     w := default_world();
     p := m.point(10, -10, 10);
 
-    expect(t, world.is_shadowed(w, p));
+    expect(t, world.is_shadowed(w, p, &w.lights[0]));
 }
 
 @test
@@ -197,7 +197,7 @@ Shadow_Point_Light_Object :: proc(t: ^r.T) {
     w := default_world();
     p := m.point(-20, 20, -20);
 
-    expect(t, world.is_shadowed(w, p) == false);
+    expect(t, world.is_shadowed(w, p, &w.lights[0]) == false);
 }
 
 @test
@@ -206,7 +206,7 @@ Shadow_Light_Point_Object :: proc(t: ^r.T) {
     w := default_world();
     p := m.point(-2, 2, -2);
 
-    expect(t, world.is_shadowed(w, p) == false);
+    expect(t, world.is_shadowed(w, p, &w.lights[0]) == false);
 }
 
 @test
