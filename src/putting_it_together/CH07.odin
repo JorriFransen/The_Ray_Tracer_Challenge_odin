@@ -27,8 +27,8 @@ CH07 :: proc(c: g.Canvas) {
 
     world := w.world(shapes, lights);
 
-    camera := w.camera(c.width, c.height, PI / 3)
-    camera.transform = m.view_transform(m.point(0, 1.5, -5), m.point(0, 1, 0), m.vector(0, 1, 0));
+    view_transform := m.view_transform(m.point(0, 1.5, -5), m.point(0, 1, 0), m.vector(0, 1, 0));
+    camera := w.camera(c.width, c.height, PI / 3, view_transform)
 
     w.render(&c, &camera, &world);
 

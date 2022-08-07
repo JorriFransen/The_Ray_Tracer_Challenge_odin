@@ -10,25 +10,25 @@ PI :: m.real(math.PI);
 
 main :: proc() {
 
-    CH01();
-    fmt.println("\n");
+    // CH01();
+    // fmt.println("\n");
 
-    with_canvas(900, 550, CH02, "CH02");
-    fmt.println("\n");
+    // with_canvas(900, 550, CH02, "CH02");
+    // fmt.println("\n");
 
-    CH03();
-    fmt.println("\n");
+    // CH03();
+    // fmt.println("\n");
 
-    with_canvas(500, 500, CH04, "CH04");
-    fmt.println("\n");
+    // with_canvas(500, 500, CH04, "CH04");
+    // fmt.println("\n");
 
-    with_canvas(500, 500, CH05, "CH05");
-    fmt.println("\n");
+    // with_canvas(500, 500, CH05, "CH05");
+    // fmt.println("\n");
 
-    with_canvas(500, 500, CH06, "CH06");
-    fmt.println("\n");
+    // with_canvas(500, 500, CH06, "CH06");
+    // fmt.println("\n");
 
-    with_canvas(1920, 1080, CH07, "CH07");
+    with_canvas(500, 300, CH07, "CH07");
     fmt.println("\n");
 }
 
@@ -43,7 +43,7 @@ with_canvas :: proc(width, height: int, p: With_Canvas_Proc, title : cstring = "
 
     p(c);
 
-    g.display(c, title);
+    // g.display(c, title);
 }
 
 

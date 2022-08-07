@@ -33,7 +33,7 @@ C_Construction :: proc(t: ^r.T) {
     expect(t, c.size.x == 160);
     expect(t, c.size.y == 120);
     expect(t, c.fov == PI / 2);
-    expect(t, m.eq(c.transform, m.matrix4_identity));
+    expect(t, m.eq(c.inverse_transform, m.matrix4_identity));
 }
 
 @test
@@ -77,8 +77,8 @@ Ray_Corner_Canvas :: proc(t: ^r.T) {
 @test
 Ray_Transformed_Cam :: proc(t: ^r.T) {
 
-    c := w.camera(201, 101, PI / 2);
-    c.transform = m.rotation_y( PI / 4) * m.translation(0, -2, 5);
+    tf := m.rotation_y( PI / 4) * m.translation(0, -2, 5)
+    c := w.camera(201, 101, PI / 2, tf);
     ray := w.camera_ray_for_pixel(&c, 100, 50);
 
     sqrt2_over_2 := math.sqrt(m.real(2.0)) / 2;
@@ -93,11 +93,11 @@ Render_Default_World :: proc(t: ^r.T) {
     tc := transmute(^r.Test_Context)t;
 
     world := default_world();
-    c := w.camera(11, 11, PI / 2);
     from := m.point(0, 0, -5);
     to := m.point(0, 0, 0);
     up := m.vector(0, 1, 0);
-    c.transform = m.view_transform(from, to, up);
+    tf := m.view_transform(from, to, up);
+    c := w.camera(11, 11, PI / 2, tf);
 
     {
         image := w.render(&c, world);

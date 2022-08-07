@@ -13,10 +13,11 @@ Camera :: struct {
 
     half_dim: [2]m.real,
 
-    transform: m.Matrix4,
+    inverse_transform: m.Matrix4,
+    ray_origin : m.Point,
 }
 
-camera :: proc(hsize, vsize: int, fov: m.real) -> Camera {
+camera :: proc(hsize, vsize: int, fov: m.real, transform := m.matrix4_identity) -> Camera {
 
     half_view := math.tan(fov / 2);
     aspect := m.real(hsize) / m.real(vsize);
@@ -32,12 +33,15 @@ camera :: proc(hsize, vsize: int, fov: m.real) -> Camera {
 
     pixel_size := half_width * 2 / m.real(hsize);
 
+    inv_transform := m.matrix_inverse(transform);
+
     return Camera {
         { hsize, vsize },
         fov,
         pixel_size,
         { half_width, half_height },
-        m.matrix4_identity,
+        inv_transform,
+        inv_transform * m.point(0, 0, 0),
     };
 }
 
@@ -49,13 +53,10 @@ camera_ray_for_pixel :: proc(c: ^Camera, x, y: int) -> m.Ray {
     world_x := c.half_dim.x - x_offset;
     world_y := c.half_dim.y - y_offset;
 
-    inverse_cam_tf := m.matrix_inverse(c.transform);
+    pixel := c.inverse_transform * m.point(world_x, world_y, -1);
+    direction := m.normalize(m.sub(pixel, c.ray_origin));
 
-    pixel := inverse_cam_tf * m.point(world_x, world_y, -1);
-    origin := inverse_cam_tf * m.point(0, 0, 0);
-    direction := m.normalize(m.sub(pixel, origin));
-
-    return m.ray(origin, direction);
+    return m.ray(c.ray_origin, direction);
 }
 
 render_to_new_canvas :: proc(c: ^Camera, w: ^World, allocator := context.allocator) -> g.Canvas {
@@ -69,6 +70,8 @@ render_to_canvas :: proc(canvas: ^g.Canvas, c: ^Camera, w: ^World, allocator := 
 
     assert(canvas.width == c.size.x);
     assert(canvas.height == c.size.y);
+
+    ray_origin := c.inverse_transform * m.point(0, 0, 0);
 
     for y in 0..<c.size.y {
         for x in 0..<c.size.x {
