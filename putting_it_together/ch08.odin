@@ -1,4 +1,3 @@
-
 package putting_it_together
 
 import rt "raytracer:."
