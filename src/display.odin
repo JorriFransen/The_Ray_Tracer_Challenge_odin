@@ -1,4 +1,4 @@
-package graphics
+package raytracer
 
 import "core:math"
 import rl "vendor:raylib"

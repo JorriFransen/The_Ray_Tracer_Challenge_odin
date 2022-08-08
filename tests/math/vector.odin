@@ -4,9 +4,8 @@ import "core:intrinsics"
 import "core:testing"
 import "core:math"
 
-import cm "core:math"
+import rt "raytracer:."
 import rm "raytracer:math"
-
 import r "raytracer:test_runner"
 
 vec_suite := r.Test_Suite {
@@ -82,7 +81,7 @@ P_Constructor :: proc(t: ^r.Test_Context) {
     r.expect(t, rm.is_point(p));
     r.expect(t, transmute(rm.Tuple)p == expected);
     r.expect(t, p == transmute(rm.Point)expected);
-    r.expect(t, rm.eq(p, expected));
+    r.expect(t, eq(p, expected));
 }
 
 @test
@@ -95,7 +94,7 @@ V_Constructor :: proc(t: ^r.Test_Context) {
     r.expect(t, rm.is_vector(v));
     r.expect(t, transmute(rm.Tuple)v == expected);
     r.expect(t, v == transmute(rm.Vector)expected);
-    r.expect(t, rm.eq(v, expected));
+    r.expect(t, eq(v, expected));
 }
 
 @test
@@ -109,9 +108,9 @@ T_Add :: proc(t: ^r.Test_Context) {
     result2 := rm.add(a1, a2);
 
     r.expect(t, result1 == expected);
-    r.expect(t, rm.eq(result1, expected));
+    r.expect(t, eq(result1, expected));
     r.expect(t, result2 == expected);
-    r.expect(t, rm.eq(result2, expected));
+    r.expect(t, eq(result2, expected));
 }
 
 @test
@@ -125,7 +124,7 @@ P_Add_Vector :: proc(t: ^r.Test_Context) {
 
     r.expect(t, rm.is_point(result));
     r.expect(t, result == expected);
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -139,7 +138,7 @@ V_Add_Point :: proc(t: ^r.Test_Context) {
 
     r.expect(t, rm.is_point(result));
     r.expect(t, result == expected);
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -153,7 +152,7 @@ V_Add :: proc(t: ^r.Test_Context) {
 
     r.expect(t, rm.is_vector(result));
     r.expect(t, result == expected);
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -167,7 +166,7 @@ T_Sub :: proc(t: ^r.Test_Context) {
 
     r.expect(t, rm.is_vector(result));
     r.expect(t, result == expected);
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -181,7 +180,7 @@ P_Sub :: proc(t: ^r.Test_Context) {
 
     r.expect(t, rm.is_vector(result));
     r.expect(t, result == expected);
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -195,7 +194,7 @@ P_Sub_Vector :: proc(t: ^r.Test_Context) {
 
     r.expect(t, rm.is_point(result));
     r.expect(t, result == expected);
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -209,7 +208,7 @@ V_Sub :: proc(t: ^r.Test_Context) {
 
     r.expect(t, rm.is_vector(result));
     r.expect(t, result == expected);
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 
@@ -224,7 +223,7 @@ V_Sub_From_Zero :: proc(t: ^r.Test_Context) {
 
     r.expect(t, rm.is_vector(result));
     r.expect(t, result == expected);
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -236,7 +235,7 @@ T_Negate :: proc(t: ^r.Test_Context) {
     result := rm.negate(a);
 
     r.expect(t, result == expected);
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -248,7 +247,7 @@ V_Negate :: proc(t: ^r.Test_Context) {
     result : rm.Vector = rm.negate(v);
 
     r.expect(t, rm.is_vector(result));
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -257,10 +256,10 @@ T_Mul_Scalar :: proc(t: ^r.Test_Context) {
     a := rm.tuple(1, -2, 3, -4);
 
     expected := rm.tuple(3.5, -7, 10.5, -14);
-    result := rm.mul(a, 3.5);
+    result := rt.mul(a, 3.5);
 
     r.expect(t, result == expected);
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -269,10 +268,10 @@ T_Mul_Fraction :: proc(t: ^r.Test_Context) {
     a := rm.tuple(1, -2, 3, -4);
 
     expected := rm.tuple(0.5, -1, 1.5, -2);
-    result := rm.mul(a, 0.5);
+    result := rt.mul(a, 0.5);
 
     r.expect(t, result == expected);
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -284,7 +283,7 @@ T_Div_Scalar :: proc(t: ^r.Test_Context) {
     result := rm.div(a, 2);
 
     r.expect(t, result == expected);
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -325,7 +324,7 @@ V_Magnitude_X1_Y2_Z3 :: proc(t: ^r.Test_Context) {
 
     v := rm.vector(1, 2, 3);
 
-    expected := cm.sqrt(intrinsics.type_field_type(rm.Vector, "x")(14));
+    expected := math.sqrt(intrinsics.type_field_type(rm.Vector, "x")(14));
     result := rm.magnitude(v);
 
     r.expect(t, result == expected);
@@ -336,7 +335,7 @@ V_Magnitude_X1_Y2_Z3_Neg :: proc(t: ^r.Test_Context) {
 
     v := rm.vector(-1, -2, -3);
 
-    expected := cm.sqrt(intrinsics.type_field_type(rm.Vector, "x")(14));
+    expected := math.sqrt(intrinsics.type_field_type(rm.Vector, "x")(14));
     result := rm.magnitude(v);
 
     r.expect(t, result == expected);
@@ -351,7 +350,7 @@ V_Normalize_X4 :: proc(t: ^r.Test_Context) {
     result := rm.normalize(v);
 
     r.expect(t, result == expected);
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -365,7 +364,7 @@ V_Normalize_X1_Y2_Z3 :: proc(t: ^r.Test_Context) {
     result := rm.normalize(v);
 
     /*expect(t, result == expected);*/
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -396,9 +395,9 @@ V_Cross :: proc(t: ^r.Test_Context) {
     r.expect(t, rm.is_vector(result_ba));
 
     r.expect(t, result_ab == expected_ab);
-    r.expect(t, rm.eq(result_ab, expected_ab));
+    r.expect(t, eq(result_ab, expected_ab));
     r.expect(t, result_ba == expected_ba);
-    r.expect(t, rm.eq(result_ba, expected_ba));
+    r.expect(t, eq(result_ba, expected_ba));
 }
 
 @test
@@ -409,7 +408,7 @@ V_Reflect :: proc(t: ^r.Test_Context) {
 
     ref := rm.reflect(v, n);
 
-    r.expect(t, rm.eq(ref, rm.vector(1, 1, 0)));
+    r.expect(t, eq(ref, rm.vector(1, 1, 0)));
 }
 
 @test
@@ -421,5 +420,5 @@ V_Reflect_Slanted_Surface :: proc(t: ^r.Test_Context) {
 
     ref := rm.reflect(v, n);
 
-    r.expect(t, rm.eq(ref, rm.vector(1, 0, 0)));
+    r.expect(t, eq(ref, rm.vector(1, 0, 0)));
 }

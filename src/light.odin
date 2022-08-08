@@ -1,9 +1,8 @@
-package graphics
+package raytracer
 
 import "core:math"
 
 import m "raytracer:math"
-import g "raytracer:graphics"
 
 Point_Light :: struct {
     position: m.Point,
@@ -14,7 +13,7 @@ point_light :: proc(p: m.Point, i: Color) -> Point_Light {
     return Point_Light { p, i };
 }
 
-lighting :: proc(mat: Material, l: Point_Light, p: m.Point, eye_v: m.Vector, normal_v: m.Vector, in_shadow := false) -> g.Color {
+lighting :: proc(mat: Material, l: Point_Light, p: m.Point, eye_v: m.Vector, normal_v: m.Vector, in_shadow := false) -> Color {
 
     effective_color := mat.color * l.intensity;
 
@@ -24,11 +23,11 @@ lighting :: proc(mat: Material, l: Point_Light, p: m.Point, eye_v: m.Vector, nor
 
     light_dot_normal := m.dot(light_v, normal_v)
 
-    diffuse, specular : g.Color;
+    diffuse, specular : Color;
 
     if light_dot_normal < 0 {
-        diffuse = g.BLACK;
-        specular = g.BLACK;
+        diffuse = BLACK;
+        specular = BLACK;
     } else {
         diffuse = effective_color * mat.diffuse * light_dot_normal;
 
@@ -36,7 +35,7 @@ lighting :: proc(mat: Material, l: Point_Light, p: m.Point, eye_v: m.Vector, nor
         reflect_dot_eye := m.dot(reflect_v, eye_v);
 
         if reflect_dot_eye <= 0 {
-            specular = g.BLACK;
+            specular = BLACK;
         } else {
             factor := math.pow(reflect_dot_eye, mat.shininess);
             specular = l.intensity * mat.specular * factor;

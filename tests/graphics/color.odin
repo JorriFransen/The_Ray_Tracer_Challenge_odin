@@ -1,8 +1,7 @@
 package tests_graphics
 
-import g "raytracer:graphics"
+import rt "raytracer:."
 import rm "raytracer:math"
-
 import r "raytracer:test_runner"
 
 color_suite := r.Test_Suite {
@@ -20,7 +19,7 @@ color_suite := r.Test_Suite {
 @test
 Co_Constructor :: proc(t: ^r.Test_Context) {
 
-    c := g.color(-0.5, 0.4, 1.7);
+    c := rt.color(-0.5, 0.4, 1.7);
 
     expected_r :: -0.5;
     expected_g :: 0.4;
@@ -35,58 +34,58 @@ Co_Constructor :: proc(t: ^r.Test_Context) {
 @test
 Co_Layout_Matches_Tuple :: proc(t: ^r.Test_Context) {
 
-    c := g.color(-0.5, 0.4, 1.7);
+    c := rt.color(-0.5, 0.4, 1.7);
 
     expected := rm.tuple(-0.5, 0.4, 1.7, 0.0);
 
     expect(t, transmute(rm.Tuple)c == expected);
-    expect(t, c == transmute(g.Color)expected);
+    expect(t, c == transmute(rt.Color)expected);
     expect(t, rm.tuple(c.r, c.g, c.b, 0.0) == expected);
 }
 
 @test
 Co_Add :: proc(t: ^r.Test_Context) {
 
-    c1 := g.color(0.9, 0.6, 0.75);
-    c2 := g.color(0.7, 0.1, 0.25);
+    c1 := rt.color(0.9, 0.6, 0.75);
+    c2 := rt.color(0.7, 0.1, 0.25);
 
-    expected := g.color(1.6, 0.7, 1.0);
-    result := g.add(c1, c2);
+    expected := rt.color(1.6, 0.7, 1.0);
+    result : rt.Color = rt.add(c1, c2);
 
-    expect(t, g.eq(result, expected));
+    expect(t, eq(result, expected));
 }
 
 @test
 Co_Sub :: proc(t: ^r.Test_Context) {
 
-    c1 := g.color(0.9, 0.6, 0.75);
-    c2 := g.color(0.7, 0.1, 0.25);
+    c1 := rt.color(0.9, 0.6, 0.75);
+    c2 := rt.color(0.7, 0.1, 0.25);
 
-    expected := g.color(0.2, 0.5, 0.5);
-    result := g.sub(c1, c2);
+    expected := rt.color(0.2, 0.5, 0.5);
+    result := rt.sub(c1, c2);
 
-    expect(t, g.eq(result, expected));
+    expect(t, eq(result, expected));
 }
 
 @test
 Co_Mul_Scalar :: proc(t: ^r.Test_Context) {
 
-    c := g.color(0.2, 0.3, 0.4);
+    c := rt.color(0.2, 0.3, 0.4);
 
-    expected := g.color(0.4, 0.6, 0.8);
-    result := g.mul(c, 2);
+    expected := rt.color(0.4, 0.6, 0.8);
+    result := rt.mul(c, 2);
 
-    expect(t, g.eq(result, expected));
+    expect(t, eq(result, expected));
 }
 
 @test
 Co_Mul :: proc(t: ^r.Test_Context) {
 
-    c1 := g.color(1.0, 0.2, 0.4);
-    c2 := g.color(0.9, 1, 0.1);
+    c1 := rt.color(1.0, 0.2, 0.4);
+    c2 := rt.color(0.9, 1, 0.1);
 
-    expected := g.color(0.9, 0.2, 0.04);
-    result := g.mul(c1, c2);
+    expected := rt.color(0.9, 0.2, 0.04);
+    result := rt.mul(c1, c2);
 
-    expect(t, g.eq(result, expected));
+    expect(t, eq(result, expected));
 }

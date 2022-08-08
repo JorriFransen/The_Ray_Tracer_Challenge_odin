@@ -1,6 +1,6 @@
-package graphics;
+package raytracer
 
-import m "../math"
+import m "math"
 
 Canvas :: struct {
     width, height: int,

@@ -1,13 +1,12 @@
-package world_shapes
+package raytracer
 
 import m "raytracer:math"
-import g "raytracer:graphics"
 
 import "core:mem"
 
 Shape :: struct {
     inverse_transform: m.Matrix4,
-    material: g.Material,
+    material: Material,
 
     derived: union { ^Sphere, ^Test_Shape },
 }
@@ -63,7 +62,7 @@ shape_buf_free :: proc(sb: $T/^Shape_Buf, allocator: mem.Allocator) {
     sb^ = ---;
 }
 
-shape_tf_mat :: proc(shapes: $S/^Shapes sb: ^Shape_Buf($T, $BS), tf: m.Matrix4, mat: g.Material) -> ^T {
+shape_tf_mat :: proc(shapes: $S/^Shapes sb: ^Shape_Buf($T, $BS), tf: m.Matrix4, mat: Material) -> ^T {
 
 
     if sb.current_block == nil do sb.current_block = &sb.first_block;
@@ -85,16 +84,16 @@ shape_tf_mat :: proc(shapes: $S/^Shapes sb: ^Shape_Buf($T, $BS), tf: m.Matrix4, 
     return r;
 }
 
-shape_mat :: proc(shapes: $S/^Shapes, sb: ^Shape_Buf($T, $BS), mat: g.Material) -> ^T {
+shape_mat :: proc(shapes: $S/^Shapes, sb: ^Shape_Buf($T, $BS), mat: Material) -> ^T {
     return shape_tf_mat(shapes, sb, m.matrix4_identity, mat);
 }
 
 shape_tf :: proc(shapes: $S/^Shapes, sb: ^Shape_Buf($T, $BS), tf: m.Matrix4) -> ^T {
-    return shape_tf_mat(shapes, sb, tf, g.default_material);
+    return shape_tf_mat(shapes, sb, tf, default_material);
 }
 
 shape_default :: proc(shapes: $S/^Shapes, sb: ^Shape_Buf($T, $BS)) -> ^T {
-    return shape_tf_mat(shapes, sb, m.matrix4_identity, g.default_material);
+    return shape_tf_mat(shapes, sb, m.matrix4_identity, default_material);
 }
 
 shape :: proc {
@@ -108,7 +107,7 @@ shape_eq :: proc(a, b: Shape) -> bool {
 
     if type_of(a.derived) != type_of(b.derived) do return false;
     if a.material != b.material do return false;
-    if !m.eq(a.inverse_transform, b.inverse_transform) do return false;
+    if !eq(a.inverse_transform, b.inverse_transform) do return false;
 
     switch k in a.derived {
         case ^Sphere: return true;
@@ -119,15 +118,11 @@ shape_eq :: proc(a, b: Shape) -> bool {
     return false;
 }
 
-eq :: proc {
-    shape_eq,
-}
-
 set_transform :: proc(s: ^Shape, new_tf: m.Matrix4) {
     s.inverse_transform = m.matrix_inverse(new_tf);
 }
 
-set_material :: proc(s: ^Shape, mat: g.Material) {
+set_material :: proc(s: ^Shape, mat: Material) {
     s.material = mat;
 }
 

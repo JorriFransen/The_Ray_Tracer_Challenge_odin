@@ -1,4 +1,4 @@
-package graphics
+package raytracer
 
 import "core:intrinsics"
 import rm "raytracer:math"
@@ -15,10 +15,6 @@ color :: proc(r, g, b: rm.real) -> Color {
     return Color  { r, g, b, 0.0 };
 }
 
-eq :: #force_inline proc(a, b: Color) -> bool {
-    return rm.eq(a, b);
-}
-
 add :: #force_inline proc(a, b: Color) -> Color {
     return a + b;
 }
@@ -27,12 +23,10 @@ sub :: #force_inline proc(a, b: Color) -> Color {
     return a - b;
 }
 
-mul_c :: #force_inline proc(a, b: Color) -> Color {
+color_mul_c :: #force_inline proc(a, b: Color) -> Color {
     return a * b;
 }
 
-mul_s :: #force_inline proc(c: Color, s: rm.real) -> Color {
+color_mul_s :: #force_inline proc(c: Color, s: rm.real) -> Color {
     return Color(rm.mul_t(rm.Tuple(c), s));
 }
-
-mul :: proc { mul_c, mul_s };

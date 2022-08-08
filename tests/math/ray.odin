@@ -1,10 +1,7 @@
 package tests_math
 
-import "core:testing"
-import rm "raytracer:math"
-import w "raytracer:world"
-
 import r "raytracer:test_runner"
+import rm "raytracer:math"
 
 ray_suite := r.Test_Suite {
     name = "Ray/",
@@ -33,10 +30,10 @@ R_Distance_Along_Is_P :: proc(t: ^r.Test_Context) {
 
     ray := rm.ray(rm.point(2, 3, 4), rm.vector(1, 0, 0));
 
-    r.expect(t, rm.eq(rm.ray_position(ray, 0), rm.point(2, 3, 4)));
-    r.expect(t, rm.eq(rm.ray_position(ray, 1), rm.point(3, 3, 4)));
-    r.expect(t, rm.eq(rm.ray_position(ray, -1), rm.point(1, 3, 4)));
-    r.expect(t, rm.eq(rm.ray_position(ray, 2.5), rm.point(4.5, 3, 4)));
+    r.expect(t, eq(rm.ray_position(ray, 0), rm.point(2, 3, 4)));
+    r.expect(t, eq(rm.ray_position(ray, 1), rm.point(3, 3, 4)));
+    r.expect(t, eq(rm.ray_position(ray, -1), rm.point(1, 3, 4)));
+    r.expect(t, eq(rm.ray_position(ray, 2.5), rm.point(4.5, 3, 4)));
 }
 
 @test

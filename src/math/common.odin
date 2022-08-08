@@ -11,3 +11,13 @@ OVER_POINT_EPSILON :: FLOAT_EPSILON * 150 when real == f32 else FLOAT_EPSILON;
 float_eq :: proc(a, b: real) -> bool {
     return abs(a - b) < FLOAT_EPSILON;
 }
+
+eq_arr :: proc(a, b: $T/[$N]$E) -> bool where N != 4 {
+    diff := a - b;
+
+    for it in diff {
+        if abs(it) >= FLOAT_EPSILON do return false;
+    }
+    return true;
+}
+

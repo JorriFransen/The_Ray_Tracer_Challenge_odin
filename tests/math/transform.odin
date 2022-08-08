@@ -3,8 +3,8 @@ package tests_math
 import "core:testing"
 import "core:math"
 
+import rt "raytracer:."
 import m "raytracer:math"
-
 import r "raytracer:test_runner"
 
 PI :: m.real(math.PI);
@@ -49,7 +49,7 @@ P_Mul_Translation :: proc(t: ^r.Test_Context) {
 
     expected := m.point(2, 1, 7);
 
-    result1 := m.mul(transform, p);
+    result1 := rt.mul(transform, p);
     result2 := transform * p;
 
     r.expect(t, result1 == expected);
@@ -67,7 +67,7 @@ P_Mul_Inv_Translation :: proc(t: ^r.Test_Context) {
 
     expected := m.point(-8, 7, 3);
 
-    result1 := m.mul(inv, p);
+    result1 := rt.mul(inv, p);
     result2 := inv * p;
 
     r.expect(t, result1 == expected);
@@ -86,7 +86,7 @@ V_Mul_Translation :: proc(t: ^r.Test_Context) {
     transform := m.translation(5, -3, 2);
     v := m.vector(-3, 4, 5);
 
-    result1 := m.mul(transform, v);
+    result1 := rt.mul(transform, v);
     result2 := transform * v;
 
     r.expect(t, result1 == v);
@@ -103,7 +103,7 @@ P_Mul_Scale :: proc(t: ^r.Test_Context) {
 
     expected := m.point(-8, 18, 32);
 
-    result1 := m.mul(transform, p);
+    result1 := rt.mul(transform, p);
     result2 := transform * p;
 
     r.expect(t, result1 == expected);
@@ -120,7 +120,7 @@ V_Mul_Scale :: proc(t: ^r.Test_Context) {
 
     expected := m.vector(-8, 18, 32);
 
-    result1 := m.mul(transform, v);
+    result1 := rt.mul(transform, v);
     result2 := transform * v;
 
     r.expect(t, result1 == expected);
@@ -138,7 +138,7 @@ V_Mul_Inv_Scale :: proc(t: ^r.Test_Context) {
 
     expected := m.vector(-2, 2, 2);
 
-    result1 := m.mul(inv, v);
+    result1 := rt.mul(inv, v);
     result2 := inv * v;
 
     r.expect(t, result1 == expected);
@@ -161,7 +161,7 @@ Reflection_Is_Neg_Scale :: proc(t: ^r.Test_Context) {
 
     expected := m.point(-2, 3, 4);
 
-    result1 := m.mul(transform, p);
+    result1 := rt.mul(transform, p);
     result2 := transform * p;
 
     r.expect(t, result1 == expected);
@@ -181,19 +181,19 @@ Rot_Around_X :: proc(t: ^r.Test_Context) {
     expected1 := m.point(0, sqrt2_d2, sqrt2_d2);
     expected2 := m.point(0, 0, 1);
 
-    half_result_1 := m.mul(half_quarter, p);
+    half_result_1 := rt.mul(half_quarter, p);
     half_result_2 := half_quarter * p;
 
-    full_result_1 := m.mul(full_quarter, p);
+    full_result_1 := rt.mul(full_quarter, p);
     full_result_2 := full_quarter * p;
 
-    r.expect(t, m.eq(half_result_1, expected1));
-    r.expect(t, m.eq(half_result_2, expected1));
-    r.expect(t, m.eq(m.rotate_x(p, PI / 4), expected1));
+    r.expect(t, eq(half_result_1, expected1));
+    r.expect(t, eq(half_result_2, expected1));
+    r.expect(t, eq(m.rotate_x(p, PI / 4), expected1));
 
-    r.expect(t, m.eq(full_result_1, expected2));
-    r.expect(t, m.eq(full_result_2, expected2));
-    r.expect(t, m.eq(m.rotate_x(p, PI / 2), expected2));
+    r.expect(t, eq(full_result_1, expected2));
+    r.expect(t, eq(full_result_2, expected2));
+    r.expect(t, eq(m.rotate_x(p, PI / 2), expected2));
 }
 
 @test
@@ -206,16 +206,16 @@ Rot_Around_X_Inv :: proc(t: ^r.Test_Context) {
     sqrt2_d2 := sqrt(m.real(2)) / 2.0;
     expected := m.point(0, sqrt2_d2, -sqrt2_d2);
 
-    result1 := m.mul(inv, p);
+    result1 := rt.mul(inv, p);
     result2 := inv * p;
 
-    r.expect(t, m.eq(result1, expected));
-    r.expect(t, m.eq(result2, expected));
-    r.expect(t, m.eq(m.rotate_x(p, -PI / 4), expected));
+    r.expect(t, eq(result1, expected));
+    r.expect(t, eq(result2, expected));
+    r.expect(t, eq(m.rotate_x(p, -PI / 4), expected));
 
     {
         inv := m.matrix_inverse(m.rotate_x(m.matrix4_identity, PI / 4));
-        r.expect(t, m.eq(m.mul(inv, p), expected));
+        r.expect(t, eq(rt.mul(inv, p), expected));
     }
 }
 
@@ -230,19 +230,19 @@ Rot_Around_Y :: proc(t: ^r.Test_Context) {
     expected1 := m.point(sqrt2_d2, 0, sqrt2_d2);
     expected2 := m.point(1, 0, 0);
 
-    half_result_1 := m.mul(half_quarter, p);
+    half_result_1 := rt.mul(half_quarter, p);
     half_result_2 := half_quarter * p;
 
-    full_result_1 := m.mul(full_quarter, p);
+    full_result_1 := rt.mul(full_quarter, p);
     full_result_2 := full_quarter * p;
 
-    r.expect(t, m.eq(half_result_1, expected1));
-    r.expect(t, m.eq(half_result_2, expected1));
-    r.expect(t, m.eq(m.rotate_y(p, PI / 4), expected1));
+    r.expect(t, eq(half_result_1, expected1));
+    r.expect(t, eq(half_result_2, expected1));
+    r.expect(t, eq(m.rotate_y(p, PI / 4), expected1));
 
-    r.expect(t, m.eq(full_result_1, expected2));
-    r.expect(t, m.eq(full_result_2, expected2));
-    r.expect(t, m.eq(m.rotate_y(p, PI / 2), expected2));
+    r.expect(t, eq(full_result_1, expected2));
+    r.expect(t, eq(full_result_2, expected2));
+    r.expect(t, eq(m.rotate_y(p, PI / 2), expected2));
 }
 
 @test
@@ -255,16 +255,16 @@ Rot_Around_Y_Inv :: proc(t: ^r.Test_Context) {
     sqrt2_d2 := sqrt(m.real(2)) / 2.0;
     expected := m.point(-sqrt2_d2, 0, sqrt2_d2);
 
-    result1 := m.mul(inv, p);
+    result1 := rt.mul(inv, p);
     result2 := inv * p;
 
-    r.expect(t, m.eq(result1, expected));
-    r.expect(t, m.eq(result2, expected));
-    r.expect(t, m.eq(m.rotate_y(p, -PI / 4), expected));
+    r.expect(t, eq(result1, expected));
+    r.expect(t, eq(result2, expected));
+    r.expect(t, eq(m.rotate_y(p, -PI / 4), expected));
 
     {
         inv := m.matrix_inverse(m.rotate_y(m.matrix4_identity, PI / 4));
-        r.expect(t, m.eq(m.mul(inv, p), expected));
+        r.expect(t, eq(rt.mul(inv, p), expected));
     }
 }
 
@@ -279,19 +279,19 @@ Rot_Around_Z :: proc(t: ^r.Test_Context) {
     expected1 := m.point(-sqrt2_d2, sqrt2_d2, 0);
     expected2 := m.point(-1, 0, 0);
 
-    half_result_1 := m.mul(half_quarter, p);
+    half_result_1 := rt.mul(half_quarter, p);
     half_result_2 := half_quarter * p;
 
-    full_result_1 := m.mul(full_quarter, p);
+    full_result_1 := rt.mul(full_quarter, p);
     full_result_2 := full_quarter * p;
 
-    r.expect(t, m.eq(half_result_1, expected1));
-    r.expect(t, m.eq(half_result_2, expected1));
-    r.expect(t, m.eq(m.rotate_z(p, PI / 4), expected1));
+    r.expect(t, eq(half_result_1, expected1));
+    r.expect(t, eq(half_result_2, expected1));
+    r.expect(t, eq(m.rotate_z(p, PI / 4), expected1));
 
-    r.expect(t, m.eq(full_result_1, expected2));
-    r.expect(t, m.eq(full_result_2, expected2));
-    r.expect(t, m.eq(m.rotate_z(p, PI / 2), expected2));
+    r.expect(t, eq(full_result_1, expected2));
+    r.expect(t, eq(full_result_2, expected2));
+    r.expect(t, eq(m.rotate_z(p, PI / 2), expected2));
 }
 
 @test
@@ -304,16 +304,16 @@ Rot_Around_Z_Inv :: proc(t: ^r.Test_Context) {
     sqrt2_d2 := sqrt(m.real(2)) / 2.0;
     expected := m.point(sqrt2_d2, sqrt2_d2, 0);
 
-    result1 := m.mul(inv, p);
+    result1 := rt.mul(inv, p);
     result2 := inv * p;
 
-    r.expect(t, m.eq(result1, expected));
-    r.expect(t, m.eq(result2, expected));
-    r.expect(t, m.eq(m.rotate_z(p, -PI / 4), expected));
+    r.expect(t, eq(result1, expected));
+    r.expect(t, eq(result2, expected));
+    r.expect(t, eq(m.rotate_z(p, -PI / 4), expected));
 
     {
         inv := m.matrix_inverse(m.rotate_z(m.matrix4_identity, PI / 4));
-        r.expect(t, m.eq(m.mul(inv, p), expected));
+        r.expect(t, eq(rt.mul(inv, p), expected));
     }
 }
 
@@ -325,12 +325,12 @@ Shear_XY :: proc(t: ^r.Test_Context) {
 
     expected := m.point(5, 3, 4);
 
-    result1 := m.mul(transform, p);
+    result1 := rt.mul(transform, p);
     result2 := transform * p;
 
-    r.expect(t, m.eq(result1, expected));
-    r.expect(t, m.eq(result2, expected));
-    r.expect(t, m.eq(m.shear(p, 1, 0, 0, 0, 0, 0), expected));
+    r.expect(t, eq(result1, expected));
+    r.expect(t, eq(result2, expected));
+    r.expect(t, eq(m.shear(p, 1, 0, 0, 0, 0, 0), expected));
 }
 
 
@@ -342,12 +342,12 @@ Shear_XZ :: proc(t: ^r.Test_Context) {
 
     expected := m.point(6, 3, 4);
 
-    result1 := m.mul(transform, p);
+    result1 := rt.mul(transform, p);
     result2 := transform * p;
 
-    r.expect(t, m.eq(result1, expected));
-    r.expect(t, m.eq(result2, expected));
-    r.expect(t, m.eq(m.shear(p, 0, 1, 0, 0, 0, 0), expected));
+    r.expect(t, eq(result1, expected));
+    r.expect(t, eq(result2, expected));
+    r.expect(t, eq(m.shear(p, 0, 1, 0, 0, 0, 0), expected));
 }
 
 @test
@@ -358,12 +358,12 @@ Shear_YX :: proc(t: ^r.Test_Context) {
 
     expected := m.point(2, 5, 4);
 
-    result1 := m.mul(transform, p);
+    result1 := rt.mul(transform, p);
     result2 := transform * p;
 
-    r.expect(t, m.eq(result1, expected));
-    r.expect(t, m.eq(result2, expected));
-    r.expect(t, m.eq(m.shear(p, 0, 0, 1, 0, 0, 0), expected));
+    r.expect(t, eq(result1, expected));
+    r.expect(t, eq(result2, expected));
+    r.expect(t, eq(m.shear(p, 0, 0, 1, 0, 0, 0), expected));
 }
 
 @test
@@ -374,12 +374,12 @@ Shear_YZ :: proc(t: ^r.Test_Context) {
 
     expected := m.point(2, 7, 4);
 
-    result1 := m.mul(transform, p);
+    result1 := rt.mul(transform, p);
     result2 := transform * p;
 
-    r.expect(t, m.eq(result1, expected));
-    r.expect(t, m.eq(result2, expected));
-    r.expect(t, m.eq(m.shear(p, 0, 0, 0, 1, 0, 0), expected));
+    r.expect(t, eq(result1, expected));
+    r.expect(t, eq(result2, expected));
+    r.expect(t, eq(m.shear(p, 0, 0, 0, 1, 0, 0), expected));
 }
 
 @test
@@ -390,12 +390,12 @@ Shear_ZX :: proc(t: ^r.Test_Context) {
 
     expected := m.point(2, 3, 6);
 
-    result1 := m.mul(transform, p);
+    result1 := rt.mul(transform, p);
     result2 := transform * p;
 
-    r.expect(t, m.eq(result1, expected));
-    r.expect(t, m.eq(result2, expected));
-    r.expect(t, m.eq(m.shear(p, 0, 0, 0, 0, 1, 0), expected));
+    r.expect(t, eq(result1, expected));
+    r.expect(t, eq(result2, expected));
+    r.expect(t, eq(m.shear(p, 0, 0, 0, 0, 1, 0), expected));
 }
 
 @test
@@ -406,12 +406,12 @@ Shear_ZY :: proc(t: ^r.Test_Context) {
 
     expected := m.point(2, 3, 7);
 
-    result1 := m.mul(transform, p);
+    result1 := rt.mul(transform, p);
     result2 := transform * p;
 
-    r.expect(t, m.eq(result1, expected));
-    r.expect(t, m.eq(result2, expected));
-    r.expect(t, m.eq(m.shear(p, 0, 0, 0, 0, 0, 1), expected));
+    r.expect(t, eq(result1, expected));
+    r.expect(t, eq(result2, expected));
+    r.expect(t, eq(m.shear(p, 0, 0, 0, 0, 0, 1), expected));
 }
 
 @test
@@ -423,36 +423,36 @@ Sequenced :: proc(t: ^r.Test_Context) {
     C := m.translation(10, 5, 7);
 
     {
-        p2 := m.mul(A, p);
-        r.expect(t, m.eq(p2, m.point(1, -1, 0)))
+        p2 := rt.mul(A, p);
+        r.expect(t, eq(p2, m.point(1, -1, 0)))
 
-        p3 := m.mul(B, p2);
-        r.expect(t, m.eq(p3, m.point(5, -5, 0)));
+        p3 := rt.mul(B, p2);
+        r.expect(t, eq(p3, m.point(5, -5, 0)));
 
-        p4 := m.mul(C, p3);
-        r.expect(t, m.eq(p4, m.point(15, 0, 7)));
+        p4 := rt.mul(C, p3);
+        r.expect(t, eq(p4, m.point(15, 0, 7)));
     }
 
     {
         p2 := A * p;
-        r.expect(t, m.eq(p2, m.point(1, -1, 0)))
+        r.expect(t, eq(p2, m.point(1, -1, 0)))
 
         p3 := B * p2;
-        r.expect(t, m.eq(p3, m.point(5, -5, 0)));
+        r.expect(t, eq(p3, m.point(5, -5, 0)));
 
         p4 := C * p3;
-        r.expect(t, m.eq(p4, m.point(15, 0, 7)));
+        r.expect(t, eq(p4, m.point(15, 0, 7)));
     }
 
     {
         p2 := m.rotate_x(p, PI / 2);
-        r.expect(t, m.eq(p2, m.point(1, -1, 0)))
+        r.expect(t, eq(p2, m.point(1, -1, 0)))
 
         p3 := m.scale(p2, 5, 5, 5);
-        r.expect(t, m.eq(p3, m.point(5, -5, 0)));
+        r.expect(t, eq(p3, m.point(5, -5, 0)));
 
         p4 := m.translate(p3, 10, 5, 7);
-        r.expect(t, m.eq(p4, m.point(15, 0, 7)));
+        r.expect(t, eq(p4, m.point(15, 0, 7)));
     }
 }
 
@@ -468,49 +468,49 @@ Chained :: proc(t: ^r.Test_Context) {
     expected := m.point(15, 0, 7);
 
     {
-        T1 := m.mul(C, m.mul(B, A));
+        T1 := rt.mul(C, rt.mul(B, A));
         T2 := C * B * A;
 
-        r.expect(t, m.eq(T1, T2));
+        r.expect(t, eq(T1, T2));
         T = T1;
 
-        result1 := m.mul(T1, p);
+        result1 := rt.mul(T1, p);
         result11 := T1 * p;
 
-        result2 := m.mul(T2, p);
+        result2 := rt.mul(T2, p);
         result22 := T2 * p;
 
-        r.expect(t, m.eq(result1, expected));
-        r.expect(t, m.eq(result11, expected))
+        r.expect(t, eq(result1, expected));
+        r.expect(t, eq(result11, expected))
 
-        r.expect(t, m.eq(result2, expected));
-        r.expect(t, m.eq(result22, expected))
+        r.expect(t, eq(result2, expected));
+        r.expect(t, eq(result22, expected))
     }
 
     {
         T1 := m.translate(m.scale(m.rotation_x(PI / 2), 5, 5, 5), 10, 5, 7);
 
-        r.expect(t, m.eq(T, T1));
+        r.expect(t, eq(T, T1));
 
-        result := m.mul(T1, p);
+        result := rt.mul(T1, p);
 
-        r.expect(t, m.eq(result, expected));
+        r.expect(t, eq(result, expected));
     }
 
     {
         T1 := m.translate(m.scale(m.rotate_x(m.matrix4_identity, PI / 2), 5, 5, 5), 10, 5, 7);
 
-        r.expect(t, m.eq(T, T1));
+        r.expect(t, eq(T, T1));
 
-        result := m.mul(T1, p);
+        result := rt.mul(T1, p);
 
-        r.expect(t, m.eq(result, expected));
+        r.expect(t, eq(result, expected));
     }
 
     {
         result := m.translate(m.scale(m.rotate_x(p, PI / 2), 5, 5, 5), 10, 5, 7);
 
-        r.expect(t, m.eq(result, expected));
+        r.expect(t, eq(result, expected));
     }
 }
 
@@ -524,7 +524,7 @@ View_Default :: proc(t: ^r.Test_Context) {
 
     tf := m.view_transform(from, to, up);
 
-    r.expect(t, m.eq(tf, m.matrix4_identity));
+    r.expect(t, eq(tf, m.matrix4_identity));
 }
 
 @test
@@ -536,7 +536,7 @@ View_Positive_Z :: proc(t: ^r.Test_Context) {
 
     tf := m.view_transform(from, to, up);
 
-    r.expect(t, m.eq(tf, m.scaling(-1, 1, -1)));
+    r.expect(t, eq(tf, m.scaling(-1, 1, -1)));
 }
 
 @test
@@ -548,7 +548,7 @@ View_Moves_World :: proc(t: ^r.Test_Context) {
 
     tf := m.view_transform(from, to, up);
 
-    r.expect(t, m.eq(tf, m.translation(0, 0, -8)));
+    r.expect(t, eq(tf, m.translation(0, 0, -8)));
 }
 
 @test
@@ -567,5 +567,5 @@ View_Arbitrary :: proc(t: ^r.Test_Context) {
          0.00000, 0.00000,  0.00000,  1.00000,
     );
 
-    r.expect(t, m.eq(tf, expected));
+    r.expect(t, eq(tf, expected));
 }

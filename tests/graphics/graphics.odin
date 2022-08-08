@@ -1,12 +1,10 @@
 package tests_graphics
 
-import "core:testing"
-
-import g "raytracer:graphics"
+import rt "raytracer:."
 import m "raytracer:math"
-
 import r "raytracer:test_runner"
 
+eq :: rt.eq;
 expect :: r.expect;
 
 graphics_suite := r.Test_Suite {

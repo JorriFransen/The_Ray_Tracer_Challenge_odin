@@ -1,4 +1,4 @@
-package graphics
+package raytracer
 
 import m "raytracer:math"
 
