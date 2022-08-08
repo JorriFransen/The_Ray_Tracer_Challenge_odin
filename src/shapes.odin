@@ -8,7 +8,7 @@ Shape :: struct {
     inverse_transform: m.Matrix4,
     material: Material,
 
-    derived: union { ^Sphere, ^Test_Shape },
+    derived: union { ^Sphere, ^Plane, ^Test_Shape },
 }
 
 
@@ -28,7 +28,8 @@ Shape_Buf :: struct($T: typeid, $BLOCK_SIZE: int) {
 
 Shapes :: struct($N: int) {
 
-    spheres:     Shape_Buf(Sphere, N),
+    spheres: Shape_Buf(Sphere, N),
+    planes : Shape_Buf(Plane, N),
 
     test_shapes: Shape_Buf(Test_Shape, 4),
 
@@ -111,6 +112,7 @@ shape_eq :: proc(a, b: Shape) -> bool {
 
     switch k in a.derived {
         case ^Sphere: return true;
+        case ^Plane: assert(false);
         case ^Test_Shape: assert(false);
     }
 
@@ -133,6 +135,7 @@ normal_at :: proc(s: ^Shape, p: m.Point) -> m.Vector {
 
     switch k in s.derived {
         case ^Sphere: obj_n = sphere_normal_at(k, obj_p);
+        case ^Plane: obj_n = plane_normal_at(k, obj_p);
         case ^Test_Shape: obj_n = test_shape_normal_at(k, obj_p);
     }
 
@@ -140,18 +143,4 @@ normal_at :: proc(s: ^Shape, p: m.Point) -> m.Vector {
     world_n.w = 0;
 
     return m.normalize(world_n);
-
-    // obj_p : m.Point = s.inverse_transform * p;
-
-    // obj_n : m.Vector;
-
-    // switch k in s.derived {
-    //     case ^Sphere: obj_n = sphere_normal_at(k, obj_p);
-    //     case ^Test_Shape: assert(false);
-    // }
-
-    // world_n := m.matrix4_transpose(s.inverse_transform) * obj_n;
-    // world_n.w = 0;
-
-    // return world_n;
 }

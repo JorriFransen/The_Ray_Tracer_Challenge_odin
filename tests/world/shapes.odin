@@ -20,6 +20,12 @@ shape_suite := r.Test_Suite {
         r.test("Translated_Normal", Translated_Normal),
         r.test("Transformed_Normal", Transformed_Normal),
 
+        r.test("Plane_Normal", Plane_Normal),
+        r.test("Plane_Intersects_Parallel", Plane_Intersects_Parallel),
+        r.test("Plane_Intersects_Coplanar", Plane_Intersects_Coplanar),
+        r.test("Plane_Intersects_Above", Plane_Intersects_Above),
+        r.test("Plane_Intersects_Below", Plane_Intersects_Below),
+
         r.test("S_Default_Transform ", S_Default_Transform),
         r.test("S_Modified_Transform", S_Modified_Transform),
         r.test("S_Scaled_Intersect_R", S_Scaled_Intersect_R),
@@ -143,6 +149,71 @@ Transformed_Normal :: proc(t: ^r.Test_Context) {
     expect(t, eq(n, m.vector(0, 0.97014, -0.24254)));
 }
 
+@test
+Plane_Normal :: proc(t: ^r.Test_Context) {
+
+    sb: rt.Shapes(1)
+    p := rt.plane(&sb);
+
+    n1 := rt.plane_normal_at(p, m.point(0, 0, 0));
+    n2 := rt.plane_normal_at(p, m.point(10, 0, -10));
+    n3 := rt.plane_normal_at(p, m.point(-5, 0, 150));
+
+    expect(t, eq(n1, m.vector(0, 1, 0)));
+    expect(t, eq(n2, m.vector(0, 1, 0)));
+    expect(t, eq(n3, m.vector(0, 1, 0)));
+}
+
+@test
+Plane_Intersects_Parallel :: proc(t: ^r.Test_Context) {
+
+    sb: rt.Shapes(1)
+    p := rt.plane(&sb);
+    r := m.ray(m.point(0, 10, 0), m.vector(0, 0, 1));
+
+    xs, ok := rt.plane_intersects_ray(p, r).?;
+
+    expect(t, !ok);
+}
+
+@test
+Plane_Intersects_Coplanar :: proc(t: ^r.Test_Context) {
+
+    sb: rt.Shapes(1)
+    p := rt.plane(&sb);
+    r := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
+
+    xs, ok := rt.plane_intersects_ray(p, r).?;
+
+    expect(t, !ok);
+}
+
+@test
+Plane_Intersects_Above :: proc(t: ^r.Test_Context) {
+
+    sb: rt.Shapes(1)
+    p := rt.plane(&sb);
+    r := m.ray(m.point(0, 1, 0), m.vector(0, -1, 0));
+
+    i, ok := rt.plane_intersects_ray(p, r).?;
+
+    expect(t, ok);
+    expect(t, i.object == p);
+}
+
+@test
+Plane_Intersects_Below :: proc(t: ^r.Test_Context) {
+
+    sb: rt.Shapes(1)
+    p := rt.plane(&sb);
+    r := m.ray(m.point(0, -1, 0), m.vector(0, 1, 0));
+
+    i, ok := rt.plane_intersects_ray(p, r).?;
+
+    expect(t, ok);
+    expect(t, i.t == 1);
+    expect(t, i.object == p);
+}
 
 @test
 S_Default_Transform :: proc(t: ^r.Test_Context) {

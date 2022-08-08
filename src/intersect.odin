@@ -1,19 +1,17 @@
 package raytracer
 
-import "core:math"
 import "core:slice"
 
-import rt "raytracer:."
 import m "raytracer:math"
 
 Intersection :: struct {
     t: m.real,
-    object: ^rt.Shape,
+    object: ^Shape,
 }
 
 Hit_Info :: struct {
     t: m.real,
-    object: ^rt.Shape,
+    object: ^Shape,
     point: m.Point,
     over_point: m.Point,
     eye_v: m.Vector,
@@ -22,7 +20,7 @@ Hit_Info :: struct {
     inside: bool,
 }
 
-intersection :: proc(t: m.real, s: ^rt.Shape) -> Intersection {
+intersection :: proc(t: m.real, s: ^Shape) -> Intersection {
     return Intersection { t, s };
 }
 
@@ -87,45 +85,21 @@ hit :: proc(xs: []Intersection) -> Maybe(Intersection) {
     return nil;
 }
 
-intersects :: proc(shape: ^rt.Shape, r: m.Ray) -> Maybe([2]Intersection) {
+intersects :: proc(shape: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
     r := m.ray_transform(r, shape.inverse_transform);
 
     switch k in shape.derived {
-        case ^Sphere: return intersects_sphere(k, r);
-        case ^Test_Shape: return intersects_test_shape(k, r);
+        case ^Sphere: return sphere_intersect_ray(k, r);
+
+        case ^Plane:
+            if i, ok := plane_intersects_ray(k, r).?; ok {
+                return [2]Intersection { i, i };
+            } else do return nil;
+
+        case ^Test_Shape: return test_shape_intersects(k, r);
     }
 
     assert(false);
-    return nil;
-}
-
-intersects_sphere :: proc(s: ^rt.Sphere, r: m.Ray) -> Maybe([2]Intersection) {
-
-    sphere_to_ray := m.sub(r.origin, m.point(0, 0, 0));
-
-    a := m.dot(r.direction, r.direction);
-    b := 2 * m.dot(r.direction, sphere_to_ray);
-    c := m.dot(sphere_to_ray, sphere_to_ray) - 1;
-
-    discriminant := (b * b) - 4 * a * c;
-
-    if discriminant < 0 {
-        return nil;
-    }
-
-    discriminant_sqrt := math.sqrt(discriminant);
-    a2 := 2 * a;
-
-    t1 := m.real((-b - discriminant_sqrt) / a2);
-    t2 := m.real((-b + discriminant_sqrt) / a2);
-
-    assert(t1 <= t2);
-
-    return [?]Intersection { intersection(t1, s), intersection(t2, s) };
-}
-
-intersects_test_shape :: proc(ts: ^rt.Test_Shape, r: m.Ray) -> Maybe([2]Intersection) {
-    ts.saved_ray = r;
     return nil;
 }

@@ -17,3 +17,8 @@ test_shape :: proc(sb: $T/^Shapes) -> ^Test_Shape {
 test_shape_normal_at :: proc(ts: ^Test_Shape, p: m.Point) -> m.Vector {
     return m.vector(p.x, p.y, p.z)
 }
+
+test_shape_intersects :: proc(ts: ^Test_Shape, r: m.Ray) -> Maybe([2]Intersection) {
+    ts.saved_ray = r;
+    return nil;
+}
