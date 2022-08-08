@@ -3,7 +3,7 @@ package putting_it_together
 import "core:fmt"
 import "core:math"
 
-import g "raytracer:graphics"
+import rt "raytracer:."
 import m "raytracer:math"
 
 PI :: m.real(math.PI);
@@ -35,18 +35,18 @@ main :: proc() {
     fmt.println("\n");
 }
 
-With_Canvas_Proc :: proc(c: g.Canvas);
+With_Canvas_Proc :: proc(c: rt.Canvas);
 
 with_canvas :: proc(width, height: int, p: With_Canvas_Proc, title : cstring = "") {
 
     assert(width > 0 && height > 0);
 
-    c := g.canvas(width, height);
-    defer g.canvas_destroy(&c);
+    c := rt.canvas(width, height);
+    defer rt.canvas_destroy(&c);
 
     p(c);
 
-    g.display(c, title);
+    rt.display(c, title);
 }
 
 

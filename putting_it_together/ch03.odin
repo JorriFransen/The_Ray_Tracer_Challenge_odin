@@ -1,6 +1,7 @@
 package putting_it_together
 
 import "core:fmt"
+import rt "raytracer:."
 import rm "raytracer:math"
 
 CH03 :: proc() {
@@ -19,7 +20,7 @@ CH03 :: proc() {
         fmt.println("    id         :", idm);
         fmt.println("    inverse(id):", idm_inverse);
         fmt.println();
-        fmt.println("    eq(id, inverse(id)):", eq(idm, idm_inverse));
+        fmt.println("    eq(id, inverse(id)):", rt.eq(idm, idm_inverse));
         fmt.println();
         fmt.println("    The matrix is funcionally the same, zeros become negative zeros.");
     }
@@ -33,14 +34,14 @@ CH03 :: proc() {
         assert(matrix_is_invertible(a));
 
         a_inverse := matrix_inverse(a);
-        result := mul(a, a_inverse);
+        result := rt.mul(a, a_inverse);
 
         fmt.println();
         fmt.println("    a          :", a);
         fmt.println("    a * inverse:", result);
         fmt.println("    inverse    :", a_inverse);
         fmt.println();
-        fmt.println("    eq(a * inverse, identity):", eq(result, matrix4_identity));
+        fmt.println("    eq(a * inverse, identity):", rt.eq(result, matrix4_identity));
         fmt.println();
         fmt.println("    The result is the identity matrix.");
         fmt.println("    This is the same as with normal numbers (e.g. x * (1 / x) == 1).");
@@ -91,8 +92,8 @@ CH03 :: proc() {
         fmt.println();
         fmt.println("    mod_id1     :", mod_id1);
         fmt.println("    t           :", t);
-        fmt.println("    identity * t:", mul(idm, t));
-        fmt.println("    mod_id1 * t :", mul(mod_id1, t));
+        fmt.println("    identity * t:", rt.mul(idm, t));
+        fmt.println("    mod_id1 * t :", rt.mul(mod_id1, t));
 
         mod_id2 := mod_id1;
         mod_id2[0, 0] = 2;
@@ -102,7 +103,7 @@ CH03 :: proc() {
         fmt.println();
         fmt.println("    mod_id2     :", mod_id2);
         fmt.println("    t           :", t);
-        fmt.println("    mod_id2 * t :", mul(mod_id2, t));
+        fmt.println("    mod_id2 * t :", rt.mul(mod_id2, t));
 
         fmt.println();
         fmt.println("    The corresponding tuple and matrix elements are multiplied by each other.")

@@ -1,19 +1,17 @@
 package putting_it_together;
 
+import rt "raytracer:."
 import m "raytracer:math"
-import g "raytracer:graphics"
-import w "raytracer:world"
-import s "raytracer:world/shapes"
 
 import "core:math"
 import "core:fmt";
 
-CH06 :: proc(c: g.Canvas) {
+CH06 :: proc(c: rt.Canvas) {
     fmt.println("Putting it together for chapter 6");
 
     assert(c.width == c.height);
 
-    sb : s.Shapes(1);
+    sb : rt.Shapes(1);
 
     ray_origin := m.point(0, 0, -5);
     wall_z : m.real = 10;
@@ -24,13 +22,13 @@ CH06 :: proc(c: g.Canvas) {
     pixel_size := wall_size / m.real(canvas_pixels);
     half_wall_size := wall_size / 2;
 
-    mat := g.material(g.color(1, 0.2, 1));
-    shape := s.sphere(&sb, mat);
+    mat := rt.material(rt.color(1, 0.2, 1));
+    shape := rt.sphere(&sb, mat);
     // shape := m.sphere(m.scaling(0.5, 1, 1));
     // shape := m.sphere(m.rotation_z(PI / 4) * m.scaling(0.5, 1, 1));
     // shape := m.sphere(m.shearing(1, 0, 0, 0, 0, 0) * m.scaling(0.5, 1, 1));
 
-    light := g.point_light(m.point(-10, 10, -10), g.color(1, 1, 1));
+    light := rt.point_light(m.point(-10, 10, -10), rt.color(1, 1, 1));
 
     for y in 0..<canvas_pixels {
         world_y := half_wall_size - pixel_size * m.real(y);
@@ -41,29 +39,29 @@ CH06 :: proc(c: g.Canvas) {
             position := m.point(world_x, world_y, wall_z);
 
             r := m.ray(ray_origin, m.normalize(m.sub(position, ray_origin)));
-            xs, did_intersect := w.intersects(shape, r).?;
+            xs, did_intersect := rt.intersects(shape, r).?;
 
             if !did_intersect do continue;
 
-            if hit, ok : = w.hit(xs[:]).?; ok {
+            if hit, ok : = rt.hit(xs[:]).?; ok {
 
                 hitpoint := m.ray_position(r, hit.t);
-                hitnormal := s.shape_normal_at(hit.object, hitpoint);
+                hitnormal := rt.normal_at(hit.object, hitpoint);
                 eye_v := m.negate(r.direction);
 
 
-                color := g.lighting(hit.object.material, light, hitpoint, eye_v, hitnormal);
+                color := rt.lighting(hit.object.material, light, hitpoint, eye_v, hitnormal);
 
-                g.canvas_write_pixel(c, x, y, color);
+                rt.canvas_write_pixel(c, x, y, color);
             }
 
         }
     }
 
-    ppm := g.ppm_from_canvas(c);
+    ppm := rt.ppm_from_canvas(c);
     defer delete(ppm);
 
-    ok := g.ppm_write_to_file("images/putting_it_together_ch06.ppm", ppm);
+    ok := rt.ppm_write_to_file("images/putting_it_together_ch06.ppm", ppm);
     if !ok {
         panic("Failed to write ppm file...");
     }

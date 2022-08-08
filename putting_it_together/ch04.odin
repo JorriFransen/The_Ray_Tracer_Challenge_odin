@@ -4,7 +4,7 @@ package putting_it_together
 import "core:fmt"
 import "core:math"
 
-import g "raytracer:graphics"
+import rt "raytracer:."
 import m "raytracer:math"
 
 canvas_transform : m.Matrix4;
@@ -12,7 +12,7 @@ hour_size : int;
 minute_size : int;
 
 @private
-CH04 :: proc(c: g.Canvas) {
+CH04 :: proc(c: rt.Canvas) {
     fmt.println("Putting it together for chapter 4");
 
     assert(c.width == c.height);
@@ -32,11 +32,11 @@ CH04 :: proc(c: g.Canvas) {
         fi := m.real(i);
         p := m.rotate_z(zero_hour, -fi * PI / 6.0);
 
-        color := g.WHITE;
+        color := rt.WHITE;
         if i == 0 {
-            color = g.BLUE;
+            color = rt.BLUE;
         } else if i % 3 == 0 {
-            color = g.RED;
+            color = rt.RED;
         }
 
         write_rect(c, p, color, hour_size);
@@ -49,25 +49,25 @@ CH04 :: proc(c: g.Canvas) {
         fi := m.real(i);
         p := m.rotate_z(zero_min, -fi * PI / 30.0);
 
-        color := g.WHITE;
+        color := rt.WHITE;
         if i % 5 == 0 && i % 15 != 0 {
-            color = g.RED;
+            color = rt.RED;
         }
 
         write_rect(c, p, color, minute_size);
     }
 
-    ppm := g.ppm_from_canvas(c);
+    ppm := rt.ppm_from_canvas(c);
     defer delete(ppm);
 
-    ok := g.ppm_write_to_file("images/putting_it_together_ch04.ppm", ppm);
+    ok := rt.ppm_write_to_file("images/putting_it_together_ch04.ppm", ppm);
     if !ok {
         panic("Failed to write ppm file...");
     }
 
 }
 
-write_rect :: proc(c: g.Canvas, p: m.Point, color: g.Color, dim: int) {
+write_rect :: proc(c: rt.Canvas, p: m.Point, color: rt.Color, dim: int) {
 
     dim := m.real(dim);
     p := canvas_transform * p;
@@ -79,8 +79,8 @@ write_rect :: proc(c: g.Canvas, p: m.Point, color: g.Color, dim: int) {
     }
 }
 
-write_pixel :: proc(c: g.Canvas, p: m.Point, color: g.Color) {
+write_pixel :: proc(c: rt.Canvas, p: m.Point, color: rt.Color) {
     if p.x >= 0 && int(p.x) < c.width && p.y >= 0 && int(p.y) < c.height {
-        g.canvas_write_pixel(c, p, color);
+        rt.canvas_write_pixel(c, p, color);
     }
 }

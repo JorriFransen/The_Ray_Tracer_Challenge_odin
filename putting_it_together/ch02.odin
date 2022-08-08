@@ -3,14 +3,15 @@ package putting_it_together
 import "core:fmt"
 import "core:math"
 import "core:os"
-import rm "raytracer:math"
-import g "raytracer:graphics"
 
-CH02 :: proc (c: g.Canvas) {
+import rt "raytracer:."
+import rm "raytracer:math"
+
+CH02 :: proc (c: rt.Canvas) {
     fmt.println("Putting it together for chapter 2");
 
     start := rm.point(0, 1, 0);
-    velocity := rm.mul(rm.normalize(rm.vector(1, 1.8, 0)), 11.25);
+    velocity := rt.mul(rm.normalize(rm.vector(1, 1.8, 0)), 11.25);
     p := Projectile { start, velocity };
 
     gravity := rm.vector(0, -0.1, 0);
@@ -24,18 +25,18 @@ CH02 :: proc (c: g.Canvas) {
         write_projectile_to_canvas(c, p.position);
     }
 
-    ppm := g.ppm_from_canvas(c);
+    ppm := rt.ppm_from_canvas(c);
     defer delete(ppm);
 
-    ok := g.ppm_write_to_file("images/putting_it_together_ch02.ppm", ppm)
+    ok := rt.ppm_write_to_file("images/putting_it_together_ch02.ppm", ppm)
     if !ok {
         panic("Failed to write ppm file...");
     }
 }
 
-PROJECTILE_COLOR :: g.Color { 1, 0, 0, 0 };
+PROJECTILE_COLOR :: rt.Color { 1, 0, 0, 0 };
 
-write_projectile_to_canvas :: proc(c: g.Canvas, p: rm.Point) {
+write_projectile_to_canvas :: proc(c: rt.Canvas, p: rm.Point) {
 
     x := int(math.ceil(p.x));
     y := int(math.ceil(p.y));
@@ -47,13 +48,13 @@ write_projectile_to_canvas :: proc(c: g.Canvas, p: rm.Point) {
 
 }
 
-write_pixel_to_canvas :: proc(c: g.Canvas, x, y: int) {
+write_pixel_to_canvas :: proc(c: rt.Canvas, x, y: int) {
 
     in_range := (x >= 0 && x < c.width) && (y >= 0 && y < c.height);
 
     inverted_y := (c.height - 1) - y;
 
     if in_range {
-        g.canvas_write_pixel(c, x, inverted_y, PROJECTILE_COLOR);
+        rt.canvas_write_pixel(c, x, inverted_y, PROJECTILE_COLOR);
     }
 }

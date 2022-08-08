@@ -1,19 +1,17 @@
 package putting_it_together;
 
+import rt "raytracer:."
 import m "raytracer:math"
-import g "raytracer:graphics"
-import w "raytracer:world"
-import s "raytracer:world/shapes"
 
 import "core:math"
-import "core:fmt";
+import "core:fmt"
 
-CH05 :: proc(c: g.Canvas) {
+CH05 :: proc(c: rt.Canvas) {
     fmt.println("Putting it together for chapter 5");
 
     assert(c.width == c.height);
 
-    sb : s.Shapes(1);
+    sb : rt.Shapes(1);
 
     ray_origin := m.point(0, 0, -5);
     wall_z : m.real = 10;
@@ -24,8 +22,8 @@ CH05 :: proc(c: g.Canvas) {
     pixel_size := wall_size / m.real(canvas_pixels);
     half_wall_size := wall_size / 2;
 
-    color :: g.RED;
-    shape := s.sphere(&sb);
+    color :: rt.RED;
+    shape := rt.sphere(&sb);
     // shape := m.sphere(m.scaling(0.5, 1, 1));
     // shape := m.sphere(m.rotation_z(PI / 4) * m.scaling(0.5, 1, 1));
     // shape := m.sphere(m.shearing(1, 0, 0, 0, 0, 0) * m.scaling(0.5, 1, 1));
@@ -39,20 +37,20 @@ CH05 :: proc(c: g.Canvas) {
             position := m.point(world_x, world_y, wall_z);
 
             r := m.ray(ray_origin, m.normalize(m.sub(position, ray_origin)));
-            xs, did_intersect := w.intersects(shape, r).?;
+            xs, did_intersect := rt.intersects(shape, r).?;
 
             if !did_intersect do continue;
 
-            if i, ok := w.hit(xs[:]).?; ok {
-                g.canvas_write_pixel(c, x, y, color);
+            if i, ok := rt.hit(xs[:]).?; ok {
+                rt.canvas_write_pixel(c, x, y, color);
             }
         }
     }
 
-    ppm := g.ppm_from_canvas(c);
+    ppm := rt.ppm_from_canvas(c);
     defer delete(ppm);
 
-    ok := g.ppm_write_to_file("images/putting_it_together_ch05.ppm", ppm);
+    ok := rt.ppm_write_to_file("images/putting_it_together_ch05.ppm", ppm);
     if !ok {
         panic("Failed to write ppm file...");
     }

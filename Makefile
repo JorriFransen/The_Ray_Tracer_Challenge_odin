@@ -21,7 +21,7 @@ run: raytracer
 
 
 putting_it_together: builddir
-	$(ODIN) build src/putting_it_together -out:build/putting_it_together.bin $(COLLECTION_FLAGS) $(ODINFLAGS) && build/putting_it_together.bin
+	$(ODIN) build putting_it_together -out:build/putting_it_together.bin $(COLLECTION_FLAGS) $(ODINFLAGS) && build/putting_it_together.bin
 
 #feh images/putting_it_together_ch02.ppm --force-aliasing --fullscreen --auto-zoom
 
