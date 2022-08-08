@@ -41,7 +41,7 @@ matrix_suite := r.Test_Suite {
 }
 
 @test
-M4_Construction :: proc(t: ^testing.T) {
+M4_Construction :: proc(t: ^r.Test_Context) {
 
     M :: rm.Matrix4 { 1,    2,    3,    4,
                      5.5,  6.5,  7.5,  8.5,
@@ -71,7 +71,7 @@ M4_Construction :: proc(t: ^testing.T) {
 }
 
 @test
-M3_Construction :: proc(t: ^testing.T) {
+M3_Construction :: proc(t: ^r.Test_Context) {
 
     M :: rm.Matrix3 { -3,  5,  0,
                       1, -2, -7,
@@ -91,7 +91,7 @@ M3_Construction :: proc(t: ^testing.T) {
 }
 
 @test
-M2_Construction :: proc(t: ^testing.T) {
+M2_Construction :: proc(t: ^r.Test_Context) {
 
     M :: rm.Matrix2 { -3,  5,
                       1, -2 };
@@ -111,7 +111,7 @@ M2_Construction :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Equality :: proc(t: ^testing.T) {
+M4_Equality :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
@@ -128,7 +128,7 @@ M4_Equality :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Inequality :: proc(t: ^testing.T) {
+M4_Inequality :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
@@ -145,7 +145,7 @@ M4_Inequality :: proc(t: ^testing.T) {
 }
 
 @test
-M3_Equality :: proc(t: ^testing.T) {
+M3_Equality :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix3 { 1, 2, 3,
                      5, 6, 7,
@@ -160,7 +160,7 @@ M3_Equality :: proc(t: ^testing.T) {
 }
 
 @test
-M3_Inequality :: proc(t: ^testing.T) {
+M3_Inequality :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix3 { 1, 2, 3,
                      5, 6, 7,
@@ -175,7 +175,7 @@ M3_Inequality :: proc(t: ^testing.T) {
 }
 
 @test
-M2_Equality :: proc(t: ^testing.T) {
+M2_Equality :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix2 { 1, 2,
                      5, 6 };
@@ -188,7 +188,7 @@ M2_Equality :: proc(t: ^testing.T) {
 }
 
 @test
-M2_Inequality :: proc(t: ^testing.T) {
+M2_Inequality :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix2 { 1, 2,
                      5, 6 };
@@ -201,7 +201,7 @@ M2_Inequality :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Multiply :: proc(t: ^testing.T) {
+M4_Multiply :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix4 { 1, 2, 3, 4,
                      5, 6, 7, 8,
@@ -230,7 +230,7 @@ M4_Multiply :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Multiply_Tuple :: proc(t: ^testing.T) {
+M4_Multiply_Tuple :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix4 { 1, 2, 3, 4,
                      2, 4, 4, 2,
@@ -253,7 +253,7 @@ M4_Multiply_Tuple :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Multiply_Identity :: proc(t: ^testing.T) {
+M4_Multiply_Identity :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix4 {
         0, 1,  2,  4,
@@ -273,7 +273,7 @@ M4_Multiply_Identity :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Multiply_Identity_Tuple :: proc(t: ^testing.T) {
+M4_Multiply_Identity_Tuple :: proc(t: ^r.Test_Context) {
 
     a := rm.Tuple { 1, 2, 3, 4 };
 
@@ -288,7 +288,7 @@ M4_Multiply_Identity_Tuple :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Transpose :: proc(t: ^testing.T) {
+M4_Transpose :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix4 {
         0, 9, 3, 0,
@@ -315,7 +315,7 @@ M4_Transpose :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Transpose_Identity :: proc(t: ^testing.T) {
+M4_Transpose_Identity :: proc(t: ^r.Test_Context) {
 
     A := rm.matrix_transpose(rm.matrix4_identity);
 
@@ -324,7 +324,7 @@ M4_Transpose_Identity :: proc(t: ^testing.T) {
 }
 
 @test
-M2_Determinant :: proc(t: ^testing.T) {
+M2_Determinant :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix2 {
          1, 5,
@@ -345,7 +345,7 @@ M2_Determinant :: proc(t: ^testing.T) {
 
 
 @test
-M3_Submatrix :: proc(t: ^testing.T) {
+M3_Submatrix :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix3 {
          1, 5, 0,
@@ -374,7 +374,7 @@ M3_Submatrix :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Submatrix :: proc(t: ^testing.T) {
+M4_Submatrix :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix4 {
         -6, 1,  1, 6,
@@ -406,7 +406,7 @@ M4_Submatrix :: proc(t: ^testing.T) {
 }
 
 @test
-M3_Minor :: proc(t: ^testing.T) {
+M3_Minor :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix3 {
         3,  5,  0,
@@ -432,7 +432,7 @@ M3_Minor :: proc(t: ^testing.T) {
 }
 
 @test
-M3_Cofactor :: proc(t: ^testing.T) {
+M3_Cofactor :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix3 {
         3,  5,  0,
@@ -447,7 +447,7 @@ M3_Cofactor :: proc(t: ^testing.T) {
 }
 
 @test
-M3_Determinant :: proc(t: ^testing.T) {
+M3_Determinant :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix3 {
          1, 2,  6,
@@ -463,7 +463,7 @@ M3_Determinant :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Determinant :: proc(t: ^testing.T) {
+M4_Determinant :: proc(t: ^r.Test_Context) {
 
      A :: rm.Matrix4 {
          -2, -8,  3,  5,
@@ -481,7 +481,7 @@ M4_Determinant :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Invertible :: proc(t: ^testing.T) {
+M4_Invertible :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix4 {
         6,  4, 4,  4,
@@ -495,7 +495,7 @@ M4_Invertible :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Non_Invertible :: proc(t: ^testing.T) {
+M4_Non_Invertible :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix4 {
         -4,  2, -2, -3,
@@ -509,7 +509,7 @@ M4_Non_Invertible :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Inverse1 :: proc(t: ^testing.T) {
+M4_Inverse1 :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix4 {
         -5,  2,  6, -8,
@@ -542,7 +542,7 @@ M4_Inverse1 :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Inverse2 :: proc(t: ^testing.T) {
+M4_Inverse2 :: proc(t: ^r.Test_Context) {
     A :: rm.Matrix4 {
          8, -5,  9,  2,
          7,  5,  6,  1,
@@ -563,7 +563,7 @@ M4_Inverse2 :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Inverse3 :: proc(t: ^testing.T) {
+M4_Inverse3 :: proc(t: ^r.Test_Context) {
     A :: rm.Matrix4 {
          9,  3,  0,  9,
         -5, -2, -6, -3,
@@ -584,7 +584,7 @@ M4_Inverse3 :: proc(t: ^testing.T) {
 }
 
 @test
-M4_Mul_Prod_Inverse :: proc(t: ^testing.T) {
+M4_Mul_Prod_Inverse :: proc(t: ^r.Test_Context) {
 
     A :: rm.Matrix4 {
          3, -9,  7,  3,

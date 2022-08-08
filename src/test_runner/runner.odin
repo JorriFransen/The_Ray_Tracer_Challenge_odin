@@ -2,15 +2,21 @@ package tests_runner
 
 import "core:fmt"
 import "core:os"
-import "core:testing"
 import "core:strings"
 import "core:c/libc"
 import "core:io"
 
-T :: testing.T;
+Test_Signature :: proc(^Test_Context);
+
+Setup_Test_Signature :: proc(^Test_Context);
+Teardown_Test_Signature :: proc(^Test_Context);
 
 Test :: struct {
-    using internal: testing.Internal_Test,
+    name: string,
+
+    t: Test_Signature,
+    setup: Setup_Test_Signature,
+    teardown: Teardown_Test_Signature,
 }
 
 Test_Suite :: struct {
@@ -18,11 +24,12 @@ Test_Suite :: struct {
     tests: []Test,
 
     child_suites: []^Test_Suite,
+
+    setup: Setup_Test_Signature `Runs before each test`,
+    teardown: Teardown_Test_Signature `Runs after each test`,
 }
 
 Test_Context :: struct {
-    using t : testing.T,
-
     main_suite: ^Test_Suite,
 
     total_test_count, test_fail_count, assert_fail_count: int,
@@ -37,10 +44,8 @@ Test_Options :: struct {
     print_color: bool,
 }
 
-test :: proc (name: string, test_fn: testing.Test_Signature) -> Test {
-    return Test { {
-        "tests", name, test_fn,
-    } };
+test :: proc (name: string, test_fn: Test_Signature, setup_fn: Setup_Test_Signature = nil, teardown_fn: Setup_Test_Signature = nil) -> Test {
+    return Test {  name, test_fn, setup_fn, teardown_fn };
 }
 
 
@@ -53,7 +58,6 @@ default_test_options :: proc() -> Test_Options {
 test_context :: proc(s: ^Test_Suite, options: Test_Options) -> Test_Context {
 
     return Test_Context {
-        t = {},
         main_suite = s,
         total_test_count = 0,
         test_fail_count = 0,
@@ -92,7 +96,12 @@ execute_test_suite_csp :: proc(c: ^Test_Context, s: ^Test_Suite, prefix: string 
     tests_ok := true;
 
     for t in &s.tests {
+
+        if s.setup != nil do s.setup(c);
+
         if !execute_test(c, &t, current_prefix) do tests_ok = false;
+
+        if s.teardown != nil do s.teardown(c);
     }
 
     suites_ok := true;
@@ -121,7 +130,12 @@ execute_test :: proc(c: ^Test_Context, test: ^Test, prefix: string = "") -> bool
     c.test_writer = w;
     old_fail_count := c.assert_fail_count;
 
-    test.p(c);
+
+    if test.setup != nil do test.setup(c);
+
+    test.t(c);
+
+    if test.teardown != nil do test.teardown(c);
 
     test_ok := old_fail_count == c.assert_fail_count;
     c.test_writer = {};
@@ -153,32 +167,25 @@ execute_test :: proc(c: ^Test_Context, test: ^Test, prefix: string = "") -> bool
     return test_ok;
 }
 
-when ODIN_TEST {
-    expect  :: testing.expect
-    log     :: testing.log
-} else {
-    expect :: proc(t: ^testing.T, condition: bool, message: string = "", loc := #caller_location) {
+expect :: proc(tc: ^Test_Context, condition: bool, message: string = "", loc := #caller_location) {
 
-        c := transmute(^Test_Context)t;
+    if !condition {
+        tc.assert_fail_count += 1;
 
-        if !condition {
-            c.assert_fail_count += 1;
+        maybe_colon := ": " if len(message) > 0 else "";
+        loc_str := fmt.tprintf("[%v] assert fail%v", loc, maybe_colon);
 
-            maybe_colon := ": " if len(message) > 0 else "";
-            loc_str := fmt.tprintf("[%v] assert fail%v", loc, maybe_colon);
-
-            print_color(c, c.test_writer, loc_str, .Red);
-            fmt.wprintf(c.test_writer, "%v\n", message);
-            return
-        }
+        print_color(tc, tc.test_writer, loc_str, .Red);
+        fmt.wprintf(tc.test_writer, "%v\n", message);
+        return
     }
+}
 
-    log     :: proc(t: ^testing.T, v: any, loc := #caller_location) {
-        c := transmute(^Test_Context)t;
-        msg := fmt.tprintf("[%v] log: ", loc)
-        print_color(c, c.test_writer, msg, .Yellow);
-        fmt.wprintf(c.test_writer, "%v\n", v)
-    }
+log :: proc(tc: ^Test_Context, v: any, loc := #caller_location) {
+
+    msg := fmt.tprintf("[%v] log: ", loc)
+    print_color(tc, tc.test_writer, msg, .Yellow);
+    fmt.wprintf(tc.test_writer, "%v\n", v)
 }
 
 @private

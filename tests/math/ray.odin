@@ -17,7 +17,7 @@ ray_suite := r.Test_Suite {
 }
 
 @test
-R_Construction :: proc(t: ^testing.T) {
+R_Construction :: proc(t: ^r.Test_Context) {
 
     origin := rm.point(1, 2, 3);
     direction := rm.vector(4, 5, 6);
@@ -29,7 +29,7 @@ R_Construction :: proc(t: ^testing.T) {
 }
 
 @test
-R_Distance_Along_Is_P :: proc(t: ^testing.T) {
+R_Distance_Along_Is_P :: proc(t: ^r.Test_Context) {
 
     ray := rm.ray(rm.point(2, 3, 4), rm.vector(1, 0, 0));
 
@@ -40,7 +40,7 @@ R_Distance_Along_Is_P :: proc(t: ^testing.T) {
 }
 
 @test
-R_Translation :: proc(t: ^testing.T) {
+R_Translation :: proc(t: ^r.Test_Context) {
 
     ray := rm.ray(rm.point(1, 2, 3), rm.vector(0, 1, 0));
     m := rm.translation(3, 4, 5);
@@ -52,7 +52,7 @@ R_Translation :: proc(t: ^testing.T) {
 }
 
 @test
-R_Scaling :: proc(t: ^testing.T) {
+R_Scaling :: proc(t: ^r.Test_Context) {
 
     ray := rm.ray(rm.point(1, 2, 3), rm.vector(0, 1, 0));
     m := rm.scaling(2, 3, 4);

@@ -22,7 +22,7 @@ light_suite := r.Test_Suite {
 }
 
 @test
-Point_Light_Constructor :: proc(t: ^r.T) {
+Point_Light_Constructor :: proc(t: ^r.Test_Context) {
 
     intensity := g.color(1, 1, 1);
     position := m.point(0, 0, 0);
@@ -34,7 +34,7 @@ Point_Light_Constructor :: proc(t: ^r.T) {
 }
 
 @test
-L_Light_Eye_Surface :: proc(t: ^r.T) {
+L_Light_Eye_Surface :: proc(t: ^r.Test_Context) {
 
     mat := g.material();
     position := m.point(0, 0, 0);
@@ -49,7 +49,7 @@ L_Light_Eye_Surface :: proc(t: ^r.T) {
 }
 
 @test
-L_Light_Eye45_Surface :: proc(t: ^r.T) {
+L_Light_Eye45_Surface :: proc(t: ^r.Test_Context) {
 
     mat := g.material();
     position := m.point(0, 0, 0);
@@ -65,7 +65,7 @@ L_Light_Eye45_Surface :: proc(t: ^r.T) {
 }
 
 @test
-L_Light45_Eye_Surface :: proc(t: ^r.T) {
+L_Light45_Eye_Surface :: proc(t: ^r.Test_Context) {
 
     mat := g.material();
     position := m.point(0, 0, 0);
@@ -80,7 +80,7 @@ L_Light45_Eye_Surface :: proc(t: ^r.T) {
 }
 
 @test
-L_Light45_Eyen45_Surface :: proc(t: ^r.T) {
+L_Light45_Eyen45_Surface :: proc(t: ^r.Test_Context) {
 
     mat := g.material();
     position := m.point(0, 0, 0);
@@ -96,7 +96,7 @@ L_Light45_Eyen45_Surface :: proc(t: ^r.T) {
 }
 
 @test
-L_Eye_Surface_Light :: proc(t: ^r.T) {
+L_Eye_Surface_Light :: proc(t: ^r.Test_Context) {
 
     mat := g.material();
     position := m.point(0, 0, 0);
@@ -111,7 +111,7 @@ L_Eye_Surface_Light :: proc(t: ^r.T) {
 }
 
 @test
-L_Surface_Shadow :: proc(t: ^r.T) {
+L_Surface_Shadow :: proc(t: ^r.Test_Context) {
 
     mat := g.material();
     position := m.point(0, 0, 0);

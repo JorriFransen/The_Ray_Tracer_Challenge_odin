@@ -12,15 +12,23 @@ Material :: struct {
 }
 
 @(private="file")
-default_color     :        = WHITE;
+default_color     :        : WHITE;
 @(private="file")
-default_ambient   : m.real = 0.1;
+default_ambient   : m.real : 0.1;
 @(private="file")
-default_diffuse   : m.real = 0.9;
+default_diffuse   : m.real : 0.9;
 @(private="file")
-default_specular  : m.real = 0.9;
+default_specular  : m.real : 0.9;
 @(private="file")
-default_shininess : m.real = 200;
+default_shininess : m.real : 200;
+
+default_material :: Material {
+    default_color,
+    default_ambient,
+    default_diffuse,
+    default_specular,
+    default_shininess,
+};
 
 material_cadss :: proc(color     := default_color,
                        ambient   := default_ambient,

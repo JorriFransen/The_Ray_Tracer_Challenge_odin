@@ -7,6 +7,7 @@ import r "raytracer:test_runner"
 import g "raytracer:graphics"
 import m "raytracer:math"
 import world "raytracer:world"
+import s "raytracer:world/shapes"
 
 expect :: r.expect;
 
@@ -36,12 +37,12 @@ world_suite := r.Test_Suite {
 }
 
 
-@(private) @(deferred_out=destroy_default_world)
-default_world :: proc() -> ^world.World {
+default_world :: proc(sb: ^s.Shapes($N)) -> ^world.World {
 
-    shapes : [dynamic]world.Shape = {
-        world.sphere(g.material(color = g.color(0.8, 1, 0.6), diffuse = 0.7, specular = 0.2)),
-        world.sphere(m.scaling(0.5, 0.5, 0.5)),
+
+    shapes : [dynamic]^s.Shape = {
+        s.sphere(sb, g.material(color = g.color(0.8, 1, 0.6), diffuse = 0.7, specular = 0.2)),
+        s.sphere(sb, m.scaling(0.5, 0.5, 0.5)),
     };
 
     lights: [dynamic]g.Point_Light = {
@@ -54,7 +55,7 @@ default_world :: proc() -> ^world.World {
     return result;
 }
 
-@(private="file")
+@(private)
 destroy_default_world :: proc(w: ^world.World) {
     delete(w.objects);
     delete(w.lights);
@@ -63,7 +64,7 @@ destroy_default_world :: proc(w: ^world.World) {
 }
 
 @test
-World_Default :: proc(t: ^r.T) {
+World_Default :: proc(t: ^r.Test_Context) {
 
     w := world.world();
 
@@ -72,31 +73,38 @@ World_Default :: proc(t: ^r.T) {
 }
 
 @test
-World_Test_Default :: proc(t: ^r.T) {
+World_Test_Default :: proc(t: ^r.Test_Context) {
+
+    sb : s.Shapes(4);
 
     light := g.point_light(m.point(-10, 10, -10), g.color(1, 1, 1));
     mat := g.material(color=g.color(0.8, 1.0, 0.6), diffuse=0.7, specular=0.2);
-    s1 := world.sphere(mat);
+    s1 := s.sphere(&sb, mat);
     tf := m.scaling(0.5, 0.5, 0.5);
-    s2 := world.sphere(tf);
+    s2 := s.sphere(&sb, tf);
 
-    w := default_world();
+    w := default_world(&sb);
+    defer destroy_default_world(w);
 
     expect(t, len(w.lights) == 1);
     expect(t, w.lights[0] == light);
 
     expect(t, len(w.objects) == 2);
-    expect(t, slice.contains(w.objects, s1));
-    expect(t, slice.contains(w.objects, s2));
+    expect(t, s.eq(w.objects[0]^, s1^));
+    expect(t, s.eq(w.objects[1]^, s2^));
 }
 
 @test
-World_Intersect_Ray :: proc(t: ^r.T) {
+World_Intersect_Ray :: proc(t: ^r.Test_Context) {
+
+    sb : s.Shapes(2);
 
     free_all(context.temp_allocator);
     context.allocator = context.temp_allocator;
 
-    w := default_world();
+    w := default_world(&sb);
+    defer destroy_default_world(w);
+
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
     xs := world.intersect_world(w, ray);
@@ -109,9 +117,13 @@ World_Intersect_Ray :: proc(t: ^r.T) {
 }
 
 @test
-Shade_Intersection :: proc(t: ^r.T) {
+Shade_Intersection :: proc(t: ^r.Test_Context) {
 
-    w := default_world();
+    sb : s.Shapes(2);
+
+    w := default_world(&sb);
+    defer destroy_default_world(w);
+
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
     shape := w.objects[0];
     i := world.intersection(4, shape);
@@ -123,8 +135,13 @@ Shade_Intersection :: proc(t: ^r.T) {
 }
 
 @test
-Shade_Intersection_Inside :: proc(t: ^r.T) {
-    w := default_world();
+Shade_Intersection_Inside :: proc(t: ^r.Test_Context) {
+
+    sb : s.Shapes(2);
+
+    w := default_world(&sb);
+    defer destroy_default_world(w);
+
     w.lights[0] = g.point_light(m.point(0, 0.25, 0), g.color(1, 1, 1));
     ray := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
     shape := w.objects[1];
@@ -137,9 +154,13 @@ Shade_Intersection_Inside :: proc(t: ^r.T) {
 }
 
 @test
-Color_At_Miss :: proc(t: ^r.T) {
+Color_At_Miss :: proc(t: ^r.Test_Context) {
 
-    w := default_world();
+    sb : s.Shapes(2);
+
+    w := default_world(&sb);
+    defer destroy_default_world(w);
+
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 1, 0));
 
     c := world.color_at(w, ray);
@@ -148,9 +169,13 @@ Color_At_Miss :: proc(t: ^r.T) {
 }
 
 @test
-Color_At_Hit :: proc(t: ^r.T) {
+Color_At_Hit :: proc(t: ^r.Test_Context) {
 
-    w := default_world();
+    sb : s.Shapes(2);
+
+    w := default_world(&sb);
+    defer destroy_default_world(w);
+
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
     c := world.color_at(w, ray);
@@ -159,12 +184,16 @@ Color_At_Hit :: proc(t: ^r.T) {
 }
 
 @test
-Color_At_Hit_Behind :: proc(t: ^r.T) {
+Color_At_Hit_Behind :: proc(t: ^r.Test_Context) {
 
-    w := default_world();
-    outer := &w.objects[0].?;
+    sb : s.Shapes(2);
+
+    w := default_world(&sb);
+    defer destroy_default_world(w);
+
+    outer := w.objects[0];
     outer.material.ambient = 1;
-    inner := &w.objects[1].?;
+    inner := w.objects[1];
     inner.material.ambient = 1;
     ray := m.ray(m.point(0, 0, 0.75), m.vector(0, 0, -1));
 
@@ -174,47 +203,65 @@ Color_At_Hit_Behind :: proc(t: ^r.T) {
 }
 
 @test
-No_Shadow_Complete_Miss :: proc(t: ^r.T) {
+No_Shadow_Complete_Miss :: proc(t: ^r.Test_Context) {
 
-    w := default_world();
+    sb : s.Shapes(2);
+
+    w := default_world(&sb);
+    defer destroy_default_world(w);
+
     p := m.point(0, 10, 0);
 
     expect(t, world.is_shadowed(w, p, &w.lights[0]) == false);
 }
 
 @test
-Shadow_Point_Object_Light :: proc(t: ^r.T) {
+Shadow_Point_Object_Light :: proc(t: ^r.Test_Context) {
 
-    w := default_world();
+    sb : s.Shapes(2);
+
+    w := default_world(&sb);
+    defer destroy_default_world(w);
+
     p := m.point(10, -10, 10);
 
     expect(t, world.is_shadowed(w, p, &w.lights[0]));
 }
 
 @test
-Shadow_Point_Light_Object :: proc(t: ^r.T) {
+Shadow_Point_Light_Object :: proc(t: ^r.Test_Context) {
 
-    w := default_world();
+    sb : s.Shapes(2);
+
+    w := default_world(&sb);
+    defer destroy_default_world(w);
+
     p := m.point(-20, 20, -20);
 
     expect(t, world.is_shadowed(w, p, &w.lights[0]) == false);
 }
 
 @test
-Shadow_Light_Point_Object :: proc(t: ^r.T) {
+Shadow_Light_Point_Object :: proc(t: ^r.Test_Context) {
 
-    w := default_world();
+    sb : s.Shapes(2);
+
+    w := default_world(&sb);
+    defer destroy_default_world(w);
+
     p := m.point(-2, 2, -2);
 
     expect(t, world.is_shadowed(w, p, &w.lights[0]) == false);
 }
 
 @test
-Shade_Shadowed_Intersection :: proc(t: ^r.T) {
+Shade_Shadowed_Intersection :: proc(t: ^r.Test_Context) {
 
-    s1 := world.sphere();
-    s2 := world.sphere(m.translation(0, 0, 10));
-    shapes : []world.Shape = { s1, s2 };
+    sb : s.Shapes(2);
+
+    s1 := s.sphere(&sb);
+    s2 := s.sphere(&sb, m.translation(0, 0, 10));
+    shapes : []^s.Shape = { s1, s2 };
 
     lights : []g.Point_Light = { g.point_light(m.point(0, 0, -10), g.color(1, 1, 1)) };
 

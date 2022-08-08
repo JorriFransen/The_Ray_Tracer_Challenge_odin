@@ -45,7 +45,7 @@ vec_suite := r.Test_Suite {
 }
 
 @test
-T_Is_Point :: proc(t: ^testing.T) {
+T_Is_Point :: proc(t: ^r.Test_Context) {
 
     a := rm.tuple(4.3, -4.2, 3.1, 1.0);
 
@@ -59,7 +59,7 @@ T_Is_Point :: proc(t: ^testing.T) {
 }
 
 @test
-T_Is_Vector :: proc(t: ^testing.T) {
+T_Is_Vector :: proc(t: ^r.Test_Context) {
 
     a := rm.tuple(4.3, -4.2, 3.1, 0.0);
 
@@ -73,7 +73,7 @@ T_Is_Vector :: proc(t: ^testing.T) {
 }
 
 @test
-P_Constructor :: proc(t: ^testing.T) {
+P_Constructor :: proc(t: ^r.Test_Context) {
 
     p := rm.point(4, -4, 3);
 
@@ -86,7 +86,7 @@ P_Constructor :: proc(t: ^testing.T) {
 }
 
 @test
-V_Constructor :: proc(t: ^testing.T) {
+V_Constructor :: proc(t: ^r.Test_Context) {
 
     v := rm.vector(4, -4, 3);
 
@@ -99,7 +99,7 @@ V_Constructor :: proc(t: ^testing.T) {
 }
 
 @test
-T_Add :: proc(t: ^testing.T) {
+T_Add :: proc(t: ^r.Test_Context) {
 
     a1 := rm.tuple(3, -2, 5, 1);
     a2 := rm.tuple(-2, 3, 1, 0);
@@ -115,7 +115,7 @@ T_Add :: proc(t: ^testing.T) {
 }
 
 @test
-P_Add_Vector :: proc(t: ^testing.T) {
+P_Add_Vector :: proc(t: ^r.Test_Context) {
 
     p := rm.point(3, -2, 5);
     v := rm.vector(-2, 3, 1);
@@ -129,7 +129,7 @@ P_Add_Vector :: proc(t: ^testing.T) {
 }
 
 @test
-V_Add_Point :: proc(t: ^testing.T) {
+V_Add_Point :: proc(t: ^r.Test_Context) {
 
     v := rm.vector(3, -2, 5);
     p := rm.point(-2, 3, 1);
@@ -143,7 +143,7 @@ V_Add_Point :: proc(t: ^testing.T) {
 }
 
 @test
-V_Add :: proc(t: ^testing.T) {
+V_Add :: proc(t: ^r.Test_Context) {
 
     v1 := rm.vector(3, -2, 5);
     v2 := rm.vector(-2, 3, 1);
@@ -157,7 +157,7 @@ V_Add :: proc(t: ^testing.T) {
 }
 
 @test
-T_Sub :: proc(t: ^testing.T) {
+T_Sub :: proc(t: ^r.Test_Context) {
 
     a := rm.tuple(3, 2, 1, 1);
     b := rm.tuple(5, 6, 7, 1);
@@ -171,7 +171,7 @@ T_Sub :: proc(t: ^testing.T) {
 }
 
 @test
-P_Sub :: proc(t: ^testing.T) {
+P_Sub :: proc(t: ^r.Test_Context) {
 
     a := rm.point(3, 2, 1);
     b := rm.point(5, 6, 7);
@@ -185,7 +185,7 @@ P_Sub :: proc(t: ^testing.T) {
 }
 
 @test
-P_Sub_Vector :: proc(t: ^testing.T) {
+P_Sub_Vector :: proc(t: ^r.Test_Context) {
 
     p := rm.point(3, 2, 1);
     v := rm.vector(5, 6, 7);
@@ -199,7 +199,7 @@ P_Sub_Vector :: proc(t: ^testing.T) {
 }
 
 @test
-V_Sub :: proc(t: ^testing.T) {
+V_Sub :: proc(t: ^r.Test_Context) {
 
     v1 := rm.vector(3, 2, 1);
     v2 := rm.vector(5, 6, 7);
@@ -214,7 +214,7 @@ V_Sub :: proc(t: ^testing.T) {
 
 
 @test
-V_Sub_From_Zero :: proc(t: ^testing.T) {
+V_Sub_From_Zero :: proc(t: ^r.Test_Context) {
 
     zero := rm.vector(0, 0, 0);
     v := rm.vector(1, -2, 3);
@@ -228,7 +228,7 @@ V_Sub_From_Zero :: proc(t: ^testing.T) {
 }
 
 @test
-T_Negate :: proc(t: ^testing.T) {
+T_Negate :: proc(t: ^r.Test_Context) {
 
     a := rm.tuple(1, -2, 3, -4);
 
@@ -240,7 +240,7 @@ T_Negate :: proc(t: ^testing.T) {
 }
 
 @test
-V_Negate :: proc(t: ^testing.T) {
+V_Negate :: proc(t: ^r.Test_Context) {
 
     v := rm.vector(1, -2, 3);
 
@@ -252,7 +252,7 @@ V_Negate :: proc(t: ^testing.T) {
 }
 
 @test
-T_Mul_Scalar :: proc(t: ^testing.T) {
+T_Mul_Scalar :: proc(t: ^r.Test_Context) {
 
     a := rm.tuple(1, -2, 3, -4);
 
@@ -264,7 +264,7 @@ T_Mul_Scalar :: proc(t: ^testing.T) {
 }
 
 @test
-T_Mul_Fraction :: proc(t: ^testing.T) {
+T_Mul_Fraction :: proc(t: ^r.Test_Context) {
 
     a := rm.tuple(1, -2, 3, -4);
 
@@ -276,7 +276,7 @@ T_Mul_Fraction :: proc(t: ^testing.T) {
 }
 
 @test
-T_Div_Scalar :: proc(t: ^testing.T) {
+T_Div_Scalar :: proc(t: ^r.Test_Context) {
 
     a := rm.tuple(1, -2, 3, -4);
 
@@ -288,7 +288,7 @@ T_Div_Scalar :: proc(t: ^testing.T) {
 }
 
 @test
-V_Magnitude_X1 :: proc(t: ^testing.T) {
+V_Magnitude_X1 :: proc(t: ^r.Test_Context) {
 
     v := rm.vector(1, 0, 0);
 
@@ -299,7 +299,7 @@ V_Magnitude_X1 :: proc(t: ^testing.T) {
 }
 
 @test
-V_Magnitude_Y1 :: proc(t: ^testing.T) {
+V_Magnitude_Y1 :: proc(t: ^r.Test_Context) {
 
     v := rm.vector(0, 1, 0);
 
@@ -310,7 +310,7 @@ V_Magnitude_Y1 :: proc(t: ^testing.T) {
 }
 
 @test
-V_Magnitude_Z1 :: proc(t: ^testing.T) {
+V_Magnitude_Z1 :: proc(t: ^r.Test_Context) {
 
     v := rm.vector(0, 0, 1);
 
@@ -321,7 +321,7 @@ V_Magnitude_Z1 :: proc(t: ^testing.T) {
 }
 
 @test
-V_Magnitude_X1_Y2_Z3 :: proc(t: ^testing.T) {
+V_Magnitude_X1_Y2_Z3 :: proc(t: ^r.Test_Context) {
 
     v := rm.vector(1, 2, 3);
 
@@ -332,7 +332,7 @@ V_Magnitude_X1_Y2_Z3 :: proc(t: ^testing.T) {
 }
 
 @test
-V_Magnitude_X1_Y2_Z3_Neg :: proc(t: ^testing.T) {
+V_Magnitude_X1_Y2_Z3_Neg :: proc(t: ^r.Test_Context) {
 
     v := rm.vector(-1, -2, -3);
 
@@ -343,7 +343,7 @@ V_Magnitude_X1_Y2_Z3_Neg :: proc(t: ^testing.T) {
 }
 
 @test
-V_Normalize_X4 :: proc(t: ^testing.T) {
+V_Normalize_X4 :: proc(t: ^r.Test_Context) {
 
     v := rm.vector(4, 0, 0);
 
@@ -355,7 +355,7 @@ V_Normalize_X4 :: proc(t: ^testing.T) {
 }
 
 @test
-V_Normalize_X1_Y2_Z3 :: proc(t: ^testing.T) {
+V_Normalize_X1_Y2_Z3 :: proc(t: ^r.Test_Context) {
 
     v := rm.vector(1, 2, 3);
 
@@ -369,7 +369,7 @@ V_Normalize_X1_Y2_Z3 :: proc(t: ^testing.T) {
 }
 
 @test
-V_Dot :: proc(t: ^testing.T) {
+V_Dot :: proc(t: ^r.Test_Context) {
 
     a := rm.vector(1, 2, 3);
     b := rm.vector(2, 3, 4);
@@ -381,7 +381,7 @@ V_Dot :: proc(t: ^testing.T) {
 }
 
 @test
-V_Cross :: proc(t: ^testing.T) {
+V_Cross :: proc(t: ^r.Test_Context) {
 
     a := rm.vector(1, 2, 3);
     b := rm.vector(2, 3, 4);
@@ -402,7 +402,7 @@ V_Cross :: proc(t: ^testing.T) {
 }
 
 @test
-V_Reflect :: proc(t: ^testing.T) {
+V_Reflect :: proc(t: ^r.Test_Context) {
 
     v := rm.vector(1, -1, 0);
     n := rm.vector(0, 1, 0);
@@ -413,7 +413,7 @@ V_Reflect :: proc(t: ^testing.T) {
 }
 
 @test
-V_Reflect_Slanted_Surface :: proc(t: ^testing.T) {
+V_Reflect_Slanted_Surface :: proc(t: ^r.Test_Context) {
 
     v := rm.vector(0, -1, 0);
     sqrt2_over_2 := math.sqrt(rm.real(2))/2;
