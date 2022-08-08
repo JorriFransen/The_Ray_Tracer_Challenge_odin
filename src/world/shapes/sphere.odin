@@ -7,33 +7,20 @@ Sphere :: struct {
     using shape: Shape,
 }
 
-sphere_tf_mat :: proc(sb: ^Shapes($N), tf: m.Matrix4, mat: g.Material)-> ^Sphere {
+sphere_tf_mat :: proc(sb: $T/^Shapes, tf: m.Matrix4, mat: g.Material)-> ^Sphere {
 
-    // spheres := &__shapes__.spheres;
-    // assert(spheres.used < spheres.cap);
-    // r := &spheres.buf[spheres.used];
-    // spheres.used += 1;
-
-    assert(sb.spheres.used < N);
-    r := &sb.spheres.spheres[sb.spheres.used];
-    sb.spheres.used += 1;
-
-
-    set_transform(r, tf);
-    set_material(r, mat);
-    r.derived = r;
-    return r;
+    return shape(sb, &sb.spheres, tf, mat);
 }
 
-sphere_mat :: proc(sb: ^Shapes($N), mat: g.Material) -> ^Sphere {
+sphere_mat :: proc(sb: $T/^Shapes, mat: g.Material) -> ^Sphere {
     return sphere_tf_mat(sb, m.matrix4_identity, mat);
 }
 
-sphere_tf :: proc(sb: ^Shapes($N), tf: m.Matrix4) -> ^Sphere {
+sphere_tf :: proc(sb: $T/^Shapes, tf: m.Matrix4) -> ^Sphere {
     return sphere_tf_mat(sb, tf, g.default_material);
 }
 
-sphere_default :: proc(sb: ^Shapes($N)) -> ^Sphere {
+sphere_default :: proc(sb: $T/^Shapes) -> ^Sphere {
     return sphere_tf_mat(sb, m.matrix4_identity, g.default_material);
 }
 

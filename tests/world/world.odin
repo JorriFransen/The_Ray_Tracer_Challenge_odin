@@ -37,7 +37,7 @@ world_suite := r.Test_Suite {
 }
 
 
-default_world :: proc(sb: ^s.Shapes($N)) -> ^world.World {
+default_world :: proc(sb: $T/^s.Shapes) -> ^world.World {
 
 
     shapes : [dynamic]^s.Shape = {
@@ -97,7 +97,7 @@ World_Test_Default :: proc(t: ^r.Test_Context) {
 @test
 World_Intersect_Ray :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(2);
+    sb : s.Shapes(4);
 
     free_all(context.temp_allocator);
     context.allocator = context.temp_allocator;

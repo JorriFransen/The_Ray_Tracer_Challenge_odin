@@ -14,6 +14,10 @@ PI :: m.real(math.PI);
 shape_suite := r.Test_Suite {
     name = "Shape/",
     tests = {
+        r.test("Default_Transform", Default_Transform),
+        r.test("Assign_Transform", Assign_Transform),
+        r.test("Default_Material", Default_Material),
+        r.test("Assign_Material", Assign_Material),
         r.test("S_Default_Transform ", S_Default_Transform),
         r.test("S_Modified_Transform", S_Modified_Transform),
         r.test("S_Scaled_Intersect_R", S_Scaled_Intersect_R),
@@ -27,6 +31,55 @@ shape_suite := r.Test_Suite {
         r.test("Sphere_Default_Material", Sphere_Default_Material),
         r.test("Sphere_Modified_Material", Sphere_Modified_Material),
     },
+}
+
+@test
+Default_Transform :: proc(t: ^r.Test_Context) {
+
+    sb : s.Shapes(1);
+    ts := s.test_shape(&sb);
+
+    expect(t, m.eq(ts.inverse_transform, m.matrix4_identity));
+}
+
+@test
+Assign_Transform :: proc(t: ^r.Test_Context) {
+
+    sb : s.Shapes(1);
+    ts := s.test_shape(&sb);
+
+    s.set_transform(ts, m.translation(2, 3, 4));
+
+    expect(t, m.eq(ts.inverse_transform, m.matrix_inverse(m.translation(2, 3, 4))));
+}
+
+@test
+Default_Material :: proc(t: ^r.Test_Context) {
+
+    sb : s.Shapes(1);
+    ts := s.test_shape(&sb);
+
+    expect(t, ts.material == g.material());
+}
+
+@test
+Assign_Material :: proc(t: ^r.Test_Context) {
+
+    sb : s.Shapes(2);
+    m := g.material(ambient = 1);
+
+    {
+        ts := s.test_shape(&sb);
+        ts.material = m;
+        expect(t, ts.material == m);
+    }
+
+    {
+        ts := s.test_shape(&sb);
+        s.set_material(ts, m);
+        expect(t, ts.material == m);
+    }
+
 }
 
 @test
@@ -230,7 +283,7 @@ Sphere_Default_Material :: proc(t: ^r.Test_Context) {
 @test
 Sphere_Modified_Material :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(3);
+    sb := s.shapes(2, context.temp_allocator);
 
     {
         sp := s.sphere(&sb);
@@ -241,6 +294,8 @@ Sphere_Modified_Material :: proc(t: ^r.Test_Context) {
 
         expect(t, sp.material == m);
     }
+
+    assert(sb.spheres.current_block == &sb.spheres.first_block);
 
     {
         m := g.material();

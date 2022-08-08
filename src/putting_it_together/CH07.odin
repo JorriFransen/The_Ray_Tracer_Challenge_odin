@@ -12,18 +12,17 @@ CH07 :: proc(c: g.Canvas) {
     c := c;
     fmt.println("Putting it together for chapter 7");
 
-    s.init_shape_buffers(6);
-    defer s.free_shape_buffers();
+    sb : s.Shapes(6);
 
     floor_mat := g.material(color=g.color(0.9, 0.9, 0.9), specular=0);
-    floor := s.sphere(m.scaling(10, 0.01, 10), floor_mat);
-    left_wall := s.sphere(m.translate(m.rotate_y(m.rotate_x(m.scaling(10, 0.01, 10), PI / 2), -PI / 4), 0, 0, 5), floor_mat);
-    right_wall := s.sphere(m.translate(m.rotate_y(m.rotate_x(m.scaling(10, 0.01, 10), PI / 2), PI / 4), 0, 0, 5), floor_mat);
+    floor := s.sphere(&sb, m.scaling(10, 0.01, 10), floor_mat);
+    left_wall := s.sphere(&sb, m.translate(m.rotate_y(m.rotate_x(m.scaling(10, 0.01, 10), PI / 2), -PI / 4), 0, 0, 5), floor_mat);
+    right_wall := s.sphere(&sb, m.translate(m.rotate_y(m.rotate_x(m.scaling(10, 0.01, 10), PI / 2), PI / 4), 0, 0, 5), floor_mat);
 
     sphere_mat := g.material(diffuse=0.7, specular=0.3);
-    middle_sphere := s.sphere(m.translation(-0.5, 1, 0.5), g.material(sphere_mat, g.color(0.1, 1, 0.5)));
-    right_sphere := s.sphere(m.translate(m.scaling(0.5, 0.5, 0.5), 1.5, 0.5, -0.5), g.material(sphere_mat, g.color(0.5, 1, 0.1)));
-    left_sphere := s.sphere(m.translate(m.scaling(0.33, 0.33, 0.33), -1.5, 0.33, -0.75), g.material(sphere_mat, g.color(1, 0.8, 0.1)));
+    middle_sphere := s.sphere(&sb, m.translation(-0.5, 1, 0.5), g.material(sphere_mat, g.color(0.1, 1, 0.5)));
+    right_sphere := s.sphere(&sb, m.translate(m.scaling(0.5, 0.5, 0.5), 1.5, 0.5, -0.5), g.material(sphere_mat, g.color(0.5, 1, 0.1)));
+    left_sphere := s.sphere(&sb, m.translate(m.scaling(0.33, 0.33, 0.33), -1.5, 0.33, -0.75), g.material(sphere_mat, g.color(1, 0.8, 0.1)));
 
     shapes := []^s.Shape { floor, left_wall, right_wall, middle_sphere, right_sphere, left_sphere };
     lights := []g.Point_Light { g.point_light(m.point(-10, 10, -10), g.color(1, 1, 1)) };

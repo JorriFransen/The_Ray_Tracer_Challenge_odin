@@ -13,6 +13,8 @@ CH06 :: proc(c: g.Canvas) {
 
     assert(c.width == c.height);
 
+    sb : s.Shapes(1);
+
     ray_origin := m.point(0, 0, -5);
     wall_z : m.real = 10;
 
@@ -23,7 +25,7 @@ CH06 :: proc(c: g.Canvas) {
     half_wall_size := wall_size / 2;
 
     mat := g.material(g.color(1, 0.2, 1));
-    shape := s.sphere(mat);
+    shape := s.sphere(&sb, mat);
     // shape := m.sphere(m.scaling(0.5, 1, 1));
     // shape := m.sphere(m.rotation_z(PI / 4) * m.scaling(0.5, 1, 1));
     // shape := m.sphere(m.shearing(1, 0, 0, 0, 0, 0) * m.scaling(0.5, 1, 1));

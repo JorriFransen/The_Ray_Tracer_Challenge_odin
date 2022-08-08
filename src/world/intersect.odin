@@ -91,6 +91,7 @@ intersects_shape :: proc(shape: ^s.Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
     switch k in shape.derived {
         case ^s.Sphere: return intersects(k, r);
+        case ^s.Test_Shape: assert(false);
     }
 
     assert(false);
