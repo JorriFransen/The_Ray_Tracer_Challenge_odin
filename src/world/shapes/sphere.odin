@@ -33,13 +33,5 @@ sphere :: proc {
 
 sphere_normal_at :: proc(s: ^Sphere, p: m.Point) -> m.Vector {
 
-    op : m.Point = s.inverse_transform * p;
-    on := m.sub(op, m.point(0, 0, 0));
-
-    wn := m.matrix4_transpose(s.inverse_transform) * on;
-
-    wn.w = 0;
-
-    assert(m.is_vector(wn));
-    return m.normalize(wn);
+    return m.sub(p, m.point(0, 0, 0));
 }

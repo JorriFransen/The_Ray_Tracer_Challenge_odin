@@ -87,11 +87,13 @@ hit :: proc(xs: []Intersection) -> Maybe(Intersection) {
     return nil;
 }
 
-intersects_shape :: proc(shape: ^s.Shape, r: m.Ray) -> Maybe([2]Intersection) {
+intersects :: proc(shape: ^s.Shape, r: m.Ray) -> Maybe([2]Intersection) {
+
+    r := m.ray_transform(r, shape.inverse_transform);
 
     switch k in shape.derived {
-        case ^s.Sphere: return intersects(k, r);
-        case ^s.Test_Shape: assert(false);
+        case ^s.Sphere: return intersects_sphere(k, r);
+        case ^s.Test_Shape: return intersects_test_shape(k, r);
     }
 
     assert(false);
@@ -99,8 +101,6 @@ intersects_shape :: proc(shape: ^s.Shape, r: m.Ray) -> Maybe([2]Intersection) {
 }
 
 intersects_sphere :: proc(s: ^s.Sphere, r: m.Ray) -> Maybe([2]Intersection) {
-
-    r := m.ray_transform(r, s.inverse_transform);
 
     sphere_to_ray := m.sub(r.origin, m.point(0, 0, 0));
 
@@ -125,7 +125,7 @@ intersects_sphere :: proc(s: ^s.Sphere, r: m.Ray) -> Maybe([2]Intersection) {
     return [?]Intersection { intersection(t1, s), intersection(t2, s) };
 }
 
-intersects :: proc {
-    intersects_shape,
-    intersects_sphere,
+intersects_test_shape :: proc(ts: ^s.Test_Shape, r: m.Ray) -> Maybe([2]Intersection) {
+    ts.saved_ray = r;
+    return nil;
 }

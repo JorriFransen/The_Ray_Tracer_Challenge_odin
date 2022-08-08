@@ -131,18 +131,32 @@ set_material :: proc(s: ^Shape, mat: g.Material) {
     s.material = mat;
 }
 
-shape_normal_at :: proc(s: ^Shape, p: m.Point) -> m.Vector {
+normal_at :: proc(s: ^Shape, p: m.Point) -> m.Vector {
+
+    obj_p := s.inverse_transform * p;
+    obj_n : m.Vector;
+
     switch k in s.derived {
-        case ^Sphere: return sphere_normal_at(k, p);
-        case ^Test_Shape: assert(false);
+        case ^Sphere: obj_n = sphere_normal_at(k, obj_p);
+        case ^Test_Shape: obj_n = test_shape_normal_at(k, obj_p);
     }
 
-    assert(false);
-    return m.Vector{};
-}
+    world_n := m.matrix4_transpose(s.inverse_transform) * obj_n;
+    world_n.w = 0;
 
-normal_at :: proc {
-    shape_normal_at,
-    sphere_normal_at,
-}
+    return m.normalize(world_n);
 
+    // obj_p : m.Point = s.inverse_transform * p;
+
+    // obj_n : m.Vector;
+
+    // switch k in s.derived {
+    //     case ^Sphere: obj_n = sphere_normal_at(k, obj_p);
+    //     case ^Test_Shape: assert(false);
+    // }
+
+    // world_n := m.matrix4_transpose(s.inverse_transform) * obj_n;
+    // world_n.w = 0;
+
+    // return world_n;
+}
