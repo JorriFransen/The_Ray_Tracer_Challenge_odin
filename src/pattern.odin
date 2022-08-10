@@ -61,3 +61,25 @@ gradient_pattern :: proc(a, b: Color, tf := m.matrix4_identity) -> Pattern {
 
     return pattern(gradient_at, a, b, tf);
 }
+
+ring_pattern :: proc(a, b: Color, tf := m.matrix4_identity) -> Pattern {
+
+    ring_at :: proc(pat: ^Pattern, p: m.Point) -> Color {
+
+        if int(math.floor(p.x * p.x + p.z * p.z)) % 2 == 0 do return pat.a;
+        return pat.b
+    }
+
+    return pattern(ring_at, a, b, tf);
+}
+
+checkers_pattern :: proc(a, b: Color, tf := m.matrix4_identity) -> Pattern {
+
+    checkers_at :: proc(pat: ^Pattern, p: m.Point) -> Color {
+
+        if int(abs(p.x) + abs(p.y) + abs(p.z)) % 2 == 0 do return pat.a;
+        return pat.b;
+    }
+
+    return pattern(checkers_at, a, b, tf);
+}
