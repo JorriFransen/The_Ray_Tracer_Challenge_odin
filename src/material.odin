@@ -9,6 +9,8 @@ Material :: struct {
     diffuse,
     specular,
     shininess: m.real,
+
+    pattern: Maybe(Pattern),
 }
 
 @(private="file")
@@ -21,14 +23,7 @@ default_diffuse   : m.real : 0.9;
 default_specular  : m.real : 0.9;
 @(private="file")
 default_shininess : m.real : 200;
-
-default_material :: Material {
-    default_color,
-    default_ambient,
-    default_diffuse,
-    default_specular,
-    default_shininess,
-};
+@(private="file")
 
 material_cadss :: proc(color     := default_color,
                        ambient   := default_ambient,
@@ -36,7 +31,7 @@ material_cadss :: proc(color     := default_color,
                        specular  := default_specular,
                        shininess := default_shininess) -> Material {
 
-    return Material { color, ambient, diffuse, specular, shininess };
+    return Material { color, ambient, diffuse, specular, shininess, nil };
 }
 
 material_m_c :: proc(original: Material, color := default_color) -> Material {

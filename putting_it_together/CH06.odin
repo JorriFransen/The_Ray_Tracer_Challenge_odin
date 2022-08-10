@@ -50,7 +50,7 @@ CH06 :: proc(c: rt.Canvas) {
                 eye_v := m.negate(r.direction);
 
 
-                color := rt.lighting(hit.object.material, light, hitpoint, eye_v, hitnormal);
+                color := rt.lighting(hit.object, light, hitpoint, eye_v, hitnormal);
 
                 rt.canvas_write_pixel(c, x, y, color);
             }

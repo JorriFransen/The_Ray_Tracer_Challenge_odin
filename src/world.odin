@@ -44,7 +44,7 @@ shade_hit :: proc(w: ^World, hi: Hit_Info, shadows := true) -> (result: Color) {
 
     for l in &w.lights {
         is_shadowed :=  shadows && is_shadowed(w, hi.over_point, &l);
-        result += lighting(hi.object.material, l, hi.point, hi.eye_v, hi.normal_v, is_shadowed)
+        result += lighting(hi.object, l, hi.point, hi.eye_v, hi.normal_v, is_shadowed)
     }
 
     return;

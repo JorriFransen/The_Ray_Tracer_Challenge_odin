@@ -94,7 +94,7 @@ shape_tf :: proc(shapes: $S/^Shapes, sb: ^Shape_Buf($T, $BS), tf: m.Matrix4) -> 
 }
 
 shape_default :: proc(shapes: $S/^Shapes, sb: ^Shape_Buf($T, $BS)) -> ^T {
-    return shape_tf_mat(shapes, sb, m.matrix4_identity, default_material);
+    return shape_tf_mat(shapes, sb, m.matrix4_identity, material());
 }
 
 shape :: proc {

@@ -4,11 +4,15 @@ import "core:fmt"
 import "core:os"
 import "core:mem"
 
+import rt "raytracer:."
 import r "raytracer:test_runner"
 
 import math_tests "math"
 import graphics_tests "graphics"
 import world_tests "world"
+
+expect :: r.expect;
+eq :: rt.eq;
 
 main_suite := r.Test_Suite {
     name = "",
@@ -17,6 +21,7 @@ main_suite := r.Test_Suite {
         &math_tests.math_suite,
         &graphics_tests.graphics_suite,
         &world_tests.world_suite,
+        &pattern_suite,
     },
 }
 

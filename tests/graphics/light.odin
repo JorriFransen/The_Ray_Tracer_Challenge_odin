@@ -39,11 +39,14 @@ L_Light_Eye_Surface :: proc(t: ^r.Test_Context) {
     mat := rt.material();
     position := m.point(0, 0, 0);
 
+    sb: rt.Shapes(1);
+    obj := rt.sphere(&sb, mat);
+
     eyev := m.vector(0, 0, -1);
     normalv := m.vector(0, 0, -1);
     light := rt.point_light(m.point(0, 0, -10), rt.color(1, 1, 1));
 
-    result := rt.lighting(mat, light, position, eyev, normalv);
+    result := rt.lighting(obj, light, position, eyev, normalv);
 
     expect(t, eq(result, rt.color(1.9, 1.9, 1.9)));
 }
@@ -54,12 +57,15 @@ L_Light_Eye45_Surface :: proc(t: ^r.Test_Context) {
     mat := rt.material();
     position := m.point(0, 0, 0);
 
+    sb: rt.Shapes(1);
+    obj := rt.sphere(&sb, mat);
+
     sqrt2_over_2 := math.sqrt(m.real(2)) / 2;
     eyev := m.vector(0, sqrt2_over_2, -sqrt2_over_2);
     normalv := m.vector(0, 0, -1);
     light := rt.point_light(m.point(0, 0, -10), rt.color(1, 1, 1));
 
-    result := rt.lighting(mat, light, position, eyev, normalv);
+    result := rt.lighting(obj, light, position, eyev, normalv);
 
     expect(t, eq(result, rt.color(1.0, 1.0, 1.0)));
 }
@@ -70,11 +76,14 @@ L_Light45_Eye_Surface :: proc(t: ^r.Test_Context) {
     mat := rt.material();
     position := m.point(0, 0, 0);
 
+    sb: rt.Shapes(1);
+    obj := rt.sphere(&sb, mat);
+
     eyev := m.vector(0, 0, -1);
     normalv := m.vector(0, 0, -1);
     light := rt.point_light(m.point(0, 10, -10), rt.color(1, 1, 1));
 
-    result := rt.lighting(mat, light, position, eyev, normalv);
+    result := rt.lighting(obj, light, position, eyev, normalv);
 
     expect(t, eq(result, rt.color(0.7364, 0.7364, 0.7364)));
 }
@@ -85,12 +94,15 @@ L_Light45_Eyen45_Surface :: proc(t: ^r.Test_Context) {
     mat := rt.material();
     position := m.point(0, 0, 0);
 
+    sb: rt.Shapes(1);
+    obj := rt.sphere(&sb, mat);
+
     sqrt2_over_2 := math.sqrt(m.real(2)) / 2;
     eyev := m.vector(0, -sqrt2_over_2, -sqrt2_over_2);
     normalv := m.vector(0, 0, -1);
     light := rt.point_light(m.point(0, 10, -10), rt.color(1, 1, 1));
 
-    result := rt.lighting(mat, light, position, eyev, normalv);
+    result := rt.lighting(obj, light, position, eyev, normalv);
 
     expect(t, eq(result, rt.color(1.63639, 1.63639, 1.63639)));
 }
@@ -101,11 +113,14 @@ L_Eye_Surface_Light :: proc(t: ^r.Test_Context) {
     mat := rt.material();
     position := m.point(0, 0, 0);
 
+    sb: rt.Shapes(1);
+    obj := rt.sphere(&sb, mat);
+
     eyev := m.vector(0, 0, -1);
     normalv := m.vector(0, 0, -1);
     light := rt.point_light(m.point(0, 0, 10), rt.color(1, 1, 1));
 
-    result := rt.lighting(mat, light, position, eyev, normalv);
+    result := rt.lighting(obj, light, position, eyev, normalv);
 
     expect(t, eq(result, rt.color(0.1, 0.1, 0.1)));
 }
@@ -116,12 +131,15 @@ L_Surface_Shadow :: proc(t: ^r.Test_Context) {
     mat := rt.material();
     position := m.point(0, 0, 0);
 
+    sb: rt.Shapes(1);
+    obj := rt.sphere(&sb, mat);
+
     eyev := m.vector(0, 0, -1);
     normalv := m.vector(0, 0, -1);
     light := rt.point_light(m.point(0, 0, -10), rt.color(1, 1, 1));
     in_shadow := true;
 
-    result := rt.lighting(mat, light, position, eyev, normalv, in_shadow);
+    result := rt.lighting(obj, light, position, eyev, normalv, in_shadow);
 
     expect(t, eq(result, rt.color(0.1, 0.1, 0.1)));
 

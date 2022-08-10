@@ -18,11 +18,11 @@ sphere_mat :: proc(sb: $T/^Shapes, mat: Material) -> ^Sphere {
 }
 
 sphere_tf :: proc(sb: $T/^Shapes, tf: m.Matrix4) -> ^Sphere {
-    return sphere_tf_mat(sb, tf, default_material);
+    return sphere_tf_mat(sb, tf, material());
 }
 
 sphere_default :: proc(sb: $T/^Shapes) -> ^Sphere {
-    return sphere_tf_mat(sb, m.matrix4_identity, default_material);
+    return sphere_tf_mat(sb, m.matrix4_identity, material());
 }
 
 sphere :: proc {

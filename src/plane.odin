@@ -7,7 +7,7 @@ Plane :: struct {
 }
 
 plane_default :: proc(sb: $T/^Shapes) -> ^Plane {
-    return shape(sb, &sb.planes, m.matrix4_identity, default_material);
+    return shape(sb, &sb.planes, m.matrix4_identity, material());
 }
 
 plane_tf_mat :: proc(sb: $t/^Shapes, tf: m.Matrix4, mat: Material) -> ^Plane {

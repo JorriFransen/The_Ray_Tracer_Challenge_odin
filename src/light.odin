@@ -13,9 +13,16 @@ point_light :: proc(p: m.Point, i: Color) -> Point_Light {
     return Point_Light { p, i };
 }
 
-lighting :: proc(mat: Material, l: Point_Light, p: m.Point, eye_v: m.Vector, normal_v: m.Vector, in_shadow := false) -> Color {
+lighting :: proc(obj: ^Shape, l: Point_Light, p: m.Point, eye_v: m.Vector, normal_v: m.Vector, in_shadow := false) -> Color {
 
-    effective_color := mat.color * l.intensity;
+    mat := obj.material;
+
+    color := mat.color;
+    if pat,ok := mat.pattern.?; ok {
+        color = pattern_at_shape(&pat, obj, p);
+    }
+
+    effective_color := color * l.intensity;
 
     light_v := m.normalize(m.sub(l.position, p));
 
