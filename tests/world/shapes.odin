@@ -44,8 +44,7 @@ shape_suite := r.Test_Suite {
 @test
 Default_Transform :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    ts := rt.test_shape(&sb);
+    ts := rt.test_shape();
 
     expect(t, eq(ts.inverse_transform, m.matrix4_identity));
 }
@@ -53,10 +52,9 @@ Default_Transform :: proc(t: ^r.Test_Context) {
 @test
 Assign_Transform :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    ts := rt.test_shape(&sb);
+    ts := rt.test_shape();
 
-    rt.set_transform(ts, m.translation(2, 3, 4));
+    rt.set_transform(&ts, m.translation(2, 3, 4));
 
     expect(t, eq(ts.inverse_transform, m.matrix_inverse(m.translation(2, 3, 4))));
 }
@@ -64,8 +62,7 @@ Assign_Transform :: proc(t: ^r.Test_Context) {
 @test
 Default_Material :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    ts := rt.test_shape(&sb);
+    ts := rt.test_shape();
 
     expect(t, ts.material == rt.material());
 }
@@ -73,18 +70,17 @@ Default_Material :: proc(t: ^r.Test_Context) {
 @test
 Assign_Material :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(2);
     m := rt.material(ambient = 1);
 
     {
-        ts := rt.test_shape(&sb);
+        ts := rt.test_shape();
         ts.material = m;
         expect(t, ts.material == m);
     }
 
     {
-        ts := rt.test_shape(&sb);
-        rt.set_material(ts, m);
+        ts := rt.test_shape();
+        rt.set_material(&ts, m);
         expect(t, ts.material == m);
     }
 
@@ -93,14 +89,12 @@ Assign_Material :: proc(t: ^r.Test_Context) {
 @test
 Scaled_Intersect :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-
-    ts := rt.test_shape(&sb);
+    ts := rt.test_shape();
     r := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
-    rt.set_transform(ts, m.scaling(2, 2, 2));
+    rt.set_transform(&ts, m.scaling(2, 2, 2));
 
-    xs := rt.intersects(ts, r)
+    xs := rt.intersects(&ts, r)
 
     expect(t, eq(ts.saved_ray.origin, m.point(0, 0, -2.5)));
     expect(t, eq(ts.saved_ray.direction, m.vector(0, 0, 0.5)));
@@ -110,14 +104,12 @@ Scaled_Intersect :: proc(t: ^r.Test_Context) {
 @test
 Translated_Intersect :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-
-    ts := rt.test_shape(&sb);
+    ts := rt.test_shape();
     r := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
-    rt.set_transform(ts, m.translation(5, 0, 0));
+    rt.set_transform(&ts, m.translation(5, 0, 0));
 
-    s := rt.intersects(ts, r);
+    s := rt.intersects(&ts, r);
 
     expect(t, eq(ts.saved_ray.origin, m.point(-5, 0, -5)));
     expect(t, eq(ts.saved_ray.direction, m.vector(0, 0, 1)));
@@ -126,11 +118,10 @@ Translated_Intersect :: proc(t: ^r.Test_Context) {
 @test
 Translated_Normal :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    ts := rt.test_shape(&sb);
+    ts := rt.test_shape();
 
-    rt.set_transform(ts, m.translation(0, 1, 0));
-    n := rt.normal_at(ts, m.point(0, 1.70711, -0.70711));
+    rt.set_transform(&ts, m.translation(0, 1, 0));
+    n := rt.shape_normal_at(&ts, m.point(0, 1.70711, -0.70711));
 
     expect(t, eq(n, m.vector(0, 0.70711, -0.70711)));
 }
@@ -138,13 +129,12 @@ Translated_Normal :: proc(t: ^r.Test_Context) {
 @test
 Transformed_Normal :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    ts := rt.test_shape(&sb);
+    ts := rt.test_shape();
 
     sqrt2_over_2 := math.sqrt(m.real(2.0)) / 2;
 
-    rt.set_transform(ts, m.scaling(1, 0.5, 1) * m.rotation_z( PI / 5));
-    n := rt.normal_at(ts, m.point(0, sqrt2_over_2, -sqrt2_over_2));
+    rt.set_transform(&ts, m.scaling(1, 0.5, 1) * m.rotation_z( PI / 5));
+    n := rt.shape_normal_at(&ts, m.point(0, sqrt2_over_2, -sqrt2_over_2));
 
     expect(t, eq(n, m.vector(0, 0.97014, -0.24254)));
 }
@@ -152,12 +142,11 @@ Transformed_Normal :: proc(t: ^r.Test_Context) {
 @test
 Plane_Normal :: proc(t: ^r.Test_Context) {
 
-    sb: rt.Shapes(1)
-    p := rt.plane(&sb);
+    p := rt.plane();
 
-    n1 := rt.plane_normal_at(p, m.point(0, 0, 0));
-    n2 := rt.plane_normal_at(p, m.point(10, 0, -10));
-    n3 := rt.plane_normal_at(p, m.point(-5, 0, 150));
+    n1 := p->normal_at(m.point(0, 0, 0));
+    n2 := p->normal_at(m.point(10, 0, -10));
+    n3 := p->normal_at(m.point(-5, 0, 150));
 
     expect(t, eq(n1, m.vector(0, 1, 0)));
     expect(t, eq(n2, m.vector(0, 1, 0)));
@@ -167,11 +156,10 @@ Plane_Normal :: proc(t: ^r.Test_Context) {
 @test
 Plane_Intersects_Parallel :: proc(t: ^r.Test_Context) {
 
-    sb: rt.Shapes(1)
-    p := rt.plane(&sb);
+    p := rt.plane();
     r := m.ray(m.point(0, 10, 0), m.vector(0, 0, 1));
 
-    xs, ok := rt.plane_intersects_ray(p, r).?;
+    xs, ok := p->intersects(r).?;
 
     expect(t, !ok);
 }
@@ -179,11 +167,10 @@ Plane_Intersects_Parallel :: proc(t: ^r.Test_Context) {
 @test
 Plane_Intersects_Coplanar :: proc(t: ^r.Test_Context) {
 
-    sb: rt.Shapes(1)
-    p := rt.plane(&sb);
+    p := rt.plane();
     r := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
 
-    xs, ok := rt.plane_intersects_ray(p, r).?;
+    xs, ok := p->intersects(r).?;
 
     expect(t, !ok);
 }
@@ -191,35 +178,37 @@ Plane_Intersects_Coplanar :: proc(t: ^r.Test_Context) {
 @test
 Plane_Intersects_Above :: proc(t: ^r.Test_Context) {
 
-    sb: rt.Shapes(1)
-    p := rt.plane(&sb);
+    p := rt.plane();
     r := m.ray(m.point(0, 1, 0), m.vector(0, -1, 0));
 
-    i, ok := rt.plane_intersects_ray(p, r).?;
+    xs, ok := p->intersects(r).?;
 
     expect(t, ok);
-    expect(t, i.object == p);
+    expect(t, len(xs) == 2);
+    expect(t, xs[0].object == &p);
+    expect(t, xs[1].object == &p);
+    expect(t, xs[0] == xs[1]);
 }
 
 @test
 Plane_Intersects_Below :: proc(t: ^r.Test_Context) {
 
-    sb: rt.Shapes(1)
-    p := rt.plane(&sb);
+    p := rt.plane();
     r := m.ray(m.point(0, -1, 0), m.vector(0, 1, 0));
 
-    i, ok := rt.plane_intersects_ray(p, r).?;
+    xs, ok := p->intersects(r).?;
 
     expect(t, ok);
-    expect(t, i.t == 1);
-    expect(t, i.object == p);
+    expect(t, len(xs) == 2);
+    expect(t, xs[0] == xs[1]);
+    expect(t, xs[0].object == &p);
+    expect(t, xs[0].t == 1);
 }
 
 @test
 S_Default_Transform :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    s := rt.sphere(&sb);
+    s := rt.sphere();
 
     expect(t, eq(s.inverse_transform, m.matrix4_identity));
 }
@@ -227,21 +216,19 @@ S_Default_Transform :: proc(t: ^r.Test_Context) {
 @test
 S_Modified_Transform :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(2);
-
     tf := m.translation(2, 3, 4);
     tf_inv := m.matrix_inverse(tf);
 
     {
-        sp := rt.sphere(&sb);
+        sp := rt.sphere();
 
-        rt.set_transform(sp, tf);
+        rt.set_transform(&sp, tf);
 
         expect(t, eq(sp.inverse_transform, tf_inv));
     }
 
     {
-        sp := rt.sphere(&sb, tf);
+        sp := rt.sphere(tf);
 
         expect(t, sp.inverse_transform == tf_inv);
     }
@@ -250,12 +237,10 @@ S_Modified_Transform :: proc(t: ^r.Test_Context) {
 @test
 S_Scaled_Intersect_R :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
-    sp := rt.sphere(&sb, m.scaling(2, 2, 2));
+    sp := rt.sphere(m.scaling(2, 2, 2));
 
-    xs, ok := rt.intersects(sp, ray).?;
+    xs, ok := rt.intersects(&sp, ray).?;
 
     expect(t, ok);
     expect(t, len(xs) == 2);
@@ -267,12 +252,11 @@ S_Scaled_Intersect_R :: proc(t: ^r.Test_Context) {
 @test
 S_Normal_X_Axis :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
     p := m.point(1, 0, 0);
 
-    n := rt.normal_at(sp, p);
+    // n := rt.normal_at(&sp, p);
+    n := sp->normal_at(p);
 
     expected := m.vector(1, 0, 0);
 
@@ -282,12 +266,10 @@ S_Normal_X_Axis :: proc(t: ^r.Test_Context) {
 @test
 S_Normal_Y_Axis :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
     p := m.point(0, 1, 0);
 
-    n := rt.normal_at(sp, p);
+    n := sp->normal_at(p);
 
     expected := m.vector(0, 1, 0);
 
@@ -297,12 +279,10 @@ S_Normal_Y_Axis :: proc(t: ^r.Test_Context) {
 @test
 S_Normal_Z_Axis :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
     p := m.point(0, 0, 1);
 
-    n := rt.normal_at(sp, p);
+    n := sp->normal_at(p);
 
     expected := m.vector(0, 0, 1);
 
@@ -312,14 +292,12 @@ S_Normal_Z_Axis :: proc(t: ^r.Test_Context) {
 @test
 S_Normal_Nonaxial :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
 
     v := math.sqrt(m.real(3.0)) / 3;
     p := m.point(v, v, v);
 
-    n := rt.normal_at(sp, p);
+    n := sp->normal_at(p);
 
     expected := m.vector(v, v, v);
 
@@ -329,14 +307,12 @@ S_Normal_Nonaxial :: proc(t: ^r.Test_Context) {
 @test
 S_Normal_Normalized :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
 
     v := math.sqrt(m.real(3.0)) / 3;
     p := m.point(v, v, v);
 
-    n := rt.normal_at(sp, p);
+    n := sp->normal_at(p);
 
     expected := m.normalize(n);
 
@@ -346,12 +322,11 @@ S_Normal_Normalized :: proc(t: ^r.Test_Context) {
 @test
 S_Translated_Normal :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    sp := rt.sphere(&sb, m.translation(0, 1, 0));
+    sp := rt.sphere(m.translation(0, 1, 0));
 
     p := m.point(0, 1.70711, -0.70711);
 
-    n := rt.normal_at(sp, p);
+    n := rt.shape_normal_at(&sp, p);
 
     expected := m.vector(0, 0.70711, -0.70711);
 
@@ -361,13 +336,12 @@ S_Translated_Normal :: proc(t: ^r.Test_Context) {
 @test
 S_Scaled_Rotated_Normal :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    sp := rt.sphere(&sb, m.scaling(1, 0.5, 1) * m.rotation_z(PI / 5));
+    sp := rt.sphere(m.scaling(1, 0.5, 1) * m.rotation_z(PI / 5));
 
     sqrt2_over_2 := math.sqrt(m.real(2.0)) / 2;
     p := m.point(0, sqrt2_over_2, -sqrt2_over_2);
 
-    n := rt.normal_at(sp, p);
+    n := rt.shape_normal_at(&sp, p);
 
     expected := m.vector(0, 0.97014, -0.24254);
 
@@ -377,8 +351,7 @@ S_Scaled_Rotated_Normal :: proc(t: ^r.Test_Context) {
 @test
 Sphere_Default_Material :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
 
     m := sp.material;
 
@@ -388,30 +361,26 @@ Sphere_Default_Material :: proc(t: ^r.Test_Context) {
 @test
 Sphere_Modified_Material :: proc(t: ^r.Test_Context) {
 
-    sb := rt.shapes(2, context.temp_allocator);
-
     {
-        sp := rt.sphere(&sb);
+        sp := rt.sphere();
         m := rt.material();
         m.ambient = 1;
 
-        rt.set_material(sp, m);
-
-        expect(t, sp.material == m);
-    }
-
-    assert(sb.spheres.current_block == &sb.spheres.first_block);
-
-    {
-        m := rt.material();
-        m.ambient = 1;
-        sp := rt.sphere(&sb, m);
+        rt.set_material(&sp, m);
 
         expect(t, sp.material == m);
     }
 
     {
-        sp := rt.sphere(&sb);
+        m := rt.material();
+        m.ambient = 1;
+        sp := rt.sphere(m);
+
+        expect(t, sp.material == m);
+    }
+
+    {
+        sp := rt.sphere();
         m := rt.material();
         m.ambient = 1;
 

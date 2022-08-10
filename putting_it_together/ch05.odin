@@ -11,8 +11,6 @@ CH05 :: proc(c: rt.Canvas) {
 
     assert(c.width == c.height);
 
-    sb : rt.Shapes(1);
-
     ray_origin := m.point(0, 0, -5);
     wall_z : m.real = 10;
 
@@ -23,7 +21,7 @@ CH05 :: proc(c: rt.Canvas) {
     half_wall_size := wall_size / 2;
 
     color :: rt.RED;
-    shape := rt.sphere(&sb);
+    shape := rt.sphere();
     // shape := m.sphere(m.scaling(0.5, 1, 1));
     // shape := m.sphere(m.rotation_z(PI / 4) * m.scaling(0.5, 1, 1));
     // shape := m.sphere(m.shearing(1, 0, 0, 0, 0, 0) * m.scaling(0.5, 1, 1));
@@ -37,7 +35,7 @@ CH05 :: proc(c: rt.Canvas) {
             position := m.point(world_x, world_y, wall_z);
 
             r := m.ray(ray_origin, m.normalize(m.sub(position, ray_origin)));
-            xs, did_intersect := rt.intersects(shape, r).?;
+            xs, did_intersect := rt.intersects(&shape, r).?;
 
             if !did_intersect do continue;
 

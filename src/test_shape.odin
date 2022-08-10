@@ -8,11 +8,27 @@ Test_Shape :: struct {
     saved_ray: m.Ray,
 }
 
-test_shape :: proc(sb: $T/^Shapes) -> ^Test_Shape {
+test_shape :: proc() -> Test_Shape {
 
-    return shape(sb, &sb.test_shapes);
+    return Test_Shape { shape(_test_shape_vtable, m.matrix4_identity, material()), {} };
 
 }
+
+_test_shape_vtable := &Shape_VTable {
+
+    normal_at = proc(s: ^Shape, p: m.Point) -> m.Vector {
+        return m.vector(p.x, p.y, p.z);
+    },
+
+    intersects = proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
+        ts := transmute(^Test_Shape)s;
+        ts.saved_ray = r;
+        return nil;
+    },
+
+    eq = proc(a, b: ^Shape) -> bool { assert(false); return true },
+
+};
 
 test_shape_normal_at :: proc(ts: ^Test_Shape, p: m.Point) -> m.Vector {
     return m.vector(p.x, p.y, p.z)

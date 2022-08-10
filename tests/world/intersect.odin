@@ -30,11 +30,10 @@ intersect_suite := r.Test_Suite {
 @test
 R_Intersect_Sphere_2P :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
-    xs, ok := rt.intersects(sp, ray).?;
+    xs, ok := rt.intersects(&sp, ray).?;
 
     expect(t, ok);
     expect(t, len(xs) == 2);
@@ -45,11 +44,10 @@ R_Intersect_Sphere_2P :: proc(t: ^r.Test_Context) {
 @test
 R_Intersect_Sphere_Tangent :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
     ray := m.ray(m.point(0, 1, -5), m.vector(0, 0, 1));
 
-    xs, ok := rt.intersects(sp, ray).?;
+    xs, ok := rt.intersects(&sp, ray).?;
 
     expect(t, ok);
     expect(t, len(xs) == 2);
@@ -60,11 +58,10 @@ R_Intersect_Sphere_Tangent :: proc(t: ^r.Test_Context) {
 @test
 R_Misses_Sphere :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
     ray := m.ray(m.point(0, 2, -5), m.vector(0, 0, 1));
 
-    xs, ok := rt.intersects(sp, ray).?;
+    xs, ok := rt.intersects(&sp, ray).?;
 
     expect(t, !ok);
 }
@@ -72,11 +69,10 @@ R_Misses_Sphere :: proc(t: ^r.Test_Context) {
 @test
 R_Inside_Sphere :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
     ray := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
 
-    xs, ok := rt.intersects(sp, ray).?;
+    xs, ok := rt.intersects(&sp, ray).?;
 
     expect(t, ok);
     expect(t, len(xs) == 2);
@@ -87,11 +83,10 @@ R_Inside_Sphere :: proc(t: ^r.Test_Context) {
 @test
 R_Sphere_Behind :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
     ray := m.ray(m.point(0, 0, 5), m.vector(0, 0, 1));
 
-    xs, ok := rt.intersects(sp, ray).?;
+    xs, ok := rt.intersects(&sp, ray).?;
 
     expect(t, ok);
     expect(t, len(xs) == 2);
@@ -102,23 +97,21 @@ R_Sphere_Behind :: proc(t: ^r.Test_Context) {
 @test
 Intersection_Constructor :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
 
-    i := rt.intersection(3.5, sp);
+    i := rt.intersection(3.5, &sp);
 
     expect(t, i.t == 3.5);
-    expect(t, i.object == sp);
+    expect(t, i.object == &sp);
 }
 
 @test
 Aggregating_Intersections :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
 
-    i1 := rt.intersection(1, sp);
-    i2 := rt.intersection(2, sp);
+    i1 := rt.intersection(1, &sp);
+    i2 := rt.intersection(2, &sp);
 
     xs := rt.intersections(i1, i2);
     defer delete(xs);
@@ -133,26 +126,24 @@ Intersect_Sets_Ojb :: proc(t: ^r.Test_Context) {
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
-    sb : rt.Shapes(1);
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
 
-    xs, ok := rt.intersects(sp, ray).?;
+    xs, ok := rt.intersects(&sp, ray).?;
 
     expect(t, ok);
     expect(t, len(xs) == 2);
-    expect(t, xs[0].object == sp);
-    expect(t, xs[1].object == sp);
+    expect(t, xs[0].object == &sp);
+    expect(t, xs[1].object == &sp);
 }
 
 
 @test
 Hit_All_Positive :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
 
-    i1 := rt.intersection(1, sp);
-    i2 := rt.intersection(2, sp);
+    i1 := rt.intersection(1, &sp);
+    i2 := rt.intersection(2, &sp);
 
     xs := rt.intersections(i1, i2);
     defer delete(xs);
@@ -166,11 +157,10 @@ Hit_All_Positive :: proc(t: ^r.Test_Context) {
 @test
 Hit_Some_Negative :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
 
-    i1 := rt.intersection(-1, sp);
-    i2 := rt.intersection(1, sp);
+    i1 := rt.intersection(-1, &sp);
+    i2 := rt.intersection(1, &sp);
 
     xs := rt.intersections(i1, i2);
     defer delete(xs);
@@ -184,11 +174,10 @@ Hit_Some_Negative :: proc(t: ^r.Test_Context) {
 @test
 Hit_All_Negative :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
 
-    i1 := rt.intersection(-2, sp);
-    i2 := rt.intersection(-1, sp);
+    i1 := rt.intersection(-2, &sp);
+    i2 := rt.intersection(-1, &sp);
 
     xs := rt.intersections(i1, i2);
     defer delete(xs);
@@ -201,13 +190,12 @@ Hit_All_Negative :: proc(t: ^r.Test_Context) {
 @test
 Hit_Lowest_Non_Negative :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    sp := rt.sphere(&sb);
+    sp := rt.sphere();
 
-    i1 := rt.intersection(5, sp);
-    i2 := rt.intersection(7, sp);
-    i3 := rt.intersection(-3, sp);
-    i4 := rt.intersection(2, sp);
+    i1 := rt.intersection(5, &sp);
+    i2 := rt.intersection(7, &sp);
+    i3 := rt.intersection(-3, &sp);
+    i4 := rt.intersection(2, &sp);
 
     xs := rt.intersections(i1, i2);
 
@@ -223,11 +211,10 @@ Hit_Lowest_Non_Negative :: proc(t: ^r.Test_Context) {
 @test
 Hit_Info :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    shape := rt.sphere(&sb);
+    shape := rt.sphere();
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
-    i := rt.intersection(4, shape);
+    i := rt.intersection(4, &shape);
 
     comps := rt.hit_info(i, ray);
 
@@ -241,11 +228,10 @@ Hit_Info :: proc(t: ^r.Test_Context) {
 @test
 Hit_Info_Outside :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    shape := rt.sphere(&sb);
+    shape := rt.sphere();
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
-    i := rt.intersection(4, shape);
+    i := rt.intersection(4, &shape);
 
     comps := rt.hit_info(i, ray);
 
@@ -255,11 +241,10 @@ Hit_Info_Outside :: proc(t: ^r.Test_Context) {
 @test
 Hit_Info_Inside :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    shape := rt.sphere(&sb);
+    shape := rt.sphere();
 
     ray := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
-    i := rt.intersection(1, shape);
+    i := rt.intersection(1, &shape);
 
     comps := rt.hit_info(i, ray);
 
@@ -275,11 +260,10 @@ Hit_Info_Inside :: proc(t: ^r.Test_Context) {
 @test
 Hit_Info_Point_Offset :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    shape := rt.sphere(&sb, m.translation(0, 0, 1));
+    shape := rt.sphere(m.translation(0, 0, 1));
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
-    i := rt.intersection(5, shape);
+    i := rt.intersection(5, &shape);
 
     hit_info := rt.hit_info(i, ray);
 

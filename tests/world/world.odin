@@ -35,12 +35,17 @@ world_suite := r.Test_Suite {
 }
 
 
-default_world :: proc(sb: $T/^rt.Shapes) -> ^rt.World {
+_default_sphere_1 : rt.Sphere;
+_default_sphere_2 : rt.Sphere;
 
+default_world :: proc() -> ^rt.World {
+
+    _default_sphere_1 = rt.sphere(rt.material(color = rt.color(0.8, 1, 0.6), diffuse = 0.7, specular = 0.2));
+    _default_sphere_2 = rt.sphere(m.scaling(0.5, 0.5, 0.5));
 
     shapes : [dynamic]^rt.Shape = {
-        rt.sphere(sb, rt.material(color = rt.color(0.8, 1, 0.6), diffuse = 0.7, specular = 0.2)),
-        rt.sphere(sb, m.scaling(0.5, 0.5, 0.5)),
+        &_default_sphere_1,
+        &_default_sphere_2,
     };
 
     lights: [dynamic]rt.Point_Light = {
@@ -73,34 +78,30 @@ World_Default :: proc(t: ^r.Test_Context) {
 @test
 World_Test_Default :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(4);
-
     light := rt.point_light(m.point(-10, 10, -10), rt.color(1, 1, 1));
     mat := rt.material(color=rt.color(0.8, 1.0, 0.6), diffuse=0.7, specular=0.2);
-    s1 := rt.sphere(&sb, mat);
+    s1 := rt.sphere(mat);
     tf := m.scaling(0.5, 0.5, 0.5);
-    s2 := rt.sphere(&sb, tf);
+    s2 := rt.sphere(tf);
 
-    w := default_world(&sb);
+    w := default_world();
     defer destroy_default_world(w);
 
     expect(t, len(w.lights) == 1);
     expect(t, w.lights[0] == light);
 
     expect(t, len(w.objects) == 2);
-    expect(t, rt.eq(w.objects[0]^, s1^));
-    expect(t, rt.eq(w.objects[1]^, s2^));
+    expect(t, rt.eq(w.objects[0]^, s1));
+    expect(t, rt.eq(w.objects[1]^, s2));
 }
 
 @test
 World_Intersect_Ray :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(4);
-
     free_all(context.temp_allocator);
     context.allocator = context.temp_allocator;
 
-    w := default_world(&sb);
+    w := default_world();
     defer destroy_default_world(w);
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
@@ -117,9 +118,7 @@ World_Intersect_Ray :: proc(t: ^r.Test_Context) {
 @test
 Shade_Intersection :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(2);
-
-    w := default_world(&sb);
+    w := default_world();
     defer destroy_default_world(w);
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
@@ -135,9 +134,7 @@ Shade_Intersection :: proc(t: ^r.Test_Context) {
 @test
 Shade_Intersection_Inside :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(2);
-
-    w := default_world(&sb);
+    w := default_world();
     defer destroy_default_world(w);
 
     w.lights[0] = rt.point_light(m.point(0, 0.25, 0), rt.color(1, 1, 1));
@@ -154,9 +151,7 @@ Shade_Intersection_Inside :: proc(t: ^r.Test_Context) {
 @test
 Color_At_Miss :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(2);
-
-    w := default_world(&sb);
+    w := default_world();
     defer destroy_default_world(w);
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 1, 0));
@@ -169,9 +164,7 @@ Color_At_Miss :: proc(t: ^r.Test_Context) {
 @test
 Color_At_Hit :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(2);
-
-    w := default_world(&sb);
+    w := default_world();
     defer destroy_default_world(w);
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
@@ -184,9 +177,7 @@ Color_At_Hit :: proc(t: ^r.Test_Context) {
 @test
 Color_At_Hit_Behind :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(2);
-
-    w := default_world(&sb);
+    w := default_world();
     defer destroy_default_world(w);
 
     outer := w.objects[0];
@@ -203,9 +194,7 @@ Color_At_Hit_Behind :: proc(t: ^r.Test_Context) {
 @test
 No_Shadow_Complete_Miss :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(2);
-
-    w := default_world(&sb);
+    w := default_world();
     defer destroy_default_world(w);
 
     p := m.point(0, 10, 0);
@@ -216,9 +205,7 @@ No_Shadow_Complete_Miss :: proc(t: ^r.Test_Context) {
 @test
 Shadow_Point_Object_Light :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(2);
-
-    w := default_world(&sb);
+    w := default_world();
     defer destroy_default_world(w);
 
     p := m.point(10, -10, 10);
@@ -229,9 +216,7 @@ Shadow_Point_Object_Light :: proc(t: ^r.Test_Context) {
 @test
 Shadow_Point_Light_Object :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(2);
-
-    w := default_world(&sb);
+    w := default_world();
     defer destroy_default_world(w);
 
     p := m.point(-20, 20, -20);
@@ -242,9 +227,7 @@ Shadow_Point_Light_Object :: proc(t: ^r.Test_Context) {
 @test
 Shadow_Light_Point_Object :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(2);
-
-    w := default_world(&sb);
+    w := default_world();
     defer destroy_default_world(w);
 
     p := m.point(-2, 2, -2);
@@ -255,18 +238,16 @@ Shadow_Light_Point_Object :: proc(t: ^r.Test_Context) {
 @test
 Shade_Shadowed_Intersection :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(2);
-
-    s1 := rt.sphere(&sb);
-    s2 := rt.sphere(&sb, m.translation(0, 0, 10));
-    shapes : []^rt.Shape = { s1, s2 };
+    s1 := rt.sphere();
+    s2 := rt.sphere(m.translation(0, 0, 10));
+    shapes : []^rt.Shape = { &s1, &s2 };
 
     lights : []rt.Point_Light = { rt.point_light(m.point(0, 0, -10), rt.color(1, 1, 1)) };
 
     w := rt.world(shapes, lights);
 
     ray := m.ray(m.point(0, 0, 5), m.vector(0, 0, 1));
-    i := rt.intersection(4, s2);
+    i := rt.intersection(4, &s2);
 
     hit_info := rt.hit_info(i, ray);
 

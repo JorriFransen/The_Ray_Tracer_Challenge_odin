@@ -5,119 +5,48 @@ import m "raytracer:math"
 import "core:mem"
 
 Shape :: struct {
+    using vtable: ^Shape_VTable,
     inverse_transform: m.Matrix4,
     material: Material,
-
-    derived: union { ^Sphere, ^Plane, ^Test_Shape },
 }
 
+Shape_Normal_At_Proc :: proc(^Shape, m.Point) -> m.Vector;
+Shape_Intersects_Proc :: proc(^Shape, m.Ray) -> Maybe([2]Intersection);
+Shape_Eq_Proc :: proc(a, b: ^Shape) -> bool;
 
-Shape_Block :: struct($T: typeid, $BLOCK_SIZE: int) {
-
-    shapes: [BLOCK_SIZE]T,
-    used: int,
-
-    next: ^Shape_Block(T, BLOCK_SIZE),
+Shape_VTable :: struct {
+    normal_at: Shape_Normal_At_Proc,
+    intersects: Shape_Intersects_Proc,
+    eq: Shape_Eq_Proc,
 }
 
-Shape_Buf :: struct($T: typeid, $BLOCK_SIZE: int) {
+shape :: proc(vt: ^Shape_VTable, tf: m.Matrix4, mat: Material) -> Shape {
 
-    first_block: Shape_Block(T, BLOCK_SIZE),
-    current_block: ^Shape_Block(T, BLOCK_SIZE),
-}
+    assert(vt.normal_at != nil);
+    assert(vt.intersects != nil);
+    assert(vt.eq != nil);
 
-Shapes :: struct($N: int) {
+    tf := m.matrix_inverse(tf);
 
-    spheres: Shape_Buf(Sphere, N),
-    planes : Shape_Buf(Plane, N),
-
-    test_shapes: Shape_Buf(Test_Shape, 4),
-
-    allocator: mem.Allocator,
-}
-
-shapes :: proc($N: int, allocator := context.allocator) -> (result: Shapes(N)) {
-    result.allocator = allocator;
-    return;
-}
-
-shapes_free :: proc(s: $T/^Shapes) {
-
-    shape_buf_free(&s.spheres, s.allocator);
-    shape_buf_free(&s.test_shapes, s.allocator);
-}
-
-shape_buf_free :: proc(sb: $T/^Shape_Buf, allocator: mem.Allocator) {
-
-    // First block is embedded so skip it
-    block := sb.first_block.next;
-    for block != nil {
-
-        next := block.next;
-
-        free(block, allocator);
-
-        block = next;
-    }
-
-    sb^ = ---;
-}
-
-shape_tf_mat :: proc(shapes: $S/^Shapes sb: ^Shape_Buf($T, $BS), tf: m.Matrix4, mat: Material) -> ^T {
-
-
-    if sb.current_block == nil do sb.current_block = &sb.first_block;
-
-    if sb.current_block.used >= BS {
-        assert(shapes.allocator.procedure != nil); // Should be set when expecting growing behaviour
-        new_block := new(Shape_Block(T, BS), shapes.allocator);
-        sb.current_block.next = new_block;
-        sb.current_block = new_block;
-    }
-
-    r := &sb.current_block.shapes[sb.current_block.used];
-    sb.current_block.used += 1;
-
-    r.derived = r;
-    set_transform(r, tf);
-    set_material(r, mat);
-
-    return r;
-}
-
-shape_mat :: proc(shapes: $S/^Shapes, sb: ^Shape_Buf($T, $BS), mat: Material) -> ^T {
-    return shape_tf_mat(shapes, sb, m.matrix4_identity, mat);
-}
-
-shape_tf :: proc(shapes: $S/^Shapes, sb: ^Shape_Buf($T, $BS), tf: m.Matrix4) -> ^T {
-    return shape_tf_mat(shapes, sb, tf, default_material);
-}
-
-shape_default :: proc(shapes: $S/^Shapes, sb: ^Shape_Buf($T, $BS)) -> ^T {
-    return shape_tf_mat(shapes, sb, m.matrix4_identity, material());
-}
-
-shape :: proc {
-    shape_tf_mat,
-    shape_mat,
-    shape_tf,
-    shape_default,
+    return Shape { vt, tf, mat };
 }
 
 shape_eq :: proc(a, b: Shape) -> bool {
 
-    if type_of(a.derived) != type_of(b.derived) do return false;
+
+    if a.vtable != b.vtable do return false;
     if a.material != b.material do return false;
     if !eq(a.inverse_transform, b.inverse_transform) do return false;
 
-    switch k in a.derived {
-        case ^Sphere: return true;
-        case ^Plane: assert(false);
-        case ^Test_Shape: assert(false);
-    }
+    assert(a.vtable.eq != nil);
 
-    assert(false);
-    return false;
+    a := a;
+    b := b;
+
+    pa := &a;
+    pb := &b;
+
+    return pa->eq(pb);
 }
 
 set_transform :: proc(s: ^Shape, new_tf: m.Matrix4) {
@@ -128,16 +57,13 @@ set_material :: proc(s: ^Shape, mat: Material) {
     s.material = mat;
 }
 
-normal_at :: proc(s: ^Shape, p: m.Point) -> m.Vector {
+shape_normal_at :: proc(s: ^Shape, p: m.Point) -> m.Vector {
+
+    assert(s.vtable.normal_at != nil);
 
     obj_p := s.inverse_transform * p;
-    obj_n : m.Vector;
 
-    switch k in s.derived {
-        case ^Sphere: obj_n = sphere_normal_at(k, obj_p);
-        case ^Plane: obj_n = plane_normal_at(k, obj_p);
-        case ^Test_Shape: obj_n = test_shape_normal_at(k, obj_p);
-    }
+    obj_n := s->normal_at(obj_p);
 
     world_n := m.matrix4_transpose(s.inverse_transform) * obj_n;
     world_n.w = 0;

@@ -91,9 +91,7 @@ Ray_Transformed_Cam :: proc(t: ^r.Test_Context) {
 Render_Default_World :: proc(t: ^r.Test_Context) {
     tc := transmute(^r.Test_Context)t;
 
-    sb : rt.Shapes(2);
-
-    world := default_world(&sb);
+    world := default_world();
     defer destroy_default_world(world);
 
     from := m.point(0, 0, -5);
@@ -113,7 +111,10 @@ Render_Default_World :: proc(t: ^r.Test_Context) {
 
         if tc.assert_fail_count != old_fail_count do return;
 
-        expect(t, eq(rt.canvas_get_pixel(image, 5, 5), rt.color(0.38066, 0.47583, 0.2855)));
+        expected := rt.color(0.38066, 0.47583, 0.2855);
+        result := rt.canvas_get_pixel(image, 5, 5);
+
+        expect(t, eq(result, expected));
     }
 
     {

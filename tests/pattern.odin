@@ -72,11 +72,10 @@ Stripe_Alternates_X :: proc(t: ^r.Test_Context) {
 @test
 Stripe_Object_Transform :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    object := rt.sphere(&sb, m.scaling(2, 2, 2));
+    object := rt.sphere(m.scaling(2, 2, 2));
     pattern := rt.stripe_pattern(rt.WHITE, rt.BLACK);
 
-    c := rt.pattern_at_shape(&pattern, object, m.point(1.5, 0, 0));
+    c := rt.pattern_at_shape(&pattern, &object, m.point(1.5, 0, 0));
 
     expect(t, eq(c, rt.WHITE));
 }
@@ -84,14 +83,13 @@ Stripe_Object_Transform :: proc(t: ^r.Test_Context) {
 @test
 Stripe_Pattern_Transform :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    object := rt.sphere(&sb);
+    object := rt.sphere();
 
     {
         pattern := rt.stripe_pattern(rt.WHITE, rt.BLACK);
         rt.set_pattern_transform(&pattern, m.scaling(2, 2, 2));
 
-        c := rt.pattern_at_shape(&pattern, object, m.point(1.5, 0, 0));
+        c := rt.pattern_at_shape(&pattern, &object, m.point(1.5, 0, 0));
 
         expect(t, eq(c, rt.WHITE));
     }
@@ -99,7 +97,7 @@ Stripe_Pattern_Transform :: proc(t: ^r.Test_Context) {
     {
         pattern := rt.stripe_pattern(rt.WHITE, rt.BLACK, m.scaling(2, 2, 2));
 
-        c := rt.pattern_at_shape(&pattern, object, m.point(1.5, 0, 0));
+        c := rt.pattern_at_shape(&pattern, &object, m.point(1.5, 0, 0));
 
         expect(t, eq(c, rt.WHITE));
     }
@@ -108,13 +106,12 @@ Stripe_Pattern_Transform :: proc(t: ^r.Test_Context) {
 @test
 Stripe_Object_Pattern_Transform :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    object := rt.sphere(&sb, m.scaling(2, 2, 2));
+    object := rt.sphere(m.scaling(2, 2, 2));
 
     pattern := rt.stripe_pattern(rt.WHITE, rt.BLACK);
     rt.set_pattern_transform(&pattern, m.translation(0.5, 0, 0));
 
-    c := rt.pattern_at_shape(&pattern, object, m.point(2.5, 0, 0));
+    c := rt.pattern_at_shape(&pattern, &object, m.point(2.5, 0, 0));
 
     expect(t, eq(c, rt.WHITE));
 }
@@ -139,11 +136,10 @@ Assigned_Transformation :: proc(t: ^r.Test_Context) {
 @test
 Object_Transform :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    shape := rt.sphere(&sb, m.scaling(2, 2, 2));
+    shape := rt.sphere(m.scaling(2, 2, 2));
     pattern := rt.test_pattern();
 
-    c := rt.pattern_at_shape(&pattern, shape, m.point(2, 3, 4));
+    c := rt.pattern_at_shape(&pattern, &shape, m.point(2, 3, 4));
 
     expect(t, eq(c, rt.color(1, 1.5, 2)));
 }
@@ -151,12 +147,11 @@ Object_Transform :: proc(t: ^r.Test_Context) {
 @test
 Pattern_Transform :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    shape := rt.sphere(&sb);
+    shape := rt.sphere();
     pattern := rt.test_pattern();
     rt.set_pattern_transform(&pattern, m.scaling(2, 2, 2));
 
-    c := rt.pattern_at_shape(&pattern, shape, m.point(2, 3, 4));
+    c := rt.pattern_at_shape(&pattern, &shape, m.point(2, 3, 4));
 
     expect(t, eq(c, rt.color(1, 1.5, 2)));
 }
@@ -164,12 +159,11 @@ Pattern_Transform :: proc(t: ^r.Test_Context) {
 @test
 Object_Pattern_Transform :: proc(t: ^r.Test_Context) {
 
-    sb : rt.Shapes(1);
-    shape := rt.sphere(&sb, m.scaling(2, 2, 2));
+    shape := rt.sphere(m.scaling(2, 2, 2));
     pattern := rt.test_pattern();
     rt.set_pattern_transform(&pattern, m.translation(0.5, 1, 1.5));
 
-    c := rt.pattern_at_shape(&pattern, shape, m.point(2.5, 3, 3.5));
+    c := rt.pattern_at_shape(&pattern, &shape, m.point(2.5, 3, 3.5));
 
     expect(t, eq(c, rt.color(0.75, 0.5, 0.25)));
 }

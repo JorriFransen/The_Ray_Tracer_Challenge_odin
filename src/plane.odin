@@ -6,38 +6,46 @@ Plane :: struct {
     using shape: Shape,
 }
 
-plane_default :: proc(sb: $T/^Shapes) -> ^Plane {
-    return shape(sb, &sb.planes, m.matrix4_identity, material());
+plane_tf_mat :: proc(tf: m.Matrix4, mat: Material) -> Plane {
+    return Plane { shape(_plane_vtable, tf, mat) };
 }
 
-plane_tf_mat :: proc(sb: $t/^Shapes, tf: m.Matrix4, mat: Material) -> ^Plane {
-    return shape(sb, &sb.planes, tf, mat);
+plane_mat :: proc(mat: Material) -> Plane {
+    return plane_tf_mat(m.matrix4_identity, mat);
 }
 
-plane_tf :: proc(sb: $t/^Shapes, tf: m.Matrix4) -> ^Plane {
-    return shape(sb, &sb.planes, tf, default_material);
+plane_tf :: proc(tf: m.Matrix4) -> Plane {
+    return plane_tf_mat(tf, material());
 }
 
-plane_mat :: proc(sb: $t/^Shapes, mat: Material) -> ^Plane {
-    return shape(sb, &sb.planes, m.matrix4_identity, mat);
+plane_default :: proc() -> Plane {
+    return plane_tf_mat(m.matrix4_identity, material());
 }
 
 plane :: proc {
-    plane_default,
     plane_tf_mat,
     plane_tf,
     plane_mat,
+    plane_default,
 }
 
-plane_normal_at :: proc(plane: ^Plane, p: m.Point) -> m.Vector {
-    return m.vector(0, 1, 0);
-}
+@(private="file")
+_plane_vtable := &Shape_VTable {
 
-plane_intersects_ray :: proc(p: ^Plane, r: m.Ray) -> Maybe(Intersection) {
+    normal_at = proc(s: ^Shape, p: m.Point) -> m.Vector {
+        return m.vector(0, 1, 0);
+    },
 
-    if abs(r.direction.y) < m.FLOAT_EPSILON do return nil;
+    intersects = proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
+        if abs(r.direction.y) < m.FLOAT_EPSILON do return nil;
 
-    t := -r.origin.y / r.direction.y;
+        t := -r.origin.y / r.direction.y;
 
-    return intersection(t, p);
-}
+        i := intersection(t, s);
+        return [2]Intersection { i, i };
+    },
+
+    eq = proc(a, b: ^Shape) -> bool { assert(false); return true; }
+
+};
+

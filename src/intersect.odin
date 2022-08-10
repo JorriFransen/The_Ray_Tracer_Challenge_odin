@@ -46,7 +46,7 @@ hit_info :: proc(i: Intersection, r: m.Ray) -> Hit_Info {
     point := m.ray_position(r, i.t);
 
     eye_v := m.negate(r.direction);
-    normal_v := normal_at(obj, point);
+    normal_v := shape_normal_at(obj, point);
 
     inside := false;
     if m.dot(normal_v, eye_v) < 0 {
@@ -87,19 +87,9 @@ hit :: proc(xs: []Intersection) -> Maybe(Intersection) {
 
 intersects :: proc(shape: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
+    assert(shape.vtable.intersects != nil);
+
     r := m.ray_transform(r, shape.inverse_transform);
 
-    switch k in shape.derived {
-        case ^Sphere: return sphere_intersect_ray(k, r);
-
-        case ^Plane:
-            if i, ok := plane_intersects_ray(k, r).?; ok {
-                return [2]Intersection { i, i };
-            } else do return nil;
-
-        case ^Test_Shape: return test_shape_intersects(k, r);
-    }
-
-    assert(false);
-    return nil;
+    return shape->intersects(r);
 }

@@ -31,15 +31,14 @@ Ligting_With_Pattern :: proc(t: ^r.Test_Context) {
     mat := rt.material(ambient=1, diffuse=0, specular=0);
     mat.pattern = rt.stripe_pattern(rt.WHITE, rt.BLACK);
 
-    sb: rt.Shapes(1);
-    obj := rt.sphere(&sb, mat);
+    obj := rt.sphere(mat);
 
     eye_v := m.vector(0, 0, -1);
     normal_v := m.vector(0, 0, -1);
     light := rt.point_light(m.point(0, 0, -10), rt.WHITE);
 
-    c1 := rt.lighting(obj, light, m.point(0.9, 0, 0), eye_v, normal_v, false);
-    c2 := rt.lighting(obj, light, m.point(1.1, 0, 0), eye_v, normal_v, false);
+    c1 := rt.lighting(&obj, light, m.point(0.9, 0, 0), eye_v, normal_v, false);
+    c2 := rt.lighting(&obj, light, m.point(1.1, 0, 0), eye_v, normal_v, false);
 
     expect(t, eq(c1, rt.WHITE));
     expect(t, eq(c2, rt.BLACK));
