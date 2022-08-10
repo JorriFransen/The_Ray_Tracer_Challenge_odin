@@ -53,3 +53,11 @@ stripe_pattern :: proc(a, b: Color, tf := m.matrix4_identity) -> Pattern {
     return pattern(stripe_at, a, b, tf);
 }
 
+gradient_pattern :: proc(a, b: Color, tf := m.matrix4_identity) -> Pattern {
+
+    gradient_at :: proc(pat: ^Pattern, p: m.Point) -> Color {
+        return add(pat.a, mul(sub(pat.b, pat.a), p.x - math.floor(p.x)));
+    }
+
+    return pattern(gradient_at, a, b, tf);
+}

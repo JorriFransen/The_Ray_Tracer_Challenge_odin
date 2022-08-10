@@ -19,6 +19,7 @@ pattern_suite := r.Test_Suite {
         r.test("Object_Transform", Object_Transform),
         r.test("Pattern_Transform", Pattern_Transform),
         r.test("Object_Pattern_Transform", Object_Pattern_Transform),
+        r.test("Gradient_Is_Linear", Gradient_Is_Linear),
     },
 }
 
@@ -167,4 +168,15 @@ Object_Pattern_Transform :: proc(t: ^r.Test_Context) {
     c := rt.pattern_at_shape(&pattern, shape, m.point(2.5, 3, 3.5));
 
     expect(t, eq(c, rt.color(0.75, 0.5, 0.25)));
+}
+
+@test
+Gradient_Is_Linear :: proc(t: ^r.Test_Context) {
+
+    pattern := rt.gradient_pattern(rt.WHITE, rt.BLACK);
+
+    expect(t, eq(pattern->pattern_at(m.point(0, 0, 0)), rt.WHITE));
+    expect(t, eq(pattern->pattern_at(m.point(0.25, 0, 0)), rt.color(0.75, 0.75, 0.75)));
+    expect(t, eq(pattern->pattern_at(m.point(0.5, 0, 0)), rt.color(0.5, 0.5, 0.5)));
+    expect(t, eq(pattern->pattern_at(m.point(.75, 0, 0)), rt.color(0.25, 0.25, 0.25)));
 }
