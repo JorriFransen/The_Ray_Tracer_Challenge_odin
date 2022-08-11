@@ -41,10 +41,9 @@ intersect_world :: proc(w: ^World, r: m.Ray, allocator := context.allocator) -> 
 shade_hit :: proc(w: ^World, hi: Hit_Info, shadows := true) -> (result: Color) {
     assert(len(w.lights) > 0);
 
-
     for l in &w.lights {
         is_shadowed :=  shadows && is_shadowed(w, hi.over_point, &l);
-        result += lighting(hi.object, l, hi.point, hi.eye_v, hi.normal_v, is_shadowed)
+        result += lighting(hi.object, l, hi.over_point, hi.eye_v, hi.normal_v, is_shadowed)
     }
 
     return;

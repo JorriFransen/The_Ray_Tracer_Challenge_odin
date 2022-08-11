@@ -77,7 +77,11 @@ checkers_pattern :: proc(a, b: Color, tf := m.matrix4_identity) -> Pattern {
 
     checkers_at :: proc(pat: ^Pattern, p: m.Point) -> Color {
 
-        if int(abs(p.x) + abs(p.y) + abs(p.z)) % 2 == 0 do return pat.a;
+        fx := math.floor(f64(p.x));
+        fy := math.floor(f64(p.y));
+        fz := math.floor(f64(p.z));
+
+        if int(fx + fy + fz) % 2 == 0 do return pat.a;
         return pat.b;
     }
 
