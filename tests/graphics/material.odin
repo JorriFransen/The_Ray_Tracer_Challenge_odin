@@ -29,7 +29,8 @@ Material_Constructor_Default :: proc(t: ^r.Test_Context) {
 Ligting_With_Pattern :: proc(t: ^r.Test_Context) {
 
     mat := rt.material(ambient=1, diffuse=0, specular=0);
-    mat.pattern = rt.stripe_pattern(rt.WHITE, rt.BLACK);
+    pattern := rt.stripe_pattern(rt.WHITE, rt.BLACK);
+    mat.pattern = &pattern;
 
     obj := rt.sphere(mat);
 

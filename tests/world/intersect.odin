@@ -267,6 +267,6 @@ Hit_Info_Point_Offset :: proc(t: ^r.Test_Context) {
 
     hit_info := rt.hit_info(i, ray);
 
-    expect(t, hit_info.over_point.z < -m.OVER_POINT_EPSILON / 2);
+    expect(t, hit_info.over_point.z < -m.FLOAT_EPSILON / 2);
     expect(t, hit_info.point.z > hit_info.over_point.z);
 }

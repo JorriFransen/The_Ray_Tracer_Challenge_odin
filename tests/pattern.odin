@@ -32,8 +32,8 @@ Construct_Stripe :: proc(t: ^r.Test_Context) {
 
     pattern := rt.stripe_pattern(rt.WHITE, rt.BLACK);
 
-    expect(t, eq(pattern.a, rt.WHITE));
-    expect(t, eq(pattern.b, rt.BLACK));
+    expect(t, pattern.a == rt.WHITE);
+    expect(t, pattern.b == rt.BLACK);
 }
 
 @test

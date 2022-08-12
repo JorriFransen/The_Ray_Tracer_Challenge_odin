@@ -10,7 +10,7 @@ Material :: struct {
     specular,
     shininess: m.real,
 
-    pattern: Maybe(Pattern),
+    pattern: ^Pattern,
 }
 
 @(private="file")

@@ -15,6 +15,8 @@ display :: proc(c: Canvas, title: cstring) {
 
     rl.SetConfigFlags({ .WINDOW_RESIZABLE });
 
+    rl.SetTargetFPS(30);
+
     rl.InitWindow(width, height, title);
     defer rl.CloseWindow();
 

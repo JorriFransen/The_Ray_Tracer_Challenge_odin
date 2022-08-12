@@ -54,7 +54,7 @@ hit_info :: proc(i: Intersection, r: m.Ray) -> Hit_Info {
         normal_v = m.negate(normal_v);
     }
 
-    offset := mul(normal_v, m.OVER_POINT_EPSILON);
+    offset := mul(normal_v, m.FLOAT_EPSILON);
     over_point := m.add(point, offset);
     over_point.w = 1.0;
 

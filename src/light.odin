@@ -18,8 +18,8 @@ lighting :: proc(obj: ^Shape, l: Point_Light, p: m.Point, eye_v: m.Vector, norma
     mat := obj.material;
 
     color := mat.color;
-    if pat,ok := mat.pattern.?; ok {
-        color = pattern_at_shape(&pat, obj, p);
+    if mat.pattern != nil {
+        color = pattern_at_shape(mat.pattern, obj, p);
     }
 
     effective_color := color * l.intensity;
