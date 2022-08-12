@@ -1,6 +1,7 @@
 package raytracer
 
 import "core:math"
+import "core:math/rand"
 
 import m "raytracer:math"
 
@@ -23,8 +24,29 @@ Nested_Pattern :: struct {
     a, b: ^Pattern,
 }
 
+Pattern_Blend_Mode :: enum {
+    Normal, // This relies on the alpha of the colors being set (they are not by default).
+    Average,
+    Dissolve,
+    Multiply,
+    Screen,
+    Overlay,
+    Hard_Light,
+    Soft_Light,
+}
+
+Blended_Pattern :: struct {
+    using pattern: Pattern,
+    a, b: ^Pattern,
+    mode: Pattern_Blend_Mode,
+}
+
 pattern_base :: proc(pa_proc: Pattern_At_Proc, tf: m.Matrix4, base_type: typeid) -> (r: Pattern) {
-    assert(base_type == Nested_Pattern || base_type == Color_Pattern);
+
+    assert(base_type == Nested_Pattern ||
+           base_type == Color_Pattern ||
+           base_type == Blended_Pattern);
+
     set_pattern_transform(&r, tf);
     r.pattern_at = pa_proc;
     r.base_typeid = base_type;
@@ -49,6 +71,59 @@ pattern :: proc {
     pattern_base,
     pattern_nested,
     pattern_color,
+}
+
+@(private="file")
+blend_at :: proc(pat: ^Pattern, p: m.Point) -> Color {
+
+    assert(pat.base_typeid == Blended_Pattern);
+    bp := transmute(^Blended_Pattern)pat;
+
+    ca := pattern_at(bp.a, p);
+    cb := pattern_at(bp.b, p);
+
+    switch bp.mode {
+        case .Normal:
+            if eq(cb.a, 0) do return ca;
+            return ca + (cb * cb.a);
+
+        case .Average: return (ca + cb) / 2;
+
+        case .Dissolve:
+            if rand.uint32() % 2 == 0 do return ca;
+            return cb;
+
+        case .Multiply: return ca * cb;
+
+        case .Screen: return 1 - ((1 - ca) * (1 - cb));
+
+        case .Overlay:
+            avg := (ca.r + ca.g + ca.b) / 3;
+
+            if avg < 0.5 do return 2 * ca * cb;
+            return 1 - (2 * (1 - ca) * (1 - cb));
+
+        case .Hard_Light:
+            avg := (ca.r + ca.g + ca.b) / 3;
+
+            if avg >= 0.5 do return 2 * ca * cb;
+            return 1 - (2 * (1 - ca) * (1 - cb));
+
+        case .Soft_Light:
+            return (1 - (2 * cb)) * ca * ca + (2 * cb * ca);
+
+    }
+
+    assert(false);
+    return BLACK;
+}
+
+blended_pattern :: proc(a, b: ^Pattern, mode := Pattern_Blend_Mode.Average) -> (r: Blended_Pattern) {
+    r.pattern = pattern(blend_at, m.matrix4_identity, Blended_Pattern);
+    r.a = a;
+    r.b = b;
+    r.mode = mode;
+    return;
 }
 
 set_pattern_transform :: proc(pat: ^Pattern, tf: m.Matrix4) {

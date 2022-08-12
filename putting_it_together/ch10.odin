@@ -91,3 +91,46 @@ CH10_2 :: proc(c: rt.Canvas) {
         panic("Failed to write ppm file...");
     }
 }
+
+CH10_3 :: proc(c: rt.Canvas) {
+    c := c;
+    fmt.println("Putting it together for chapter 10.3");
+
+
+    floor_mat := rt.material(color=rt.color(.9, .9, .9), specular=0);
+    stripe_scale := m.scaling(0.5, 0.5, 0.5);
+
+    stripe_white := rt.WHITE;
+    stripe_white.a = 0.5;
+    stripe_green := rt.color(0.2, .5, 0.2);
+    stripe_green.a = 0.5;
+
+    stripes1 := rt.stripe_pattern(stripe_white, stripe_green, stripe_scale * m.rotation_y(PI / 4));
+    stripes2 := rt.stripe_pattern(stripe_white, stripe_green, stripe_scale * m.rotation_y(-PI / 4));
+
+    stripes_blend := rt.blended_pattern(&stripes1, &stripes2, .Average);
+
+    floor_mat.pattern = &stripes_blend;
+
+    floor := rt.plane(floor_mat);
+    shapes := []^rt.Shape { &floor };
+
+    lights := []rt.Point_Light {
+        rt.point_light(m.point(0, 10, -10), rt.WHITE),
+    };
+
+    world := rt.world(shapes, lights);
+
+    view_transform := m.view_transform(m.point(0, 1.5, -5), m.point(0, 1, 0), m.vector(0, 1, 0));
+    camera := rt.camera(c.width, c.height, PI / 3, view_transform)
+
+    rt.render(&c, &camera, &world);
+
+    ppm := rt.ppm_from_canvas(c);
+    defer delete(ppm);
+
+    ok := rt.ppm_write_to_file("images/putting_it_together_ch10.3.ppm", ppm);
+    if !ok {
+        panic("Failed to write ppm file...");
+    }
+}
