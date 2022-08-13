@@ -38,10 +38,12 @@ Test_Context :: struct {
     stdout_writer: io.Writer,
 
     print_color: bool,
+    test_prefix: string,
 }
 
 Test_Options :: struct {
     print_color: bool,
+    test_prefix: string,
 }
 
 test :: proc (name: string, test_fn: Test_Signature, setup_fn: Setup_Test_Signature = nil, teardown_fn: Setup_Test_Signature = nil) -> Test {
@@ -65,6 +67,7 @@ test_context :: proc(s: ^Test_Suite, options: Test_Options) -> Test_Context {
         test_writer = {},
         stdout_writer = io.to_writer(os.stream_from_handle(os.stdout)),
         print_color = options.print_color,
+        test_prefix = options.test_prefix,
     };
 }
 
@@ -88,14 +91,21 @@ execute_test_suite_s :: proc(s: ^Test_Suite, options: Test_Options) -> bool {
 
 execute_test_suite_csp :: proc(c: ^Test_Context, s: ^Test_Suite, prefix: string = "") -> bool {
 
-    c.total_test_count += len(s.tests);
-
     current_prefix := strings.concatenate({prefix, s.name});
     defer delete(current_prefix);
+
+    if len(current_prefix) > 0 {
+        min_len := min(len(current_prefix), len(c.test_prefix));
+
+        if current_prefix[:min_len] != c.test_prefix[:min_len] {
+            return true;
+        }
+    }
 
     tests_ok := true;
 
     for t in &s.tests {
+
 
         if s.setup != nil do s.setup(c);
 
@@ -120,16 +130,27 @@ execute_test_suite :: proc {
 
 execute_test :: proc(c: ^Test_Context, test: ^Test, prefix: string = "") -> bool {
 
+    current_prefix := strings.concatenate({prefix, test.name});
+    defer delete(current_prefix);
+
+    if len(current_prefix) > 0 {
+        min_len := min(len(current_prefix), len(c.test_prefix));
+
+        if current_prefix[:min_len] != c.test_prefix[:min_len] {
+            return true;
+        }
+    }
+
     fd := tmpfile();
     defer os.close(fd);
 
     tmpstream := os.stream_from_handle(fd);
     w := io.to_writer(tmpstream);
 
-
     c.test_writer = w;
     old_fail_count := c.assert_fail_count;
 
+    c.total_test_count += 1;
 
     if test.setup != nil do test.setup(c);
 
