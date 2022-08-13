@@ -1,5 +1,7 @@
 package tests_world
 
+import "core:math"
+
 import rt "raytracer:."
 import m "raytracer:math"
 import r "raytracer:test_runner"
@@ -24,6 +26,7 @@ intersect_suite := r.Test_Suite {
         r.test("Hit_Info_Outside", Hit_Info_Outside),
         r.test("Hit_Info_Inside", Hit_Info_Inside),
         r.test("Hit_Info_Point_Offset", Hit_Info_Point_Offset),
+        r.test("Hit_Info_Reflection", Hit_Info_Reflection),
     },
 }
 
@@ -269,4 +272,20 @@ Hit_Info_Point_Offset :: proc(t: ^r.Test_Context) {
 
     expect(t, hit_info.over_point.z < -m.FLOAT_EPSILON / 2);
     expect(t, hit_info.point.z > hit_info.over_point.z);
+}
+
+@test
+Hit_Info_Reflection :: proc(t: ^r.Test_Context) {
+
+    shape := rt.plane();
+
+    sqrt_2 := math.sqrt(m.real(2));
+    sqrt_2_d2 := sqrt_2 / 2.0;
+
+    r := m.ray(m.point(0, 1, -1), m.vector(0, -sqrt_2_d2, sqrt_2_d2));
+    i := rt.intersection(sqrt_2, &shape);
+
+    comps := rt.hit_info(i, r);
+
+    expect(t, eq(comps.reflect_v, m.vector(0, sqrt_2_d2, sqrt_2_d2)));
 }

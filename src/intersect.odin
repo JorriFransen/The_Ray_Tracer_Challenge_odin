@@ -16,6 +16,7 @@ Hit_Info :: struct {
     over_point: m.Point,
     eye_v: m.Vector,
     normal_v: m.Vector,
+    reflect_v: m.Vector,
 
     inside: bool,
 }
@@ -45,8 +46,11 @@ hit_info :: proc(i: Intersection, r: m.Ray) -> Hit_Info {
     obj := i.object;
     point := m.ray_position(r, i.t);
 
+
     eye_v := m.negate(r.direction);
     normal_v := shape_normal_at(obj, point);
+
+    reflect_v := m.reflect(r.direction, normal_v);
 
     inside := false;
     if m.dot(normal_v, eye_v) < 0 {
@@ -67,6 +71,7 @@ hit_info :: proc(i: Intersection, r: m.Ray) -> Hit_Info {
         over_point = over_point,
         eye_v = eye_v,
         normal_v = normal_v,
+        reflect_v = reflect_v,
         inside = inside,
     };
 }

@@ -52,3 +52,13 @@ lighting :: proc(obj: ^Shape, l: Point_Light, p: m.Point, eye_v: m.Vector, norma
     if in_shadow do return ambient;
     return ambient + diffuse + specular;
 }
+
+reflected_color :: proc(w: ^World, hit: ^Hit_Info) -> Color {
+    
+    if hit.object.material.reflective == 0 do return BLACK;
+
+    reflect_ray := m.ray(hit.over_point, hit.reflect_v);
+    color := color_at(w, reflect_ray);
+
+    return color * hit.object.material.reflective;
+}

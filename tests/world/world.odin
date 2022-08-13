@@ -1,6 +1,7 @@
 package tests_world
 
 import "core:slice"
+import "core:math"
 
 import rt "raytracer:."
 import m "raytracer:math"
@@ -25,6 +26,8 @@ world_suite := r.Test_Suite {
         r.test("Shadow_Point_Light_Object", Shadow_Point_Light_Object),
         r.test("Shadow_Light_Point_Object", Shadow_Light_Point_Object),
         r.test("Shade_Shadowed_Intersection", Shade_Shadowed_Intersection),
+        r.test("Reflected_Color_Non_Reflective_Material", Reflected_Color_Non_Reflective_Material),
+        r.test("Reflected_Color_Reflective_Material", Reflected_Color_Reflective_Material),
     },
 
     child_suites = {
@@ -254,4 +257,47 @@ Shade_Shadowed_Intersection :: proc(t: ^r.Test_Context) {
     c := rt.shade_hit(&w, hit_info);
 
     expect(t, eq(c, rt.color(0.1, 0.1, 0.1)));
+}
+
+@test
+Reflected_Color_Non_Reflective_Material :: proc(t: ^r.Test_Context) {
+
+    w := default_world();
+    defer destroy_default_world(w);
+
+    r := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
+    shape := w.objects[1];
+    shape.material.ambient = 1;
+    i := rt.intersection(1, shape);
+
+    comps := rt.hit_info(i, r);
+    color := rt.reflected_color(w, &comps);
+
+    expect(t, eq(color, rt.BLACK));
+}
+
+@test
+Reflected_Color_Reflective_Material :: proc(t: ^r.Test_Context) {
+
+    w := default_world();
+    defer destroy_default_world(w);
+
+    shape := rt.plane(m.translation(0, -1, 0), rt.material(reflective=0.5));
+
+    new_objects := []^rt.Shape { w.objects[0], w.objects[1], &shape };
+    old_objects := w.objects;
+    w.objects = new_objects;
+    defer w.objects = old_objects;
+
+    sqrt2 := math.sqrt(m.real(2));
+    sqrt2_d2 := sqrt2 / 2.0;
+    r := m.ray(m.point(0, 0, -3), m.vector(0, -sqrt2_d2, sqrt2_d2));
+    i := rt.intersection(sqrt2, &shape);
+
+    comps := rt.hit_info(i, r);
+    color := rt.reflected_color(w, &comps);
+
+    expect(t, eq(color, rt.color(0.19033, 0.23791, 0.14274)));
+
+
 }
