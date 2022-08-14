@@ -3,8 +3,8 @@ ODIN=odin
 ODINFLAGS := -debug
 COLLECTION_FLAGS := -collection:raytracer=src
 
-# default: test
-default: putting_it_together
+default: test
+# default: putting_it_together
 
 all: raytracer odin_test custom_test putting_it_together
 
@@ -26,7 +26,7 @@ test: custom_test
 
 custom_test: builddir
 	$(ODIN) build tests -out:build/tests.bin $(COLLECTION_FLAGS) $(ODINFLAGS)
-	build/tests.bin $(ODINTEST_FLAGS)
+	build/tests.bin $(ODINTEST_FLAGS) Simplex
 
 
 builddir:

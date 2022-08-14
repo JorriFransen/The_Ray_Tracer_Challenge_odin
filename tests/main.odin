@@ -22,6 +22,7 @@ main_suite := r.Test_Suite {
         &graphics_tests.graphics_suite,
         &world_tests.world_suite,
         &pattern_suite,
+        &noise_suite,
     },
 }
 
@@ -67,7 +68,6 @@ loop:
             case:
                 if arg[0] == '-' do break loop;
                 if prefix_set do break loop;
-                fmt.printf("Prefix: '%s'\n", arg);
                 result.test_prefix = arg;
                 prefix_set = true;
                 break;
