@@ -18,7 +18,7 @@ color_suite := r.Test_Suite {
 }
 
 @test
-Co_Constructor :: proc(t: ^r.T) {
+Co_Constructor :: proc(t: ^r.Test_Context) {
 
     c := g.color(-0.5, 0.4, 1.7);
 
@@ -33,7 +33,7 @@ Co_Constructor :: proc(t: ^r.T) {
 }
 
 @test
-Co_Layout_Matches_Tuple :: proc(t: ^r.T) {
+Co_Layout_Matches_Tuple :: proc(t: ^r.Test_Context) {
 
     c := g.color(-0.5, 0.4, 1.7);
 
@@ -45,7 +45,7 @@ Co_Layout_Matches_Tuple :: proc(t: ^r.T) {
 }
 
 @test
-Co_Add :: proc(t: ^r.T) {
+Co_Add :: proc(t: ^r.Test_Context) {
 
     c1 := g.color(0.9, 0.6, 0.75);
     c2 := g.color(0.7, 0.1, 0.25);
@@ -57,7 +57,7 @@ Co_Add :: proc(t: ^r.T) {
 }
 
 @test
-Co_Sub :: proc(t: ^r.T) {
+Co_Sub :: proc(t: ^r.Test_Context) {
 
     c1 := g.color(0.9, 0.6, 0.75);
     c2 := g.color(0.7, 0.1, 0.25);
@@ -69,7 +69,7 @@ Co_Sub :: proc(t: ^r.T) {
 }
 
 @test
-Co_Mul_Scalar :: proc(t: ^r.T) {
+Co_Mul_Scalar :: proc(t: ^r.Test_Context) {
 
     c := g.color(0.2, 0.3, 0.4);
 
@@ -80,7 +80,7 @@ Co_Mul_Scalar :: proc(t: ^r.T) {
 }
 
 @test
-Co_Mul :: proc(t: ^r.T) {
+Co_Mul :: proc(t: ^r.Test_Context) {
 
     c1 := g.color(1.0, 0.2, 0.4);
     c2 := g.color(0.9, 1, 0.1);

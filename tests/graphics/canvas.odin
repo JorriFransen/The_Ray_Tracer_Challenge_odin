@@ -21,7 +21,7 @@ canvas_suite := r.Test_Suite {
 }
 
 @test
-Ca_Constructor :: proc(t: ^r.T) {
+Ca_Constructor :: proc(t: ^r.Test_Context) {
 
     free_all(context.temp_allocator);
     context.allocator = context.temp_allocator;
@@ -44,7 +44,7 @@ Ca_Constructor :: proc(t: ^r.T) {
 
 
 @test
-Ca_Write_Pixel :: proc(t: ^r.T) {
+Ca_Write_Pixel :: proc(t: ^r.Test_Context) {
 
     free_all(context.temp_allocator);
     context.allocator = context.temp_allocator;
@@ -60,7 +60,7 @@ Ca_Write_Pixel :: proc(t: ^r.T) {
 }
 
 @test
-Ca_PPM_Header :: proc(t: ^r.T) {
+Ca_PPM_Header :: proc(t: ^r.Test_Context) {
 
     free_all(context.temp_allocator);
     context.allocator = context.temp_allocator;
@@ -78,7 +78,7 @@ Ca_PPM_Header :: proc(t: ^r.T) {
 }
 
 @test
-Ca_PPM_Pixel_Data_Construction :: proc(t: ^r.T) {
+Ca_PPM_Pixel_Data_Construction :: proc(t: ^r.Test_Context) {
 
     free_all(context.temp_allocator);
     context.allocator = context.temp_allocator;
@@ -111,7 +111,7 @@ Ca_PPM_Pixel_Data_Construction :: proc(t: ^r.T) {
 }
 
 @test
-Ca_Clear :: proc(t: ^r.T) {
+Ca_Clear :: proc(t: ^r.Test_Context) {
 
     free_all(context.temp_allocator);
     context.allocator = context.temp_allocator;
@@ -145,7 +145,7 @@ Ca_Clear :: proc(t: ^r.T) {
 }
 
 @test
-Ca_PPM_Line_Splitting :: proc(t: ^r.T) {
+Ca_PPM_Line_Splitting :: proc(t: ^r.Test_Context) {
 
     free_all(context.temp_allocator);
     context.allocator = context.temp_allocator;
@@ -174,7 +174,7 @@ Ca_PPM_Line_Splitting :: proc(t: ^r.T) {
 }
 
 @test
-Ca_PPM_Ends_With_Newline :: proc(t: ^r.T) {
+Ca_PPM_Ends_With_Newline :: proc(t: ^r.Test_Context) {
 
     free_all(context.temp_allocator);
     context.allocator = context.temp_allocator;

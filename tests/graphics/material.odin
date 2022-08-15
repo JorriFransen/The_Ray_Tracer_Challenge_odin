@@ -13,7 +13,7 @@ material_suite := r.Test_Suite {
 }
 
 @test
-Material_Constructor_Default :: proc(t: ^r.T) {
+Material_Constructor_Default :: proc(t: ^r.Test_Context) {
 
     mat := g.material();
 

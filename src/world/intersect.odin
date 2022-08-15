@@ -4,15 +4,16 @@ import "core:math"
 import "core:slice"
 
 import m "raytracer:math"
+import s "raytracer:world/shapes"
 
 Intersection :: struct {
     t: m.real,
-    object: Shape,
+    object: ^s.Shape,
 }
 
 Hit_Info :: struct {
     t: m.real,
-    object: Shape,
+    object: ^s.Shape,
     point: m.Point,
     over_point: m.Point,
     eye_v: m.Vector,
@@ -21,7 +22,7 @@ Hit_Info :: struct {
     inside: bool,
 }
 
-intersection :: proc(t: m.real, s: Shape) -> Intersection {
+intersection :: proc(t: m.real, s: ^s.Shape) -> Intersection {
     return Intersection { t, s };
 }
 
@@ -47,7 +48,7 @@ hit_info :: proc(i: Intersection, r: m.Ray) -> Hit_Info {
     point := m.ray_position(r, i.t);
 
     eye_v := m.negate(r.direction);
-    normal_v := shape_normal_at(&obj, point);
+    normal_v := s.normal_at(obj, point);
 
     inside := false;
     if m.dot(normal_v, eye_v) < 0 {
@@ -86,19 +87,20 @@ hit :: proc(xs: []Intersection) -> Maybe(Intersection) {
     return nil;
 }
 
-intersects_shape :: proc(s: Shape, r: m.Ray) -> Maybe([2]Intersection) {
+intersects :: proc(shape: ^s.Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
-    switch k in s {
-        case Sphere: return intersects(k, r);
+    r := m.ray_transform(r, shape.inverse_transform);
+
+    switch k in shape.derived {
+        case ^s.Sphere: return intersects_sphere(k, r);
+        case ^s.Test_Shape: return intersects_test_shape(k, r);
     }
 
     assert(false);
     return nil;
 }
 
-intersects_sphere :: proc(s: Sphere, r: m.Ray) -> Maybe([2]Intersection) {
-
-    r := m.ray_transform(r, s.inverse_transform);
+intersects_sphere :: proc(s: ^s.Sphere, r: m.Ray) -> Maybe([2]Intersection) {
 
     sphere_to_ray := m.sub(r.origin, m.point(0, 0, 0));
 
@@ -123,7 +125,7 @@ intersects_sphere :: proc(s: Sphere, r: m.Ray) -> Maybe([2]Intersection) {
     return [?]Intersection { intersection(t1, s), intersection(t2, s) };
 }
 
-intersects :: proc {
-    intersects_shape,
-    intersects_sphere,
+intersects_test_shape :: proc(ts: ^s.Test_Shape, r: m.Ray) -> Maybe([2]Intersection) {
+    ts.saved_ray = r;
+    return nil;
 }

@@ -42,7 +42,7 @@ transform_suite := r.Test_Suite {
 };
 
 @test
-P_Mul_Translation :: proc(t: ^r.T) {
+P_Mul_Translation :: proc(t: ^r.Test_Context) {
 
     transform := m.translation(5, -3, 2);
     p := m.point(-3, 4, 5);
@@ -59,7 +59,7 @@ P_Mul_Translation :: proc(t: ^r.T) {
 }
 
 @test
-P_Mul_Inv_Translation :: proc(t: ^r.T) {
+P_Mul_Inv_Translation :: proc(t: ^r.Test_Context) {
 
     transform := m.translation(5, -3, 2);
     inv := m.matrix_inverse(transform);
@@ -81,7 +81,7 @@ P_Mul_Inv_Translation :: proc(t: ^r.T) {
 }
 
 @test
-V_Mul_Translation :: proc(t: ^r.T) {
+V_Mul_Translation :: proc(t: ^r.Test_Context) {
 
     transform := m.translation(5, -3, 2);
     v := m.vector(-3, 4, 5);
@@ -96,7 +96,7 @@ V_Mul_Translation :: proc(t: ^r.T) {
 }
 
 @test
-P_Mul_Scale :: proc(t: ^r.T) {
+P_Mul_Scale :: proc(t: ^r.Test_Context) {
 
     transform := m.scaling(2, 3, 4);
     p := m.point(-4, 6, 8);
@@ -113,7 +113,7 @@ P_Mul_Scale :: proc(t: ^r.T) {
 }
 
 @test
-V_Mul_Scale :: proc(t: ^r.T) {
+V_Mul_Scale :: proc(t: ^r.Test_Context) {
 
     transform := m.scaling(2, 3, 4);
     v := m.vector(-4, 6, 8);
@@ -130,7 +130,7 @@ V_Mul_Scale :: proc(t: ^r.T) {
 }
 
 @test
-V_Mul_Inv_Scale :: proc(t: ^r.T) {
+V_Mul_Inv_Scale :: proc(t: ^r.Test_Context) {
 
     transform := m.scaling(2, 3, 4);
     inv := m.matrix_inverse(transform);
@@ -154,7 +154,7 @@ V_Mul_Inv_Scale :: proc(t: ^r.T) {
 }
 
 @test
-Reflection_Is_Neg_Scale :: proc(t: ^r.T) {
+Reflection_Is_Neg_Scale :: proc(t: ^r.Test_Context) {
 
     transform := m.scaling(-1, 1, 1);
     p := m.point(2, 3, 4);
@@ -171,7 +171,7 @@ Reflection_Is_Neg_Scale :: proc(t: ^r.T) {
 }
 
 @test
-Rot_Around_X :: proc(t: ^r.T) {
+Rot_Around_X :: proc(t: ^r.Test_Context) {
 
     p := m.point(0, 1, 0);
     half_quarter := m.rotation_x(PI / 4);
@@ -197,7 +197,7 @@ Rot_Around_X :: proc(t: ^r.T) {
 }
 
 @test
-Rot_Around_X_Inv :: proc(t: ^r.T) {
+Rot_Around_X_Inv :: proc(t: ^r.Test_Context) {
 
     p := m.point(0, 1, 0);
     half_quarter := m.rotation_x(PI / 4);
@@ -220,7 +220,7 @@ Rot_Around_X_Inv :: proc(t: ^r.T) {
 }
 
 @test
-Rot_Around_Y :: proc(t: ^r.T) {
+Rot_Around_Y :: proc(t: ^r.Test_Context) {
 
     p := m.point(0, 0, 1);
     half_quarter := m.rotation_y(PI / 4);
@@ -246,7 +246,7 @@ Rot_Around_Y :: proc(t: ^r.T) {
 }
 
 @test
-Rot_Around_Y_Inv :: proc(t: ^r.T) {
+Rot_Around_Y_Inv :: proc(t: ^r.Test_Context) {
 
     p := m.point(0, 0, 1);
     half_quarter := m.rotation_y(PI / 4);
@@ -269,7 +269,7 @@ Rot_Around_Y_Inv :: proc(t: ^r.T) {
 }
 
 @test
-Rot_Around_Z :: proc(t: ^r.T) {
+Rot_Around_Z :: proc(t: ^r.Test_Context) {
 
     p := m.point(0, 1, 0);
     half_quarter := m.rotation_z(PI / 4);
@@ -295,7 +295,7 @@ Rot_Around_Z :: proc(t: ^r.T) {
 }
 
 @test
-Rot_Around_Z_Inv :: proc(t: ^r.T) {
+Rot_Around_Z_Inv :: proc(t: ^r.Test_Context) {
 
     p := m.point(0, 1, 0);
     half_quarter := m.rotation_z(PI / 4);
@@ -318,7 +318,7 @@ Rot_Around_Z_Inv :: proc(t: ^r.T) {
 }
 
 @test
-Shear_XY :: proc(t: ^r.T) {
+Shear_XY :: proc(t: ^r.Test_Context) {
 
     transform := m.shearing(1, 0, 0, 0, 0, 0);
     p := m.point(2, 3, 4);
@@ -335,7 +335,7 @@ Shear_XY :: proc(t: ^r.T) {
 
 
 @test
-Shear_XZ :: proc(t: ^r.T) {
+Shear_XZ :: proc(t: ^r.Test_Context) {
 
     transform := m.shearing(0, 1, 0, 0, 0, 0);
     p := m.point(2, 3, 4);
@@ -351,7 +351,7 @@ Shear_XZ :: proc(t: ^r.T) {
 }
 
 @test
-Shear_YX :: proc(t: ^r.T) {
+Shear_YX :: proc(t: ^r.Test_Context) {
 
     transform := m.shearing(0, 0, 1, 0, 0, 0);
     p := m.point(2, 3, 4);
@@ -367,7 +367,7 @@ Shear_YX :: proc(t: ^r.T) {
 }
 
 @test
-Shear_YZ :: proc(t: ^r.T) {
+Shear_YZ :: proc(t: ^r.Test_Context) {
 
     transform := m.shearing(0, 0, 0, 1, 0, 0);
     p := m.point(2, 3, 4);
@@ -383,7 +383,7 @@ Shear_YZ :: proc(t: ^r.T) {
 }
 
 @test
-Shear_ZX :: proc(t: ^r.T) {
+Shear_ZX :: proc(t: ^r.Test_Context) {
 
     transform := m.shearing(0, 0, 0, 0, 1, 0);
     p := m.point(2, 3, 4);
@@ -399,7 +399,7 @@ Shear_ZX :: proc(t: ^r.T) {
 }
 
 @test
-Shear_ZY :: proc(t: ^r.T) {
+Shear_ZY :: proc(t: ^r.Test_Context) {
 
     transform := m.shearing(0, 0, 0, 0, 0, 1);
     p := m.point(2, 3, 4);
@@ -415,7 +415,7 @@ Shear_ZY :: proc(t: ^r.T) {
 }
 
 @test
-Sequenced :: proc(t: ^r.T) {
+Sequenced :: proc(t: ^r.Test_Context) {
 
     p := m.point(1, 0, 1);
     A := m.rotation_x(PI / 2);
@@ -457,7 +457,7 @@ Sequenced :: proc(t: ^r.T) {
 }
 
 @test
-Chained :: proc(t: ^r.T) {
+Chained :: proc(t: ^r.Test_Context) {
 
     p := m.point(1, 0, 1);
     A := m.rotation_x(PI / 2);
@@ -515,7 +515,7 @@ Chained :: proc(t: ^r.T) {
 }
 
 @test
-View_Default :: proc(t: ^r.T) {
+View_Default :: proc(t: ^r.Test_Context) {
 
     from := m.point(0, 0, 0);
     to := m.point(0, 0, -1);
@@ -528,7 +528,7 @@ View_Default :: proc(t: ^r.T) {
 }
 
 @test
-View_Positive_Z :: proc(t: ^r.T) {
+View_Positive_Z :: proc(t: ^r.Test_Context) {
 
     from := m.point(0, 0, 0);
     to := m.point(0, 0, 1);
@@ -540,7 +540,7 @@ View_Positive_Z :: proc(t: ^r.T) {
 }
 
 @test
-View_Moves_World :: proc(t: ^r.T) {
+View_Moves_World :: proc(t: ^r.Test_Context) {
 
     from := m.point(0, 0, 8);
     to := m.point(0, 0, 0);
@@ -552,7 +552,7 @@ View_Moves_World :: proc(t: ^r.T) {
 }
 
 @test
-View_Arbitrary :: proc(t: ^r.T) {
+View_Arbitrary :: proc(t: ^r.Test_Context) {
 
     from := m.point(1, 3, 2);
     to := m.point(4, -2, 8);

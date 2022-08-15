@@ -4,6 +4,7 @@ import "core:math"
 
 import r "raytracer:test_runner"
 import w "raytracer:world"
+import s "raytracer:world/shapes"
 import m "raytracer:math"
 import g "raytracer:graphics"
 
@@ -22,7 +23,7 @@ camera_suite := r.Test_Suite {
 
 
 @test
-C_Construction :: proc(t: ^r.T) {
+C_Construction :: proc(t: ^r.Test_Context) {
 
     hsize := 160;
     vsize := 120;
@@ -37,7 +38,7 @@ C_Construction :: proc(t: ^r.T) {
 }
 
 @test
-HC_Pixel_Size :: proc(t: ^r.T) {
+HC_Pixel_Size :: proc(t: ^r.Test_Context) {
 
     c := w.camera(200, 125, PI / 2);
 
@@ -45,7 +46,7 @@ HC_Pixel_Size :: proc(t: ^r.T) {
 }
 
 @test
-VC_Pixel_Size :: proc(t: ^r.T) {
+VC_Pixel_Size :: proc(t: ^r.Test_Context) {
 
     c := w.camera(125, 200, PI / 2);
 
@@ -53,7 +54,7 @@ VC_Pixel_Size :: proc(t: ^r.T) {
 }
 
 @test
-Ray_Center_Canvas:: proc(t: ^r.T) {
+Ray_Center_Canvas:: proc(t: ^r.Test_Context) {
 
     c := w.camera(201, 101, PI / 2);
 
@@ -64,7 +65,7 @@ Ray_Center_Canvas:: proc(t: ^r.T) {
 }
 
 @test
-Ray_Corner_Canvas :: proc(t: ^r.T) {
+Ray_Corner_Canvas :: proc(t: ^r.Test_Context) {
 
     c := w.camera(201, 101, PI / 2);
 
@@ -75,7 +76,7 @@ Ray_Corner_Canvas :: proc(t: ^r.T) {
 }
 
 @test
-Ray_Transformed_Cam :: proc(t: ^r.T) {
+Ray_Transformed_Cam :: proc(t: ^r.Test_Context) {
 
     tf := m.mul(m.rotation_y( PI / 4), m.translation(0, -2, 5));
     c := w.camera(201, 101, PI / 2, tf);
@@ -89,10 +90,14 @@ Ray_Transformed_Cam :: proc(t: ^r.T) {
 }
 
 @test
-Render_Default_World :: proc(t: ^r.T) {
+Render_Default_World :: proc(t: ^r.Test_Context) {
     tc := transmute(^r.Test_Context)t;
 
-    world := default_world();
+    sb : s.Shapes(2);
+
+    world := default_world(&sb);
+    defer destroy_default_world(world);
+
     from := m.point(0, 0, -5);
     to := m.point(0, 0, 0);
     up := m.vector(0, 1, 0);

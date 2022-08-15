@@ -4,9 +4,10 @@ import "core:slice"
 
 import "raytracer:graphics"
 import m "raytracer:math"
+import s "raytracer:world/shapes"
 
 World :: struct {
-    objects: []Shape,
+    objects: []^s.Shape,
     lights: []graphics.Point_Light,
 }
 
@@ -14,7 +15,7 @@ world_default :: proc() -> World {
     return world(nil, nil);
 }
 
-world_ol :: proc(o: []Shape, l: []graphics.Point_Light) -> World {
+world_ol :: proc(o: []^s.Shape, l: []graphics.Point_Light) -> World {
     return World { o, l };
 }
 
@@ -44,7 +45,7 @@ shade_hit :: proc(w: ^World, hi: Hit_Info, shadows := true) -> (result: graphics
 
     for l in &w.lights {
         is_shadowed :=  shadows && is_shadowed(w, hi.over_point, &l);
-        result += graphics.lighting(hi.object.?.material, l, hi.point, hi.eye_v, hi.normal_v, is_shadowed)
+        result += graphics.lighting(hi.object.material, l, hi.point, hi.eye_v, hi.normal_v, is_shadowed)
     }
 
     return;
