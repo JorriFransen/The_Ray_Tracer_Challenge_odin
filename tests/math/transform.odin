@@ -469,7 +469,7 @@ Chained :: proc(t: ^r.Test_Context) {
 
     {
         T1 := rt.mul(C, rt.mul(B, A));
-        T2 := C * B * A;
+        T2 := m.Matrix4(C * B * A);
 
         r.expect(t, eq(T1, T2));
         T = T1;
