@@ -1,6 +1,6 @@
 package rtmath
-import "core:math"
 
+import "core:math"
 import "core:fmt"
 
 @(private="file")

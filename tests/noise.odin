@@ -71,24 +71,24 @@ Perlin :: proc(t: ^r.Test_Context) {
 
                 p := m.point(m.real(x) * step_size, m.real(y) * step_size, 0.06);
 
-                vn := m.noise_sum(m.perlin_noise_2D, p, 3, o) * 0.5 + 0.5;
+                vn := m.noise_sum(m.perlin_noise_3D, p, 3, o) * 0.5 + 0.5;
                 col := rt.WHITE * vn;
 
                 rt.canvas_write_pixel(c, x, resolution - 1 - y, col);
             }
         }
 
-        // rt.display(c, "Perlin noise");
+        rt.display(c, "Perlin noise");
 
-        // ppm := rt.ppm_from_canvas(c);
-        // defer delete(ppm);
+        ppm := rt.ppm_from_canvas(c);
+        defer delete(ppm);
 
-        // name := fmt.tprintf("images/noise/perlin_octave_%v.ppm", o);
-        // if !rt.ppm_write_to_file(name, ppm) {
-        //     fmt.fprintf(os.stderr, "Failed to write image: '%v'\n", name);
-        // }
+        name := fmt.tprintf("images/noise/perlin_octave_%v.ppm", o);
+        if !rt.ppm_write_to_file(name, ppm) {
+            fmt.fprintf(os.stderr, "Failed to write image: '%v'\n", name);
+        }
 
-        // rt.canvas_clear(&c);
+        rt.canvas_clear(&c);
     }
 
 
