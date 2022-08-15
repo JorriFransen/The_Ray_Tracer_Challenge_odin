@@ -1,21 +1,20 @@
-package world
+package raytracer
 
 import "core:slice"
 
-import "raytracer:graphics"
+import rt "raytracer:."
 import m "raytracer:math"
-import s "raytracer:world/shapes"
 
 World :: struct {
-    objects: []^s.Shape,
-    lights: []graphics.Point_Light,
+    objects: []^rt.Shape,
+    lights: []Point_Light,
 }
 
 world_default :: proc() -> World {
     return world(nil, nil);
 }
 
-world_ol :: proc(o: []^s.Shape, l: []graphics.Point_Light) -> World {
+world_ol :: proc(o: []^rt.Shape, l: []Point_Light) -> World {
     return World { o, l };
 }
 
@@ -39,19 +38,19 @@ intersect_world :: proc(w: ^World, r: m.Ray, allocator := context.allocator) -> 
     return result;
 }
 
-shade_hit :: proc(w: ^World, hi: Hit_Info, shadows := true) -> (result: graphics.Color) {
+shade_hit :: proc(w: ^World, hi: Hit_Info, shadows := true) -> (result: Color) {
     assert(len(w.lights) > 0);
 
 
     for l in &w.lights {
         is_shadowed :=  shadows && is_shadowed(w, hi.over_point, &l);
-        result += graphics.lighting(hi.object.material, l, hi.point, hi.eye_v, hi.normal_v, is_shadowed)
+        result += lighting(hi.object.material, l, hi.point, hi.eye_v, hi.normal_v, is_shadowed)
     }
 
     return;
 }
 
-color_at :: proc(w: ^World, r: m.Ray, shadows := true, allocator := context.allocator) -> graphics.Color {
+color_at :: proc(w: ^World, r: m.Ray, shadows := true, allocator := context.allocator) -> Color {
 
     xs := intersect_world(w, r, allocator);
     defer delete(xs);
@@ -63,11 +62,11 @@ color_at :: proc(w: ^World, r: m.Ray, shadows := true, allocator := context.allo
         return shade_hit(w, hi, shadows);
 
     } else {
-        return graphics.BLACK;
+        return BLACK;
     }
 }
 
-is_shadowed :: proc(w: ^World, p: m.Point, l: ^graphics.Point_Light, allocator := context.allocator) -> bool {
+is_shadowed :: proc(w: ^World, p: m.Point, l: ^Point_Light, allocator := context.allocator) -> bool {
 
     point_to_light := m.sub(l.position, p);
     distance := m.magnitude(point_to_light);

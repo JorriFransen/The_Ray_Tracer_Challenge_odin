@@ -1,9 +1,8 @@
-package world
+package raytracer
 
 import "core:math"
 
 import m "raytracer:math"
-import g "raytracer:graphics"
 
 Camera :: struct {
     size: [2]int,
@@ -59,14 +58,14 @@ camera_ray_for_pixel :: proc(c: ^Camera, x, y: int) -> m.Ray {
     return m.ray(c.ray_origin, direction);
 }
 
-render_to_new_canvas :: proc(c: ^Camera, w: ^World, allocator := context.allocator) -> g.Canvas {
+render_to_new_canvas :: proc(c: ^Camera, w: ^World, allocator := context.allocator) -> Canvas {
 
-    canvas := g.canvas(c.size.x, c.size.y, allocator);
+    canvas := canvas(c.size.x, c.size.y, allocator);
     render_to_canvas(&canvas, c, w);
     return canvas;
 }
 
-render_to_canvas :: proc(canvas: ^g.Canvas, c: ^Camera, w: ^World, shadows := true, allocator := context.allocator) {
+render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true, allocator := context.allocator) {
 
     assert(canvas.width == c.size.x);
     assert(canvas.height == c.size.y);
@@ -76,7 +75,7 @@ render_to_canvas :: proc(canvas: ^g.Canvas, c: ^Camera, w: ^World, shadows := tr
 
             ray := camera_ray_for_pixel(c, x, y);
             color := color_at(w, ray, shadows, allocator);
-            g.canvas_write_pixel(canvas^, x, y, color);
+            canvas_write_pixel(canvas^, x, y, color);
         }
     }
 }

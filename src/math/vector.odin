@@ -178,5 +178,5 @@ cross :: proc(a_, b_: Vector) -> Vector {
 }
 
 reflect :: proc(v, n: Vector) ->  Vector {
-    return sub(v, mul(n, 2 * dot(v, n)));
+    return sub(v, mul_v(n, 2 * dot(v, n)));
 }

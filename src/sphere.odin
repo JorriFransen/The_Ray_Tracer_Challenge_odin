@@ -1,27 +1,26 @@
-package world_shapes
+package raytracer
 
 import m "raytracer:math"
-import g "raytracer:graphics"
 
 Sphere :: struct {
     using shape: Shape,
 }
 
-sphere_tf_mat :: proc(sb: $T/^Shapes, tf: m.Matrix4, mat: g.Material)-> ^Sphere {
+sphere_tf_mat :: proc(sb: $T/^Shapes, tf: m.Matrix4, mat: Material)-> ^Sphere {
 
     return shape(sb, &sb.spheres, tf, mat);
 }
 
-sphere_mat :: proc(sb: $T/^Shapes, mat: g.Material) -> ^Sphere {
+sphere_mat :: proc(sb: $T/^Shapes, mat: Material) -> ^Sphere {
     return sphere_tf_mat(sb, m.matrix4_identity, mat);
 }
 
 sphere_tf :: proc(sb: $T/^Shapes, tf: m.Matrix4) -> ^Sphere {
-    return sphere_tf_mat(sb, tf, g.default_material);
+    return sphere_tf_mat(sb, tf, default_material);
 }
 
 sphere_default :: proc(sb: $T/^Shapes) -> ^Sphere {
-    return sphere_tf_mat(sb, m.matrix4_identity, g.default_material);
+    return sphere_tf_mat(sb, m.matrix4_identity, default_material);
 }
 
 sphere :: proc {

@@ -1,11 +1,7 @@
 package tests_world
 
-import "core:testing"
-
-import w "raytracer:world"
-import s "raytracer:world/shapes"
+import rt "raytracer:."
 import m "raytracer:math"
-
 import r "raytracer:test_runner"
 
 intersect_suite := r.Test_Suite {
@@ -34,11 +30,11 @@ intersect_suite := r.Test_Suite {
 @test
 R_Intersect_Sphere_2P :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(1);
-    sp := s.sphere(&sb);
+    sb : rt.Shapes(1);
+    sp := rt.sphere(&sb);
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
-    xs, ok := w.intersects(sp, ray).?;
+    xs, ok := rt.intersects(sp, ray).?;
 
     expect(t, ok);
     expect(t, len(xs) == 2);
@@ -49,11 +45,11 @@ R_Intersect_Sphere_2P :: proc(t: ^r.Test_Context) {
 @test
 R_Intersect_Sphere_Tangent :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(1);
-    sp := s.sphere(&sb);
+    sb : rt.Shapes(1);
+    sp := rt.sphere(&sb);
     ray := m.ray(m.point(0, 1, -5), m.vector(0, 0, 1));
 
-    xs, ok := w.intersects(sp, ray).?;
+    xs, ok := rt.intersects(sp, ray).?;
 
     expect(t, ok);
     expect(t, len(xs) == 2);
@@ -64,11 +60,11 @@ R_Intersect_Sphere_Tangent :: proc(t: ^r.Test_Context) {
 @test
 R_Misses_Sphere :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(1);
-    sp := s.sphere(&sb);
+    sb : rt.Shapes(1);
+    sp := rt.sphere(&sb);
     ray := m.ray(m.point(0, 2, -5), m.vector(0, 0, 1));
 
-    xs, ok := w.intersects(sp, ray).?;
+    xs, ok := rt.intersects(sp, ray).?;
 
     expect(t, !ok);
 }
@@ -76,11 +72,11 @@ R_Misses_Sphere :: proc(t: ^r.Test_Context) {
 @test
 R_Inside_Sphere :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(1);
-    sp := s.sphere(&sb);
+    sb : rt.Shapes(1);
+    sp := rt.sphere(&sb);
     ray := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
 
-    xs, ok := w.intersects(sp, ray).?;
+    xs, ok := rt.intersects(sp, ray).?;
 
     expect(t, ok);
     expect(t, len(xs) == 2);
@@ -91,11 +87,11 @@ R_Inside_Sphere :: proc(t: ^r.Test_Context) {
 @test
 R_Sphere_Behind :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(1);
-    sp := s.sphere(&sb);
+    sb : rt.Shapes(1);
+    sp := rt.sphere(&sb);
     ray := m.ray(m.point(0, 0, 5), m.vector(0, 0, 1));
 
-    xs, ok := w.intersects(sp, ray).?;
+    xs, ok := rt.intersects(sp, ray).?;
 
     expect(t, ok);
     expect(t, len(xs) == 2);
@@ -106,10 +102,10 @@ R_Sphere_Behind :: proc(t: ^r.Test_Context) {
 @test
 Intersection_Constructor :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(1);
-    sp := s.sphere(&sb);
+    sb : rt.Shapes(1);
+    sp := rt.sphere(&sb);
 
-    i := w.intersection(3.5, sp);
+    i := rt.intersection(3.5, sp);
 
     expect(t, i.t == 3.5);
     expect(t, i.object == sp);
@@ -118,13 +114,13 @@ Intersection_Constructor :: proc(t: ^r.Test_Context) {
 @test
 Aggregating_Intersections :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(1);
-    sp := s.sphere(&sb);
+    sb : rt.Shapes(1);
+    sp := rt.sphere(&sb);
 
-    i1 := w.intersection(1, sp);
-    i2 := w.intersection(2, sp);
+    i1 := rt.intersection(1, sp);
+    i2 := rt.intersection(2, sp);
 
-    xs := w.intersections(i1, i2);
+    xs := rt.intersections(i1, i2);
     defer delete(xs);
 
     expect(t, len(xs) == 2);
@@ -137,10 +133,10 @@ Intersect_Sets_Ojb :: proc(t: ^r.Test_Context) {
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
-    sb : s.Shapes(1);
-    sp := s.sphere(&sb);
+    sb : rt.Shapes(1);
+    sp := rt.sphere(&sb);
 
-    xs, ok := w.intersects(sp, ray).?;
+    xs, ok := rt.intersects(sp, ray).?;
 
     expect(t, ok);
     expect(t, len(xs) == 2);
@@ -152,16 +148,16 @@ Intersect_Sets_Ojb :: proc(t: ^r.Test_Context) {
 @test
 Hit_All_Positive :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(1);
-    sp := s.sphere(&sb);
+    sb : rt.Shapes(1);
+    sp := rt.sphere(&sb);
 
-    i1 := w.intersection(1, sp);
-    i2 := w.intersection(2, sp);
+    i1 := rt.intersection(1, sp);
+    i2 := rt.intersection(2, sp);
 
-    xs := w.intersections(i1, i2);
+    xs := rt.intersections(i1, i2);
     defer delete(xs);
 
-    i, i_ok := w.hit(xs[:]).?;
+    i, i_ok := rt.hit(xs[:]).?;
 
     expect(t, i_ok);
     expect(t, i == i1);
@@ -170,16 +166,16 @@ Hit_All_Positive :: proc(t: ^r.Test_Context) {
 @test
 Hit_Some_Negative :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(1);
-    sp := s.sphere(&sb);
+    sb : rt.Shapes(1);
+    sp := rt.sphere(&sb);
 
-    i1 := w.intersection(-1, sp);
-    i2 := w.intersection(1, sp);
+    i1 := rt.intersection(-1, sp);
+    i2 := rt.intersection(1, sp);
 
-    xs := w.intersections(i1, i2);
+    xs := rt.intersections(i1, i2);
     defer delete(xs);
 
-    i, i_ok := w.hit(xs[:]).?;
+    i, i_ok := rt.hit(xs[:]).?;
 
     expect(t, i_ok);
     expect(t, i == i2);
@@ -188,16 +184,16 @@ Hit_Some_Negative :: proc(t: ^r.Test_Context) {
 @test
 Hit_All_Negative :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(1);
-    sp := s.sphere(&sb);
+    sb : rt.Shapes(1);
+    sp := rt.sphere(&sb);
 
-    i1 := w.intersection(-2, sp);
-    i2 := w.intersection(-1, sp);
+    i1 := rt.intersection(-2, sp);
+    i2 := rt.intersection(-1, sp);
 
-    xs := w.intersections(i1, i2);
+    xs := rt.intersections(i1, i2);
     defer delete(xs);
 
-    _, i_ok := w.hit(xs[:]).?;
+    _, i_ok := rt.hit(xs[:]).?;
 
     expect(t, !i_ok);
 }
@@ -205,21 +201,21 @@ Hit_All_Negative :: proc(t: ^r.Test_Context) {
 @test
 Hit_Lowest_Non_Negative :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(1);
-    sp := s.sphere(&sb);
+    sb : rt.Shapes(1);
+    sp := rt.sphere(&sb);
 
-    i1 := w.intersection(5, sp);
-    i2 := w.intersection(7, sp);
-    i3 := w.intersection(-3, sp);
-    i4 := w.intersection(2, sp);
+    i1 := rt.intersection(5, sp);
+    i2 := rt.intersection(7, sp);
+    i3 := rt.intersection(-3, sp);
+    i4 := rt.intersection(2, sp);
 
-    xs := w.intersections(i1, i2);
+    xs := rt.intersections(i1, i2);
 
     // Testing this overload, normally the call above would be 'intersections(i1, i2, i3, i4);'
-    w.intersections(&xs, i3, i4);
+    rt.intersections(&xs, i3, i4);
     defer delete(xs);
 
-    i, i_ok := w.hit(xs[:]).?;
+    i, i_ok := rt.hit(xs[:]).?;
 
     expect(t, i == i4);
 }
@@ -227,31 +223,31 @@ Hit_Lowest_Non_Negative :: proc(t: ^r.Test_Context) {
 @test
 Hit_Info :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(1);
-    shape := s.sphere(&sb);
+    sb : rt.Shapes(1);
+    shape := rt.sphere(&sb);
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
-    i := w.intersection(4, shape);
+    i := rt.intersection(4, shape);
 
-    comps := w.hit_info(i, ray);
+    comps := rt.hit_info(i, ray);
 
     expect(t, comps.t == i.t);
     expect(t, comps.object == i.object);
-    expect(t, m.eq(comps.point, m.point(0, 0, -1)));
-    expect(t, m.eq(comps.eye_v, m.vector(0, 0, -1)));
-    expect(t, m.eq(comps.normal_v, m.vector(0, 0, -1)));
+    expect(t, eq(comps.point, m.point(0, 0, -1)));
+    expect(t, eq(comps.eye_v, m.vector(0, 0, -1)));
+    expect(t, eq(comps.normal_v, m.vector(0, 0, -1)));
 }
 
 @test
 Hit_Info_Outside :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(1);
-    shape := s.sphere(&sb);
+    sb : rt.Shapes(1);
+    shape := rt.sphere(&sb);
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
-    i := w.intersection(4, shape);
+    i := rt.intersection(4, shape);
 
-    comps := w.hit_info(i, ray);
+    comps := rt.hit_info(i, ray);
 
     expect(t, comps.inside == false);
 }
@@ -259,19 +255,19 @@ Hit_Info_Outside :: proc(t: ^r.Test_Context) {
 @test
 Hit_Info_Inside :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(1);
-    shape := s.sphere(&sb);
+    sb : rt.Shapes(1);
+    shape := rt.sphere(&sb);
 
     ray := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
-    i := w.intersection(1, shape);
+    i := rt.intersection(1, shape);
 
-    comps := w.hit_info(i, ray);
+    comps := rt.hit_info(i, ray);
 
     expect(t, comps.t == i.t);
     expect(t, comps.object == i.object);
-    expect(t, m.eq(comps.point, m.point(0, 0, 1)));
-    expect(t, m.eq(comps.eye_v, m.vector(0, 0, -1)));
-    expect(t, m.eq(comps.normal_v, m.vector(0, 0, -1)));
+    expect(t, eq(comps.point, m.point(0, 0, 1)));
+    expect(t, eq(comps.eye_v, m.vector(0, 0, -1)));
+    expect(t, eq(comps.normal_v, m.vector(0, 0, -1)));
 
     expect(t, comps.inside);
 }
@@ -279,13 +275,13 @@ Hit_Info_Inside :: proc(t: ^r.Test_Context) {
 @test
 Hit_Info_Point_Offset :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(1);
-    shape := s.sphere(&sb, m.translation(0, 0, 1));
+    sb : rt.Shapes(1);
+    shape := rt.sphere(&sb, m.translation(0, 0, 1));
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
-    i := w.intersection(5, shape);
+    i := rt.intersection(5, shape);
 
-    hit_info := w.hit_info(i, ray);
+    hit_info := rt.hit_info(i, ray);
 
     expect(t, hit_info.over_point.z < -m.OVER_POINT_EPSILON / 2);
     expect(t, hit_info.point.z > hit_info.over_point.z);

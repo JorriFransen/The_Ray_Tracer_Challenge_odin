@@ -16,5 +16,5 @@ ray_position :: proc(r: Ray, t: real) -> Point {
 
 
 ray_transform :: proc(r: Ray, m: Matrix4) -> Ray {
-    return ray(mul(m, r.origin), mul(m, r.direction));
+    return ray(matrix4_mul_tuple(m, r.origin), matrix4_mul_tuple(m, r.direction));
 }

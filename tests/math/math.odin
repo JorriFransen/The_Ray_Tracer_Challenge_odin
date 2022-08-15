@@ -2,6 +2,10 @@ package tests_math
 
 import r "raytracer:test_runner"
 
+import rt "raytracer:."
+
+eq :: rt.eq;
+
 math_suite := r.Test_Suite {
     name = "Math/",
     tests = { },

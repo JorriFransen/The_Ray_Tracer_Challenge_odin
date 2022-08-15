@@ -2,13 +2,11 @@ package tests_world
 
 import "core:slice"
 
+import rt "raytracer:."
+import m "raytracer:math"
 import r "raytracer:test_runner"
 
-import g "raytracer:graphics"
-import m "raytracer:math"
-import world "raytracer:world"
-import s "raytracer:world/shapes"
-
+eq :: rt.eq;
 expect :: r.expect;
 
 world_suite := r.Test_Suite {
@@ -37,26 +35,26 @@ world_suite := r.Test_Suite {
 }
 
 
-default_world :: proc(sb: $T/^s.Shapes) -> ^world.World {
+default_world :: proc(sb: $T/^rt.Shapes) -> ^rt.World {
 
 
-    shapes : [dynamic]^s.Shape = {
-        s.sphere(sb, g.material(color = g.color(0.8, 1, 0.6), diffuse = 0.7, specular = 0.2)),
-        s.sphere(sb, m.scaling(0.5, 0.5, 0.5)),
+    shapes : [dynamic]^rt.Shape = {
+        rt.sphere(sb, rt.material(color = rt.color(0.8, 1, 0.6), diffuse = 0.7, specular = 0.2)),
+        rt.sphere(sb, m.scaling(0.5, 0.5, 0.5)),
     };
 
-    lights: [dynamic]g.Point_Light = {
-        g.point_light(m.point(-10, 10, -10), g.color(1, 1, 1)),
+    lights: [dynamic]rt.Point_Light = {
+        rt.point_light(m.point(-10, 10, -10), rt.color(1, 1, 1)),
     };
 
-    result := new(world.World);
+    result := new(rt.World);
     result.lights = lights[:];
     result.objects = shapes[:];
     return result;
 }
 
 @(private)
-destroy_default_world :: proc(w: ^world.World) {
+destroy_default_world :: proc(w: ^rt.World) {
     delete(w.objects);
     delete(w.lights);
     free(w);
@@ -66,7 +64,7 @@ destroy_default_world :: proc(w: ^world.World) {
 @test
 World_Default :: proc(t: ^r.Test_Context) {
 
-    w := world.world();
+    w := rt.world();
 
     expect(t, len(w.objects) == 0);
     expect(t, len(w.lights) == 0);
@@ -75,13 +73,13 @@ World_Default :: proc(t: ^r.Test_Context) {
 @test
 World_Test_Default :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(4);
+    sb : rt.Shapes(4);
 
-    light := g.point_light(m.point(-10, 10, -10), g.color(1, 1, 1));
-    mat := g.material(color=g.color(0.8, 1.0, 0.6), diffuse=0.7, specular=0.2);
-    s1 := s.sphere(&sb, mat);
+    light := rt.point_light(m.point(-10, 10, -10), rt.color(1, 1, 1));
+    mat := rt.material(color=rt.color(0.8, 1.0, 0.6), diffuse=0.7, specular=0.2);
+    s1 := rt.sphere(&sb, mat);
     tf := m.scaling(0.5, 0.5, 0.5);
-    s2 := s.sphere(&sb, tf);
+    s2 := rt.sphere(&sb, tf);
 
     w := default_world(&sb);
     defer destroy_default_world(w);
@@ -90,14 +88,14 @@ World_Test_Default :: proc(t: ^r.Test_Context) {
     expect(t, w.lights[0] == light);
 
     expect(t, len(w.objects) == 2);
-    expect(t, s.eq(w.objects[0]^, s1^));
-    expect(t, s.eq(w.objects[1]^, s2^));
+    expect(t, rt.eq(w.objects[0]^, s1^));
+    expect(t, rt.eq(w.objects[1]^, s2^));
 }
 
 @test
 World_Intersect_Ray :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(4);
+    sb : rt.Shapes(4);
 
     free_all(context.temp_allocator);
     context.allocator = context.temp_allocator;
@@ -107,7 +105,7 @@ World_Intersect_Ray :: proc(t: ^r.Test_Context) {
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
-    xs := world.intersect_world(w, ray);
+    xs := rt.intersect_world(w, ray);
 
     expect(t, len(xs) == 4);
     expect(t, xs[0].t == 4);
@@ -119,74 +117,74 @@ World_Intersect_Ray :: proc(t: ^r.Test_Context) {
 @test
 Shade_Intersection :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(2);
+    sb : rt.Shapes(2);
 
     w := default_world(&sb);
     defer destroy_default_world(w);
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
     shape := w.objects[0];
-    i := world.intersection(4, shape);
+    i := rt.intersection(4, shape);
 
-    comps := world.hit_info(i, ray);
-    c := world.shade_hit(w, comps);
+    comps := rt.hit_info(i, ray);
+    c := rt.shade_hit(w, comps);
 
-    expect(t, m.eq(c, g.color(0.38066, 0.47583, 0.2855)));
+    expect(t, eq(c, rt.color(0.38066, 0.47583, 0.2855)));
 }
 
 @test
 Shade_Intersection_Inside :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(2);
+    sb : rt.Shapes(2);
 
     w := default_world(&sb);
     defer destroy_default_world(w);
 
-    w.lights[0] = g.point_light(m.point(0, 0.25, 0), g.color(1, 1, 1));
+    w.lights[0] = rt.point_light(m.point(0, 0.25, 0), rt.color(1, 1, 1));
     ray := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
     shape := w.objects[1];
-    i := world.intersection(0.5, shape);
+    i := rt.intersection(0.5, shape);
 
-    comps := world.hit_info(i, ray);
-    c := world.shade_hit(w, comps);
+    comps := rt.hit_info(i, ray);
+    c := rt.shade_hit(w, comps);
 
-    expect(t, m.eq(c, g.color(0.90498, 0.90498, 0.90498)));
+    expect(t, eq(c, rt.color(0.90498, 0.90498, 0.90498)));
 }
 
 @test
 Color_At_Miss :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(2);
+    sb : rt.Shapes(2);
 
     w := default_world(&sb);
     defer destroy_default_world(w);
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 1, 0));
 
-    c := world.color_at(w, ray);
+    c := rt.color_at(w, ray);
 
-    expect(t, m.eq(c, g.color(0, 0, 0)));
+    expect(t, eq(c, rt.color(0, 0, 0)));
 }
 
 @test
 Color_At_Hit :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(2);
+    sb : rt.Shapes(2);
 
     w := default_world(&sb);
     defer destroy_default_world(w);
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
-    c := world.color_at(w, ray);
+    c := rt.color_at(w, ray);
 
-    expect(t, m.eq(c, g.color(0.38066, 0.47583, 0.2855)));
+    expect(t, eq(c, rt.color(0.38066, 0.47583, 0.2855)));
 }
 
 @test
 Color_At_Hit_Behind :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(2);
+    sb : rt.Shapes(2);
 
     w := default_world(&sb);
     defer destroy_default_world(w);
@@ -197,82 +195,82 @@ Color_At_Hit_Behind :: proc(t: ^r.Test_Context) {
     inner.material.ambient = 1;
     ray := m.ray(m.point(0, 0, 0.75), m.vector(0, 0, -1));
 
-    c := world.color_at(w, ray);
+    c := rt.color_at(w, ray);
 
-    expect(t, m.eq(c, inner.material.color));
+    expect(t, eq(c, inner.material.color));
 }
 
 @test
 No_Shadow_Complete_Miss :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(2);
+    sb : rt.Shapes(2);
 
     w := default_world(&sb);
     defer destroy_default_world(w);
 
     p := m.point(0, 10, 0);
 
-    expect(t, world.is_shadowed(w, p, &w.lights[0]) == false);
+    expect(t, rt.is_shadowed(w, p, &w.lights[0]) == false);
 }
 
 @test
 Shadow_Point_Object_Light :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(2);
+    sb : rt.Shapes(2);
 
     w := default_world(&sb);
     defer destroy_default_world(w);
 
     p := m.point(10, -10, 10);
 
-    expect(t, world.is_shadowed(w, p, &w.lights[0]));
+    expect(t, rt.is_shadowed(w, p, &w.lights[0]));
 }
 
 @test
 Shadow_Point_Light_Object :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(2);
+    sb : rt.Shapes(2);
 
     w := default_world(&sb);
     defer destroy_default_world(w);
 
     p := m.point(-20, 20, -20);
 
-    expect(t, world.is_shadowed(w, p, &w.lights[0]) == false);
+    expect(t, rt.is_shadowed(w, p, &w.lights[0]) == false);
 }
 
 @test
 Shadow_Light_Point_Object :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(2);
+    sb : rt.Shapes(2);
 
     w := default_world(&sb);
     defer destroy_default_world(w);
 
     p := m.point(-2, 2, -2);
 
-    expect(t, world.is_shadowed(w, p, &w.lights[0]) == false);
+    expect(t, rt.is_shadowed(w, p, &w.lights[0]) == false);
 }
 
 @test
 Shade_Shadowed_Intersection :: proc(t: ^r.Test_Context) {
 
-    sb : s.Shapes(2);
+    sb : rt.Shapes(2);
 
-    s1 := s.sphere(&sb);
-    s2 := s.sphere(&sb, m.translation(0, 0, 10));
-    shapes : []^s.Shape = { s1, s2 };
+    s1 := rt.sphere(&sb);
+    s2 := rt.sphere(&sb, m.translation(0, 0, 10));
+    shapes : []^rt.Shape = { s1, s2 };
 
-    lights : []g.Point_Light = { g.point_light(m.point(0, 0, -10), g.color(1, 1, 1)) };
+    lights : []rt.Point_Light = { rt.point_light(m.point(0, 0, -10), rt.color(1, 1, 1)) };
 
-    w := world.world(shapes, lights);
+    w := rt.world(shapes, lights);
 
     ray := m.ray(m.point(0, 0, 5), m.vector(0, 0, 1));
-    i := world.intersection(4, s2);
+    i := rt.intersection(4, s2);
 
-    hit_info := world.hit_info(i, ray);
+    hit_info := rt.hit_info(i, ray);
 
-    c := world.shade_hit(&w, hit_info);
+    c := rt.shade_hit(&w, hit_info);
 
-    expect(t, m.eq(c, g.color(0.1, 0.1, 0.1)));
+    expect(t, eq(c, rt.color(0.1, 0.1, 0.1)));
 }

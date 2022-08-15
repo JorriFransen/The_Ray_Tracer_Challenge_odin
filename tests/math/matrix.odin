@@ -1,9 +1,8 @@
 package tests_math
 
-import "core:testing";
 
+import rt "raytracer:."
 import rm "raytracer:math";
-
 import r "raytracer:test_runner"
 
 matrix_suite := r.Test_Suite {
@@ -124,7 +123,7 @@ M4_Equality :: proc(t: ^r.Test_Context) {
                      5, 4, 3, 2 };
 
     r.expect(t, A == B);
-    r.expect(t, rm.eq(A, B));
+    r.expect(t, eq(A, B));
 }
 
 @test
@@ -141,7 +140,7 @@ M4_Inequality :: proc(t: ^r.Test_Context) {
                      4, 3, 2, 1 };
 
     r.expect(t, A != B);
-    r.expect(t, !rm.eq(A, B));
+    r.expect(t, !eq(A, B));
 }
 
 @test
@@ -156,7 +155,7 @@ M3_Equality :: proc(t: ^r.Test_Context) {
                      9, 8, 7 };
 
     r.expect(t, A == B);
-    r.expect(t, rm.eq(A, B));
+    r.expect(t, eq(A, B));
 }
 
 @test
@@ -171,7 +170,7 @@ M3_Inequality :: proc(t: ^r.Test_Context) {
                      8, 7, 6 };
 
     r.expect(t, A != B);
-    r.expect(t, !rm.eq(A, B));
+    r.expect(t, !eq(A, B));
 }
 
 @test
@@ -184,7 +183,7 @@ M2_Equality :: proc(t: ^r.Test_Context) {
                      5, 6 };
 
     r.expect(t, A == B);
-    r.expect(t, rm.eq(A, B));
+    r.expect(t, eq(A, B));
 }
 
 @test
@@ -197,7 +196,7 @@ M2_Inequality :: proc(t: ^r.Test_Context) {
                      6, 7 };
 
     r.expect(t, A != B);
-    r.expect(t, !rm.eq(A, B));
+    r.expect(t, !eq(A, B));
 }
 
 @test
@@ -220,13 +219,13 @@ M4_Multiply :: proc(t: ^r.Test_Context) {
 
     result1 := A * B;
 
-    result2 := rm.mul(A, B);
+    result2 := rt.mul(A, B);
 
     r.expect(t, rm.Matrix4(result1) == expected);
     r.expect(t, rm.eq(rm.Matrix4(result1), expected));
 
     r.expect(t, result2 == expected);
-    r.expect(t, rm.eq(result2, expected));
+    r.expect(t, eq(result2, expected));
 }
 
 @test
@@ -242,13 +241,13 @@ M4_Multiply_Tuple :: proc(t: ^r.Test_Context) {
     expected :: rm.Tuple { 18, 24, 33, 1 };
 
     result1 := A * b;
-    result2 := rm.mul(A, b);
+    result2 := rt.mul(A, b);
 
     r.expect(t, result1 == expected);
-    r.expect(t, rm.eq(result1, expected));
+    r.expect(t, eq(result1, expected));
 
     r.expect(t, result2 == expected);
-    r.expect(t, rm.eq(result2, expected));
+    r.expect(t, eq(result2, expected));
 
 }
 
@@ -266,10 +265,10 @@ M4_Multiply_Identity :: proc(t: ^r.Test_Context) {
     result2 := rm.mul(A, rm.matrix4_identity);
 
     r.expect(t, result1 == A);
-    r.expect(t, rm.eq(result1, A));
+    r.expect(t, eq(result1, A));
 
     r.expect(t, result2 == A);
-    r.expect(t, rm.eq(result2, A));
+    r.expect(t, eq(result2, A));
 }
 
 @test
@@ -278,13 +277,13 @@ M4_Multiply_Identity_Tuple :: proc(t: ^r.Test_Context) {
     a := rm.Tuple { 1, 2, 3, 4 };
 
     result1 := rm.matrix4_identity * a;
-    result2 := rm.mul(rm.matrix4_identity, a);
+    result2 := rt.mul(rm.matrix4_identity, a);
 
     r.expect(t, result1 == a);
-    r.expect(t, rm.eq(result1, a));
+    r.expect(t, eq(result1, a));
 
     r.expect(t, result2 == a);
-    r.expect(t, rm.eq(result2, a));
+    r.expect(t, eq(result2, a));
 }
 
 @test
@@ -308,10 +307,10 @@ M4_Transpose :: proc(t: ^r.Test_Context) {
     result2 := rm.matrix_transpose(A);
 
     r.expect(t, result1 == expected);
-    r.expect(t, rm.eq(result1, expected));
+    r.expect(t, eq(result1, expected));
 
     r.expect(t, result2 == expected);
-    r.expect(t, rm.eq(result2, expected));
+    r.expect(t, eq(result2, expected));
 }
 
 @test
@@ -320,7 +319,7 @@ M4_Transpose_Identity :: proc(t: ^r.Test_Context) {
     A := rm.matrix_transpose(rm.matrix4_identity);
 
     r.expect(t, A == rm.matrix4_identity);
-    r.expect(t, rm.eq(A, rm.matrix4_identity));
+    r.expect(t, eq(A, rm.matrix4_identity));
 }
 
 @test
@@ -337,10 +336,10 @@ M2_Determinant :: proc(t: ^r.Test_Context) {
     result2 := rm.matrix_determinant(A);
 
     r.expect(t, result1 == expected);
-    r.expect(t, rm.eq(result1, expected));
+    r.expect(t, eq(result1, expected));
 
     r.expect(t, result2 == expected);
-    r.expect(t, rm.eq(result2, expected));
+    r.expect(t, eq(result2, expected));
 }
 
 
@@ -367,10 +366,10 @@ M3_Submatrix :: proc(t: ^r.Test_Context) {
     result2 := rm.matrix_submatrix(A, 2, 2);
 
     r.expect(t, result1 == expected1);
-    r.expect(t, rm.eq(result1, expected1));
+    r.expect(t, eq(result1, expected1));
 
     r.expect(t, result2 == expected2);
-    r.expect(t, rm.eq(result2, expected2));
+    r.expect(t, eq(result2, expected2));
 }
 
 @test
@@ -399,10 +398,10 @@ M4_Submatrix :: proc(t: ^r.Test_Context) {
     result2 := rm.matrix_submatrix(A, 3, 3);
 
     r.expect(t, result1 == expected1);
-    r.expect(t, rm.eq(result1, expected1));
+    r.expect(t, eq(result1, expected1));
 
     r.expect(t, result2 == expected2);
-    r.expect(t, rm.eq(result2, expected2));
+    r.expect(t, eq(result2, expected2));
 }
 
 @test
@@ -533,12 +532,12 @@ M4_Inverse1 :: proc(t: ^r.Test_Context) {
     r.expect(t, rm.matrix_cofactor(A, 1, 0) == 240.0);
     r.expect(t, rm.matrix_cofactor(A, 2, 3) == -160.0);
 
-    r.expect(t, rm.eq(B[3, 2], -160.0/532.0));
+    r.expect(t, eq(B[3, 2], -160.0/532.0));
 
     r.expect(t, rm.matrix_cofactor(A, 3, 2) == 105.0);
-    r.expect(t, rm.eq(B[2, 3], 105.0/532.0));
+    r.expect(t, eq(B[2, 3], 105.0/532.0));
 
-    r.expect(t, rm.eq(B, expected_b));
+    r.expect(t, eq(B, expected_b));
 }
 
 @test
@@ -559,7 +558,7 @@ M4_Inverse2 :: proc(t: ^r.Test_Context) {
 
     result := rm.matrix_inverse(A);
 
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -580,7 +579,7 @@ M4_Inverse3 :: proc(t: ^r.Test_Context) {
 
     result := rm.matrix_inverse(A);
 
-    r.expect(t, rm.eq(result, expected));
+    r.expect(t, eq(result, expected));
 }
 
 @test
@@ -600,12 +599,12 @@ M4_Mul_Prod_Inverse :: proc(t: ^r.Test_Context) {
          6, -2,  0,  5,
     };
 
-    C1 := rm.mul(A, B);
+    C1 := rt.mul(A, B);
     C2 := A * B;
 
     result1 := rm.mul(C1, rm.matrix_inverse(B));
     result2 := rm.Matrix4(C1 * rm.matrix_inverse(B));
 
-    r.expect(t, rm.eq(result1, A));
-    r.expect(t, rm.eq(result2, A));
+    r.expect(t, eq(result1, A));
+    r.expect(t, eq(result2, A));
 }

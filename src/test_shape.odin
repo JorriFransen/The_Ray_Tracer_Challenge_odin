@@ -1,7 +1,6 @@
-package world_shapes
+package raytracer
 
 import m "raytracer:math"
-import g "raytracer:graphics"
 
 Test_Shape :: struct {
     using shape: Shape,

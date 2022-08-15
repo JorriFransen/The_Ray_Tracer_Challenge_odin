@@ -36,7 +36,7 @@ matrix4_eq :: proc(a, b: Matrix4) -> bool {
     a_flat := transmute(Flat_Type)a;
     b_flat := transmute(Flat_Type)b;
 
-    return eq(a_flat, b_flat);
+    return eq_arr(a_flat, b_flat);
 }
 
 matrix3_eq :: proc(a, b: Matrix3) -> bool {
@@ -45,7 +45,7 @@ matrix3_eq :: proc(a, b: Matrix3) -> bool {
     a_flat := transmute(Flat_Type)a;
     b_flat := transmute(Flat_Type)b;
 
-    return eq(a_flat, b_flat);
+    return eq_arr(a_flat, b_flat);
 }
 
 matrix2_eq :: proc(a, b: Matrix2) -> bool {
@@ -54,7 +54,7 @@ matrix2_eq :: proc(a, b: Matrix2) -> bool {
     a_flat := transmute(Flat_Type)a;
     b_flat := transmute(Flat_Type)b;
 
-    return eq(a_flat, b_flat);
+    return tuple_eq(a_flat, b_flat);
 }
 
 matrix4_mul :: proc(a, b: Matrix4) -> Matrix4 {
