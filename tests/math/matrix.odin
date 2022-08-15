@@ -222,7 +222,7 @@ M4_Multiply :: proc(t: ^r.Test_Context) {
     result2 := rt.mul(A, B);
 
     r.expect(t, rm.Matrix4(result1) == expected);
-    r.expect(t, rm.eq(rm.Matrix4(result1), expected));
+    r.expect(t, eq(rm.Matrix4(result1), expected));
 
     r.expect(t, result2 == expected);
     r.expect(t, eq(result2, expected));
@@ -262,7 +262,7 @@ M4_Multiply_Identity :: proc(t: ^r.Test_Context) {
     };
 
     result1 := rm.Matrix4(A * rm.matrix4_identity);
-    result2 := rm.mul(A, rm.matrix4_identity);
+    result2 := rt.mul(A, rm.matrix4_identity);
 
     r.expect(t, result1 == A);
     r.expect(t, eq(result1, A));
@@ -602,7 +602,7 @@ M4_Mul_Prod_Inverse :: proc(t: ^r.Test_Context) {
     C1 := rt.mul(A, B);
     C2 := A * B;
 
-    result1 := rm.mul(C1, rm.matrix_inverse(B));
+    result1 := rt.mul(C1, rm.matrix_inverse(B));
     result2 := rm.Matrix4(C1 * rm.matrix_inverse(B));
 
     r.expect(t, eq(result1, A));

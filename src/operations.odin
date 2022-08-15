@@ -1,31 +1,31 @@
 package raytracer
 
-import m "math/"
-
-eq :: proc {
-    m.float_eq,
-
-    m.eq_arr,
-
-    m.tuple_eq,
-    m.tuple_eq_pt,
-    m.tuple_eq_vt,
-
-    m.matrix4_eq,
-    m.matrix3_eq,
-    m.matrix2_eq,
-
-    shape_eq,
-}
+import rtmath "raytracer:math"
 
 mul :: proc {
-    m.mul_t,
-    m.mul_v,
-
-    m.matrix4_mul,
-    m.matrix4_mul_tuple,
+    rtmath.mul_t,
+    rtmath.mul_v,
 
     color_mul_c,
     color_mul_s,
-};
 
+    rtmath.matrix4_mul,
+    rtmath.matrix4_mul_tuple,
+}
+
+eq :: proc {
+    rtmath.float_eq,
+
+    rtmath.eq_arr,
+
+    rtmath.tuple_eq,
+    rtmath.tuple_eq_pt,
+    rtmath.tuple_eq_vt,
+
+    rtmath.matrix4_eq,
+    rtmath.matrix3_eq,
+    rtmath.matrix2_eq,
+
+    shape_eq,
+
+}
