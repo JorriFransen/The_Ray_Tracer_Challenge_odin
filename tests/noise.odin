@@ -42,7 +42,7 @@ P1 :: proc(t: ^r.Test_Context) {
 
 
 
-    rt.display(c, "Noise test");
+    // rt.display(c, "Noise test");
 
     // s := m.simplex(1.1, 2.2, -3.3);
 

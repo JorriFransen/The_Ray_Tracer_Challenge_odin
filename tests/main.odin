@@ -3,6 +3,7 @@ package tests
 import "core:fmt"
 import "core:os"
 import "core:mem"
+import "core:io"
 
 import rt "raytracer:."
 import r "raytracer:test_runner"
