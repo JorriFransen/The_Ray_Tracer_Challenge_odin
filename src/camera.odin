@@ -74,7 +74,7 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
         for x in 0..<c.size.x {
 
             ray := camera_ray_for_pixel(c, x, y);
-            color := color_at(w, ray, shadows, allocator);
+            color := color_at(w, ray, 5, shadows, allocator);
             canvas_write_pixel(canvas^, x, y, color);
         }
     }

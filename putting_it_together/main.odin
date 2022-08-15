@@ -34,8 +34,8 @@ main :: proc() {
     // with_canvas(1920, 1080, CH08, "CH08");
     // fmt.println("\n");
 
-    // with_canvas(1920, 1080, CH09, "CH09");
-    // fmt.println("\n");
+    with_canvas(1920, 1080, CH09, "CH09");
+    fmt.println("\n");
 
     // with_canvas(1920, 1080, CH10_1, "CH10.1");
     // fmt.println("\n");
@@ -49,8 +49,8 @@ main :: proc() {
     // with_canvas(1920, 1080, CH10_4, "CH10.4");
     // fmt.println("\n");
 
-    with_canvas(1920, 1080, CH10_5, "CH10.5");
-    fmt.println("\n");
+    // with_canvas(1920, 1080, CH10_5, "CH10.5");
+    // fmt.println("\n");
 }
 
 With_Canvas_Proc :: proc(c: rt.Canvas);

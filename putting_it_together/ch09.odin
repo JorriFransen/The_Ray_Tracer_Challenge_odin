@@ -20,14 +20,14 @@ CH09 :: proc(c: rt.Canvas) {
     wall_mat.specular = .2;
     wall2 := rt.plane(m.translation(-1, 0, -0.5) * m.rotation_y(PI / 3.2) * m.rotation_z(PI / 2), wall_mat);
 
-    sphere_mat := rt.material(diffuse=0.7, specular=0.3);
+    sphere_mat := rt.material(diffuse=0.7, specular=0.3, reflective=.3);
     middle_sphere := rt.sphere(m.translation(-0.5, 1, 0.5), rt.material(sphere_mat, rt.color(0.1, 1, 0.5)));
     right_sphere := rt.sphere(m.translate(m.scaling(0.5, 0.5, 0.5), 1.5, 0.5, -0.5), rt.material(sphere_mat, rt.color(0.5, 1, 0.1)));
     left_sphere := rt.sphere(m.translate(m.scaling(0.33, 0.33, 0.33), -1.5, 0.33, -0.75), rt.material(sphere_mat, rt.color(1, 0.8, 0.1)));
 
-    small_sphere_mat := rt.material(shininess = 1000, specular = 1);
+    small_sphere_mat := rt.material(shininess = 1000, specular = 1, reflective = .4);
     small_sphere1 := rt.sphere(m.translate(m.scaling(.2, .2, .2), 0, .2, -1), small_sphere_mat);
-    small_sphere2 := rt.sphere(m.translate(m.scaling(.2, .2, .2), .8, .2, .2), rt.material(small_sphere_mat, rt.color(.8, .2, .2)));
+    small_sphere2 := rt.sphere(m.translate(m.scaling(.25, .25, .25), .8, .2, .2), rt.material(small_sphere_mat, rt.color(.8, .2, .2)));
 
     shapes := []^rt.Shape { &floor, &wall1, &wall2, &middle_sphere, &right_sphere, &left_sphere, &small_sphere1, &small_sphere2 };
 

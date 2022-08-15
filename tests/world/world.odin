@@ -28,6 +28,9 @@ world_suite := r.Test_Suite {
         r.test("Shade_Shadowed_Intersection", Shade_Shadowed_Intersection),
         r.test("Reflected_Color_Non_Reflective_Material", Reflected_Color_Non_Reflective_Material),
         r.test("Reflected_Color_Reflective_Material", Reflected_Color_Reflective_Material),
+        r.test("Shade_Hit_Reflective_Material", Shade_Hit_Reflective_Material),
+        r.test("Limit_Reflection_Recursion", Limit_Reflection_Recursion),
+        r.test("Avoid_Infinite_Reflection_Recursion", Avoid_Infinite_Reflection_Recursion),
     },
 
     child_suites = {
@@ -129,7 +132,7 @@ Shade_Intersection :: proc(t: ^r.Test_Context) {
     i := rt.intersection(4, shape);
 
     comps := rt.hit_info(i, ray);
-    c := rt.shade_hit(w, comps);
+    c := rt.shade_hit(w, &comps);
 
     expect(t, eq(c, rt.color(0.38066, 0.47583, 0.2855)));
 }
@@ -146,7 +149,7 @@ Shade_Intersection_Inside :: proc(t: ^r.Test_Context) {
     i := rt.intersection(0.5, shape);
 
     comps := rt.hit_info(i, ray);
-    c := rt.shade_hit(w, comps);
+    c := rt.shade_hit(w, &comps);
 
     expect(t, eq(c, rt.color(0.90498, 0.90498, 0.90498)));
 }
@@ -159,7 +162,7 @@ Color_At_Miss :: proc(t: ^r.Test_Context) {
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 1, 0));
 
-    c := rt.color_at(w, ray);
+    c := rt.color_at(w, ray, 1);
 
     expect(t, eq(c, rt.color(0, 0, 0)));
 }
@@ -254,7 +257,7 @@ Shade_Shadowed_Intersection :: proc(t: ^r.Test_Context) {
 
     hit_info := rt.hit_info(i, ray);
 
-    c := rt.shade_hit(&w, hit_info);
+    c := rt.shade_hit(&w, &hit_info);
 
     expect(t, eq(c, rt.color(0.1, 0.1, 0.1)));
 }
@@ -298,6 +301,70 @@ Reflected_Color_Reflective_Material :: proc(t: ^r.Test_Context) {
     color := rt.reflected_color(w, &comps);
 
     expect(t, eq(color, rt.color(0.19033, 0.23791, 0.14274)));
+}
 
+@test
+Shade_Hit_Reflective_Material :: proc(t: ^r.Test_Context) {
 
+    w := default_world();
+    defer destroy_default_world(w);
+
+    shape := rt.plane(m.translation(0, -1, 0), rt.material(reflective=0.5));
+
+    new_objects := []^rt.Shape { w.objects[0], w.objects[1], &shape };
+    old_objects := w.objects;
+    w.objects = new_objects;
+    defer w.objects = old_objects;
+
+    sqrt2 := math.sqrt(m.real(2));
+    sqrt2_d2 := sqrt2 / 2.0;
+    r := m.ray(m.point(0, 0, -3), m.vector(0, -sqrt2_d2, sqrt2_d2));
+    i := rt.intersection(sqrt2, &shape);
+
+    comps := rt.hit_info(i, r);
+    color := rt.shade_hit(w, &comps)
+
+    expect(t, eq(color, rt.color(0.87676, 0.92434, 0.82917)));
+}
+
+@test
+Limit_Reflection_Recursion :: proc(t: ^r.Test_Context) {
+
+    w := default_world();
+    defer destroy_default_world(w);
+
+    shape := rt.plane(m.translation(0, -1, 0), rt.material(reflective=0.5));
+
+    new_objects := []^rt.Shape { w.objects[0], w.objects[1], &shape };
+    old_objects := w.objects;
+    w.objects = new_objects;
+    defer w.objects = old_objects;
+
+    sqrt2 := math.sqrt(m.real(2));
+    sqrt2_d2 := sqrt2 / 2.0;
+    r := m.ray(m.point(0, 0, -3), m.vector(0, -sqrt2_d2, sqrt2_d2));
+    i := rt.intersection(sqrt2, &shape);
+
+    comps := rt.hit_info(i, r);
+    color := rt.reflected_color(w, &comps, 0)
+
+    expect(t, eq(color, rt.BLACK));
+}
+
+@test
+Avoid_Infinite_Reflection_Recursion :: proc(t: ^r.Test_Context) {
+
+    light := rt.point_light(m.point(0, 0, 0), rt.WHITE);
+    lights := [?]rt.Point_Light { light };
+
+    lower := rt.plane(m.translation(0, -1, 0), rt.material(reflective=1));
+    upper := rt.plane(m.translation(0, 1, 0), rt.material(reflective=1));
+
+    objects := [?]^rt.Shape { &lower, &upper };
+
+    r := m.ray(m.point(0, 0, 0), m.vector(0, 1, 0));
+
+    w := rt.world(objects[:], lights[:]);
+
+    rt.color_at(&w, r);
 }

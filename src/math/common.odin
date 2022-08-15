@@ -2,7 +2,7 @@ package rtmath
 
 import "core:intrinsics"
 
-real :: f32;
+real :: f64;
 
 FLOAT_EPSILON :: 0.00001;
 

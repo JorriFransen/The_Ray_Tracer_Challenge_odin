@@ -78,17 +78,17 @@ Perlin :: proc(t: ^r.Test_Context) {
             }
         }
 
-        rt.display(c, "Perlin noise");
+        // rt.display(c, "Perlin noise");
 
-        ppm := rt.ppm_from_canvas(c);
-        defer delete(ppm);
+        // ppm := rt.ppm_from_canvas(c);
+        // defer delete(ppm);
 
-        name := fmt.tprintf("images/noise/perlin_octave_%v.ppm", o);
-        if !rt.ppm_write_to_file(name, ppm) {
-            fmt.fprintf(os.stderr, "Failed to write image: '%v'\n", name);
-        }
+        // name := fmt.tprintf("images/noise/perlin_octave_%v.ppm", o);
+        // if !rt.ppm_write_to_file(name, ppm) {
+        //     fmt.fprintf(os.stderr, "Failed to write image: '%v'\n", name);
+        // }
 
-        rt.canvas_clear(&c);
+        // rt.canvas_clear(&c);
     }
 
 

@@ -38,18 +38,24 @@ intersect_world :: proc(w: ^World, r: m.Ray, allocator := context.allocator) -> 
     return result;
 }
 
-shade_hit :: proc(w: ^World, hi: Hit_Info, shadows := true) -> (result: Color) {
+shade_hit :: proc(w: ^World, hi: ^Hit_Info, shadows := true, remaining := 5) -> (result: Color) {
     assert(len(w.lights) > 0);
+
+    surface := rt.BLACK;
 
     for l in &w.lights {
         is_shadowed :=  shadows && is_shadowed(w, hi.over_point, &l);
-        result += lighting(hi.object, l, hi.over_point, hi.eye_v, hi.normal_v, is_shadowed)
+        surface += lighting(hi.object, l, hi.over_point, hi.eye_v, hi.normal_v, is_shadowed)
     }
+
+    reflected := reflected_color(w, hi, remaining);
+
+    result = surface + reflected;
 
     return;
 }
 
-color_at :: proc(w: ^World, r: m.Ray, shadows := true, allocator := context.allocator) -> Color {
+color_at :: proc(w: ^World, r: m.Ray, remaining := 0, shadows := true, allocator := context.allocator) -> Color {
 
     xs := intersect_world(w, r, allocator);
     defer delete(xs);
@@ -58,7 +64,7 @@ color_at :: proc(w: ^World, r: m.Ray, shadows := true, allocator := context.allo
 
         hi := hit_info(hit, r);
 
-        return shade_hit(w, hi, shadows);
+        return shade_hit(w, &hi, shadows, remaining);
 
     } else {
         return BLACK;
