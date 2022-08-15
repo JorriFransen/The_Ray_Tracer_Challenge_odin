@@ -7,7 +7,7 @@ import m "raytracer:math"
 import r "raytracer:test_runner"
 
 noise_suite := r.Test_Suite {
-    name = "Simplex/",
+    name = "Noise/",
     tests = {
         r.test("P1", P1),
     },
@@ -42,7 +42,7 @@ P1 :: proc(t: ^r.Test_Context) {
 
 
 
-    // rt.display(c, "Noise test");
+    rt.display(c, "Noise test");
 
     // s := m.simplex(1.1, 2.2, -3.3);
 

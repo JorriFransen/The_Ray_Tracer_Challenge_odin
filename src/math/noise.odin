@@ -125,3 +125,70 @@ value_noise_3D :: proc(p: Point, frequency: real) -> real {
             tz) / hash_mask;
 }
 
+value_noise_4D :: proc(p: Point, w: real, frequency: real) -> real {
+
+    p := p * frequency;
+    i0 := int(math.floor(p.x));
+    j0 := int(math.floor(p.y));
+    k0 := int(math.floor(p.z));
+    l0 := int(math.floor(w));
+    tx := smooth(p.x - real(i0));
+    ty := smooth(p.y - real(j0));
+    tz := smooth(p.z - real(k0));
+    tw := smooth(w - real(l0));
+    i0 &= hash_mask;
+    j0 &= hash_mask;
+    k0 &= hash_mask;
+    l0 &= hash_mask;
+    i1 := i0 + 1;
+    j1 := j0 + 1;
+    k1 := k0 + 1;
+    l1 := l0 + 1;
+
+    h0 := hash[i0];
+    h1 := hash[i1];
+
+    h00 := hash[h0 + j0];
+    h10 := hash[h1 + j0];
+    h01 := hash[h0 + j1];
+    h11 := hash[h1 + j1];
+
+    h000 := hash[h00 + k0];
+    h100 := hash[h10 + k0];
+    h010 := hash[h01 + k0];
+    h110 := hash[h11 + k0];
+    h001 := hash[h00 + k1];
+    h101 := hash[h10 + k1];
+    h011 := hash[h01 + k1];
+    h111 := hash[h11 + k1];
+
+    h0000 := real(hash[h000 + l0]);
+    h1000 := real(hash[h100 + l0]);
+    h0100 := real(hash[h010 + l0]);
+    h1100 := real(hash[h110 + l0]);
+    h0010 := real(hash[h001 + l0]);
+    h1010 := real(hash[h101 + l0]);
+    h0110 := real(hash[h011 + l0]);
+    h1110 := real(hash[h111 + l0]);
+    h0001 := real(hash[h000 + l1]);
+    h1001 := real(hash[h100 + l1]);
+    h0101 := real(hash[h010 + l1]);
+    h1101 := real(hash[h110 + l1]);
+    h0011 := real(hash[h001 + l1]);
+    h1011 := real(hash[h101 + l1]);
+    h0111 := real(hash[h011 + l1]);
+    h1111 := real(hash[h111 + l1]);
+
+    return lerp(
+             lerp(
+               lerp(lerp(h0000, h1000, tx), lerp(h0100, h1100, tx), ty),
+               lerp(lerp(h0010, h1010, tx), lerp(h0110, h1110, tx), ty),
+               tz),
+             lerp(
+               lerp(lerp(h0001, h1001, tx), lerp(h0101, h1101, tx), ty),
+               lerp(lerp(h0011, h1011, tx), lerp(h0111, h1111, tx), ty),
+               tz),
+             tw) / hash_mask;
+
+}
+
