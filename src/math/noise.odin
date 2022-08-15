@@ -234,17 +234,17 @@ value_noise_3D :: proc(p: Point, frequency: real) -> real {
             tz) / hash_mask * 2 - 1;
 }
 
-value_noise_4D :: proc(p: Point, w: real, frequency: real) -> real {
+value_noise_4D :: proc(p: Point, frequency: real) -> real {
 
     p := p * frequency;
     i0 := int(math.floor(p.x));
     j0 := int(math.floor(p.y));
     k0 := int(math.floor(p.z));
-    l0 := int(math.floor(w));
+    l0 := int(math.floor(p.w));
     tx := smooth(p.x - real(i0));
     ty := smooth(p.y - real(j0));
     tz := smooth(p.z - real(k0));
-    tw := smooth(w - real(l0));
+    tw := smooth(p.w - real(l0));
     i0 &= hash_mask;
     j0 &= hash_mask;
     k0 &= hash_mask;

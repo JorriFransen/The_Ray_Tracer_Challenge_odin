@@ -26,7 +26,7 @@ test: custom_test
 
 custom_test: builddir
 	$(ODIN) build tests -out:build/tests.bin $(COLLECTION_FLAGS) $(ODINFLAGS)
-	build/tests.bin $(ODINTEST_FLAGS)
+	build/tests.bin $(ODINTEST_FLAGS) Noise
 
 
 builddir:
