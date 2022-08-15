@@ -77,7 +77,7 @@ Ray_Corner_Canvas :: proc(t: ^r.T) {
 @test
 Ray_Transformed_Cam :: proc(t: ^r.T) {
 
-    tf := m.rotation_y( PI / 4) * m.translation(0, -2, 5)
+    tf := m.mul(m.rotation_y( PI / 4), m.translation(0, -2, 5));
     c := w.camera(201, 101, PI / 2, tf);
     ray := w.camera_ray_for_pixel(&c, 100, 50);
 

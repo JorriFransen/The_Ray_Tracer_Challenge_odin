@@ -19,7 +19,7 @@ PPM_Print_State :: struct {
 
 ppm_from_canvas :: proc(c: Canvas, allocator := context.allocator) -> string {
 
-    _sb := strings.builder_make_none(allocator);
+    _sb := strings.builder_make(allocator);
     sb := &_sb;
     defer strings.builder_destroy(sb);
 

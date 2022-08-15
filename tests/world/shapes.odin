@@ -171,7 +171,7 @@ S_Translated_Normal :: proc(t: ^r.T) {
 @test
 S_Scaled_Rotated_Normal :: proc(t: ^r.T) {
 
-    s := w.sphere(m.scaling(1, 0.5, 1) * m.rotation_z(PI / 5));
+    s := w.sphere(m.mul(m.scaling(1, 0.5, 1), m.rotation_z(PI / 5)));
 
     sqrt2_over_2 := math.sqrt(m.real(2.0)) / 2;
     p := m.point(0, sqrt2_over_2, -sqrt2_over_2);
