@@ -3,6 +3,7 @@ package tests
 import "core:fmt"
 import "core:os"
 import "core:mem"
+import "core:io"
 
 import rt "raytracer:."
 import r "raytracer:test_runner"
@@ -22,6 +23,7 @@ main_suite := r.Test_Suite {
         &graphics_tests.graphics_suite,
         &world_tests.world_suite,
         &pattern_suite,
+        &noise_suite,
     },
 }
 
@@ -51,25 +53,44 @@ parse_options :: proc(args: []string) -> (result: r.Test_Options, ok: bool) {
     result = r.default_test_options();
     ok = true;
 
+    parsed_arg_count := 0;
+    prefix_set := false;
+
+loop:
     for arg in args {
+
+        if prefix_set do break;
+
         switch arg {
-            case "-no-color": {
+
+            case "-no-color":
                 result.print_color = false;
-            }
-            case: {
-                fmt.eprintf("Invalid option: '%s'\n", arg);
-                usage();
-                ok = false;
-                return;
-            }
+
+            case:
+                if arg[0] == '-' do break loop;
+                if prefix_set do break loop;
+                result.test_prefix = arg;
+                prefix_set = true;
+                break;
         }
+
+        parsed_arg_count += 1;
     }
+
+    if parsed_arg_count < len(args) {
+        fmt.eprintf("Invalid option: '%s'\n", args[parsed_arg_count]);
+        usage();
+        ok = false;
+    }
+
     return;
 }
 
 usage :: proc() {
-    fmt.printf("usage: %s [options]\n", os.args[0]);
+    fmt.printf("usage: %s [options] [prefix]\n", os.args[0]);
     fmt.printf("Options:\n");
     fmt.printf("  -no-color    Disable colored (ansi) ouput.\n")
+    fmt.printf("\n")
+    fmt.printf("Prefix:        Only run tetst with this prefix.");
     fmt.printf("\n");
 }

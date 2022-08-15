@@ -1,10 +1,10 @@
 package tests_runner
 
+import "core:c/libc"
 import "core:fmt"
+import "core:io"
 import "core:os"
 import "core:strings"
-import "core:c/libc"
-import "core:io"
 
 Test_Signature :: proc(^Test_Context);
 
@@ -34,14 +34,15 @@ Test_Context :: struct {
 
     total_test_count, test_fail_count, assert_fail_count: int,
 
-    test_writer: io.Writer,
-    stdout_writer: io.Writer,
+    test_sb: strings.Builder,
 
     print_color: bool,
+    test_prefix: string,
 }
 
 Test_Options :: struct {
     print_color: bool,
+    test_prefix: string,
 }
 
 test :: proc (name: string, test_fn: Test_Signature, setup_fn: Setup_Test_Signature = nil, teardown_fn: Setup_Test_Signature = nil) -> Test {
@@ -62,15 +63,20 @@ test_context :: proc(s: ^Test_Suite, options: Test_Options) -> Test_Context {
         total_test_count = 0,
         test_fail_count = 0,
         assert_fail_count = 0,
-        test_writer = {},
-        stdout_writer = io.to_writer(os.stream_from_handle(os.stdout)),
+        test_sb = strings.builder_make(),
         print_color = options.print_color,
+        test_prefix = options.test_prefix,
     };
+}
+
+test_context_free :: proc(tc: ^Test_Context) {
+    strings.builder_destroy(&tc.test_sb);
 }
 
 execute_test_suite_s :: proc(s: ^Test_Suite, options: Test_Options) -> bool {
 
     c := test_context(s, options);
+    defer test_context_free(&c);
     ok := execute_test_suite(&c, s);
 
     success_count := c.total_test_count - c.test_fail_count;
@@ -81,21 +87,28 @@ execute_test_suite_s :: proc(s: ^Test_Suite, options: Test_Options) -> bool {
     report_msg := fmt.aprintf("{:d} of {:d} ({:.*f}%%) tests succesful\n", success_count, c.total_test_count, precision, percentage);
     defer delete(report_msg);
 
-    print_color(&c, c.stdout_writer, report_msg, report_color);
+    print_color(&c, os.stdout, report_msg, report_color);
 
     return ok;
 }
 
 execute_test_suite_csp :: proc(c: ^Test_Context, s: ^Test_Suite, prefix: string = "") -> bool {
 
-    c.total_test_count += len(s.tests);
-
     current_prefix := strings.concatenate({prefix, s.name});
     defer delete(current_prefix);
+
+    if len(current_prefix) > 0 {
+        min_len := min(len(current_prefix), len(c.test_prefix));
+
+        if current_prefix[:min_len] != c.test_prefix[:min_len] {
+            return true;
+        }
+    }
 
     tests_ok := true;
 
     for t in &s.tests {
+
 
         if s.setup != nil do s.setup(c);
 
@@ -120,16 +133,22 @@ execute_test_suite :: proc {
 
 execute_test :: proc(c: ^Test_Context, test: ^Test, prefix: string = "") -> bool {
 
-    fd := tmpfile();
-    defer os.close(fd);
+    current_prefix := strings.concatenate({prefix, test.name});
+    defer delete(current_prefix);
 
-    tmpstream := os.stream_from_handle(fd);
-    w := io.to_writer(tmpstream);
+    if len(current_prefix) > 0 {
+        min_len := min(len(current_prefix), len(c.test_prefix));
 
+        if current_prefix[:min_len] != c.test_prefix[:min_len] {
+            return true;
+        }
+    }
 
-    c.test_writer = w;
+    strings.builder_reset(&c.test_sb);
+
     old_fail_count := c.assert_fail_count;
 
+    c.total_test_count += 1;
 
     if test.setup != nil do test.setup(c);
 
@@ -138,7 +157,6 @@ execute_test :: proc(c: ^Test_Context, test: ^Test, prefix: string = "") -> bool
     if test.teardown != nil do test.teardown(c);
 
     test_ok := old_fail_count == c.assert_fail_count;
-    c.test_writer = {};
 
 
     status: string;
@@ -151,17 +169,12 @@ execute_test :: proc(c: ^Test_Context, test: ^Test, prefix: string = "") -> bool
         color = .Red;
     }
 
-    print_color(c, c.stdout_writer, status, color);
-    fmt.printf(" %s%s\t", prefix, test.name);
-    fmt.println();
+    print_color(c, os.stdout, status, color);
+    fmt.printf(" %s%s\t\n", prefix, test.name);
 
     if !test_ok {
         c.test_fail_count += 1;
-        os.seek(fd, 0, os.SEEK_SET);
-        buf, ok := os.read_entire_file_from_handle(fd);
-        defer delete(buf);
-        assert(ok);
-        fmt.println(string(buf));
+        fmt.println(strings.to_string(c.test_sb));
     }
 
     return test_ok;
@@ -175,8 +188,10 @@ expect :: proc(tc: ^Test_Context, condition: bool, message: string = "", loc := 
         maybe_colon := ": " if len(message) > 0 else "";
         loc_str := fmt.tprintf("[%v] assert fail%v", loc, maybe_colon);
 
-        print_color(tc, tc.test_writer, loc_str, .Red);
-        fmt.wprintf(tc.test_writer, "%v\n", message);
+        writer := strings.to_writer(&tc.test_sb);
+
+        print_color(tc, writer, loc_str, .Red);
+        fmt.sbprintf(&tc.test_sb, "%v\n", message);
         return
     }
 }
@@ -184,8 +199,11 @@ expect :: proc(tc: ^Test_Context, condition: bool, message: string = "", loc := 
 log :: proc(tc: ^Test_Context, v: any, loc := #caller_location) {
 
     msg := fmt.tprintf("[%v] log: ", loc)
-    print_color(tc, tc.test_writer, msg, .Yellow);
-    fmt.wprintf(tc.test_writer, "%v\n", v)
+
+    writer := strings.to_writer(&tc.test_sb);
+
+    print_color(tc, writer, msg, .Yellow);
+    fmt.sbprintf(&tc.test_sb, "%v\n", v)
 }
 
 @private
@@ -197,7 +215,20 @@ Print_Color :: enum rune {
 }
 
 @private
-print_color :: proc(c: ^Test_Context, w: io.Writer, s: string, col: Print_Color) {
+print_color_h :: proc(c: ^Test_Context, fd: os.Handle, s: string, col: Print_Color) {
+
+    assert(fd >= 1);
+
+    stream := os.stream_from_handle(fd);
+    writer, ok := io.to_writer(stream);
+    assert(ok);
+
+    print_color_w(c, writer, s, col);
+}
+
+@private
+print_color_w :: proc(c: ^Test_Context, w: io.Writer, s: string, col: Print_Color) {
+
     if c.print_color {
         fmt.wprintf(w, "\x1b[3%cm%s\x1b[39m", rune(col), s);
         return;
@@ -207,43 +238,7 @@ print_color :: proc(c: ^Test_Context, w: io.Writer, s: string, col: Print_Color)
 }
 
 @private
-tmpfile :: proc() -> os.Handle {
-    cfile : ^libc.FILE = libc.tmpfile();
-    assert(cfile != nil);
-    return to_handle(cfile);
-
-}
-
-when ODIN_OS == .Linux {
-    foreign import _libc "system:c"
-
-    @(private="file")
-    @(default_calling_convention="c")
-    foreign _libc {
-
-        fileno :: proc(stream: ^libc.FILE) -> int ---;
-    }
-
-    @private
-    to_handle :: proc(cfile: ^libc.FILE) -> os.Handle {
-        return os.Handle(fileno(cfile));
-    }
-
-} else when ODIN_OS == .Windows {
-    foreign import _libc "system:libucrt.lib";
-    import widows "core:sys/windows";
-
-    @(private="file")
-    @(default_calling_convention="c")
-    foreign _libc {
-        _fileno :: proc(stream: ^libc.FILE) -> int ---;
-        _get_osfhandle :: proc(fd: int) -> widows.HANDLE ---;
-    }
-
-    @private
-    to_handle :: proc(cfile: ^libc.FILE) -> os.Handle {
-        return os.Handle(_get_osfhandle(_fileno(cfile)));
-    }
-} else {
-    #assert(false, "OS not supported");
+print_color :: proc {
+    print_color_h,
+    print_color_w,
 }

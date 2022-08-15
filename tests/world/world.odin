@@ -94,8 +94,8 @@ World_Test_Default :: proc(t: ^r.Test_Context) {
     expect(t, w.lights[0] == light);
 
     expect(t, len(w.objects) == 2);
-    expect(t, rt.eq(w.objects[0]^, s1));
-    expect(t, rt.eq(w.objects[1]^, s2));
+    expect(t, eq(w.objects[0]^, s1));
+    expect(t, eq(w.objects[1]^, s2));
 }
 
 @test

@@ -15,12 +15,12 @@ Pattern :: struct {
 }
 
 Color_Pattern :: struct {
-    using pattern: Pattern,
+    using base: Pattern,
     a, b: Color,
 }
 
 Nested_Pattern :: struct {
-    using pattern: Pattern,
+    using base: Pattern,
     a, b: ^Pattern,
 }
 
@@ -36,16 +36,37 @@ Pattern_Blend_Mode :: enum {
 }
 
 Blended_Pattern :: struct {
-    using pattern: Pattern,
+    using base: Pattern,
     a, b: ^Pattern,
     mode: Pattern_Blend_Mode,
+}
+
+Noise_Pattern :: struct {
+    using base: Pattern,
+    a, b: ^Pattern,
+
+    noise_proc: m.Noise_Proc,
+    frequency: m.real,
+    octaves: int,
+}
+
+Perturbed_Pattern :: struct {
+    using base: Pattern,
+
+    pattern: ^Pattern,
+    noise_proc: m.Noise_Proc,
+    frequency: m.real,
+    octaves: int,
+
+    scale: m.real,
 }
 
 pattern_base :: proc(pa_proc: Pattern_At_Proc, tf: m.Matrix4, base_type: typeid) -> (r: Pattern) {
 
     assert(base_type == Nested_Pattern ||
            base_type == Color_Pattern ||
-           base_type == Blended_Pattern);
+           base_type == Blended_Pattern ||
+           base_type == Noise_Pattern);
 
     set_pattern_transform(&r, tf);
     r.pattern_at = pa_proc;
@@ -54,14 +75,14 @@ pattern_base :: proc(pa_proc: Pattern_At_Proc, tf: m.Matrix4, base_type: typeid)
 }
 
 pattern_nested :: proc(pa_proc: Pattern_At_Proc, a, b: ^Pattern, tf := m.matrix4_identity) -> (r: Nested_Pattern) {
-    r.pattern = pattern(pa_proc, tf, Nested_Pattern);
+    r.base = pattern(pa_proc, tf, Nested_Pattern);
     r.a = a;
     r.b = b;
     return;
 }
 
 pattern_color :: proc(pa_proc: Pattern_At_Proc, a, b: Color, tf := m.matrix4_identity) -> (r: Color_Pattern) {
-    r.pattern = pattern(pa_proc, tf, Color_Pattern);
+    r.base = pattern(pa_proc, tf, Color_Pattern);
     r.a = a;
     r.b = b;
     return;
@@ -119,7 +140,7 @@ blend_at :: proc(pat: ^Pattern, p: m.Point) -> Color {
 }
 
 blended_pattern :: proc(a, b: ^Pattern, mode := Pattern_Blend_Mode.Average) -> (r: Blended_Pattern) {
-    r.pattern = pattern(blend_at, m.matrix4_identity, Blended_Pattern);
+    r.base = pattern(blend_at, m.matrix4_identity, Blended_Pattern);
     r.a = a;
     r.b = b;
     r.mode = mode;
@@ -311,4 +332,58 @@ checkers_pattern_c :: proc(a, b: Color, tf := m.matrix4_identity) -> Color_Patte
 checkers_pattern :: proc {
     checkers_pattern_p,
     checkers_pattern_c,
+}
+
+@(private="file")
+noise_at :: proc(pat: ^Pattern, p: m.Point) -> Color {
+    np := transmute(^Noise_Pattern)pat;
+
+    nv := m.noise_sum(np.noise_proc, p, np.frequency, np.octaves) * 0.5 + 0.5;
+
+    a := pattern_at(np.a, p) * nv;
+    b := pattern_at(np.b, p) * (1 - nv);
+
+    return a + b;
+
+}
+
+noise_pattern :: proc(a, b: ^Pattern, p: m.Noise_Proc, frequency: m.real, octaves: int) -> (r: Noise_Pattern) {
+
+    assert(frequency > 0);
+    assert(octaves >= 0 && octaves <= 8);
+
+    r.base = pattern(noise_at, m.matrix4_identity, Noise_Pattern);
+    r.a = a;
+    r.b = b;
+    r.noise_proc = p;
+    r.frequency = frequency;
+    r.octaves = octaves;
+    return;
+}
+
+@(private="file")
+perturbed_at :: proc(pat: ^Pattern, p: m.Point) -> Color {
+    pp := transmute(^Perturbed_Pattern)pat;
+
+    p := p;
+    p.x += (m.noise_sum(pp.noise_proc, p, pp.frequency, pp.octaves) * 0.5 + 0.5) * pp.scale;
+    p.y += (m.noise_sum(pp.noise_proc, p, pp.frequency, pp.octaves) * 0.5 + 0.5) * pp.scale;
+    p.z += (m.noise_sum(pp.noise_proc, p, pp.frequency, pp.octaves) * 0.5 + 0.5) * pp.scale;
+
+    return pattern_at(pp.pattern, p);
+
+}
+
+perturbed_pattern :: proc(pat: ^Pattern, p: m.Noise_Proc, frequency: m.real, octaves: int, scale: m.real) -> (r: Perturbed_Pattern) {
+
+    assert(frequency > 0);
+    assert(octaves >= 0 && octaves <= 8);
+
+    r.base = pattern(perturbed_at, m.matrix4_identity, Noise_Pattern);
+    r.pattern = pat;
+    r.noise_proc = p;
+    r.frequency = frequency;
+    r.octaves = octaves;
+    r.scale = scale;
+    return;
 }

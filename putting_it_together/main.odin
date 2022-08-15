@@ -37,13 +37,19 @@ main :: proc() {
     // with_canvas(1920, 1080, CH09, "CH09");
     // fmt.println("\n");
 
-    with_canvas(1920, 1080, CH10_1, "CH10.1");
-    fmt.println("\n");
+    // with_canvas(1920, 1080, CH10_1, "CH10.1");
+    // fmt.println("\n");
 
-    with_canvas(1920, 1080, CH10_2, "CH10.2");
-    fmt.println("\n");
+    // with_canvas(1920, 1080, CH10_2, "CH10.2");
+    // fmt.println("\n");
 
-    with_canvas(1920, 1080, CH10_3, "CH10.3");
+    // with_canvas(1920, 1080, CH10_3, "CH10.3");
+    // fmt.println("\n");
+
+    // with_canvas(1920, 1080, CH10_4, "CH10.4");
+    // fmt.println("\n");
+
+    with_canvas(1920, 1080, CH10_5, "CH10.5");
     fmt.println("\n");
 }
 
