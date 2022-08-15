@@ -144,8 +144,6 @@ noise_sum :: proc(nproc: Noise_Proc, p: Point, frequency: real, octaves: int, la
     amplitude : real = 1;
     range     : real = 1;
 
-    // return (nproc(p, freq) + (nproc(p, freq * 2) * 0.5)) / 1.5;
-
     sum := nproc(p, frequency);
 
     for o := 1; o < octaves; o += 1 {

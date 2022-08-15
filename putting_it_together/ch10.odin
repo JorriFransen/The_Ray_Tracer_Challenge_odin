@@ -143,15 +143,15 @@ CH10_4 :: proc(c: rt.Canvas) {
     floor_mat := rt.material(color=rt.color(.9, .9, .9), specular=0);
     stripe_scale := m.scaling(0.5, 0.5, 0.5);
 
-    stripe_white := rt.WHITE;
-    stripe_green := rt.color(0.2, .5, 0.2);
-    stripe_yellow := rt.color(1, 1, 0);
+    white := rt.WHITE;
+    green := rt.color(0.2, .5, 0.2);
+    yellow := rt.color(1, 1, 0);
 
-    stripes1 := rt.stripe_pattern(stripe_white, stripe_green, stripe_scale);
-    stripes2 := rt.stripe_pattern(stripe_white, stripe_yellow, stripe_scale);
+    pat_green := rt.solid_color_pattern(green);
 
-    // stripes_blend := rt.blended_pattern(&stripes1, &stripes2, .Average);
-    noise_pat := rt.noise_pattern(&stripes1, &stripes2, m.value_noise_4D, 3, 1);
+    stripes := rt.stripe_pattern(white, yellow, stripe_scale);
+
+    noise_pat := rt.noise_pattern(&stripes, &pat_green, m.perlin_noise_3D, 1, 3);
 
     floor_mat.pattern = &noise_pat;
 
