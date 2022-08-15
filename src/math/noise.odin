@@ -4,6 +4,40 @@ import "core:math"
 import "core:fmt"
 
 @(private="file")
+Vec2 :: struct {
+    x, y: real,
+};
+
+@(private="file")
+Vec3 :: struct {
+    x, y, z: real,
+};
+
+@(private="file")
+magnitude :: proc(v: Vec2) -> real {
+    return math.sqrt(v.x * v.x + v.y * v.y);
+}
+
+@(private="file")
+normalized :: proc(v: Vec2) -> Vec2 {
+    m  := magnitude(v);
+    return Vec2 { v.x / m, v.y / m };
+}
+
+@(private="file")
+dot2 :: proc(g: Vec2, x, y: real) -> real {
+    return g.x * x + g.y * y;
+}
+
+@(private="file")
+dot3 :: proc(g: Vec3, x, y, z: real) -> real {
+    return g.x * x + g.y * y + g.z * z;
+}
+
+@(private="file")
+dot :: proc { dot2, dot3 };
+
+@(private="file")
 hash := [?]int {
     151,160,137, 91, 90, 15,131, 13,201, 95, 96, 53,194,233,  7,225,
     140, 36,103, 30, 69,142,  8, 99, 37,240, 21, 10, 23,190,  6,148,
@@ -45,8 +79,83 @@ hash := [?]int {
 hash_mask :: 255;
 
 @(private="file")
+grad1D := [?]real {
+    1, -1,
+};
+
+@(private="file")
+grad2D := [?]Vec2 {
+    Vec2 {  1,  0 },
+    Vec2 { -1,  0 },
+    Vec2 {  1,  1 },
+    Vec2 {  0, -1 },
+
+    normalized(Vec2 {  1,  1 }),
+    normalized(Vec2 { -1,  1 }),
+    normalized(Vec2 {  1, -1 }),
+    normalized(Vec2 { -1, -1 }),
+
+};
+
+@(private="file")
+grad3D := [?]Vec3 {
+    Vec3 { 1, 1, 0 },
+    Vec3 {-1, 1, 0 },
+    Vec3 { 1,-1, 0 },
+    Vec3 {-1,-1, 0 },
+    Vec3 { 1, 0, 1 },
+    Vec3 {-1, 0, 1 },
+    Vec3 { 1, 0,-1 },
+    Vec3 {-1, 0,-1 },
+    Vec3 { 0, 1, 1 },
+    Vec3 { 0,-1, 1 },
+    Vec3 { 0, 1,-1 },
+    Vec3 { 0,-1,-1 },
+
+    Vec3 { 1, 1, 0 },
+    Vec3 {-1, 1, 0 },
+    Vec3 { 0,-1, 1 },
+    Vec3 { 0,-1,-1 },
+};
+
+@(private="file")
+grad1D_mask :: 1;
+
+@(private="file")
+grad2D_mask :: 7;
+
+@(private="file")
+grad3D_mask :: 15;
+
+@(private="file")
+sqr2 := math.sqrt(real(2));
+
+@(private="file")
 smooth :: proc(t: real) -> real {
     return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
+Noise_Proc :: proc(p: Point, f: real) -> real;
+
+noise_sum :: proc(nproc: Noise_Proc, p: Point, frequency: real, octaves: int, lacunarity := real(2), persistence := real(0.5)) -> real {
+    assert(octaves >= 1 && octaves <= 8);
+
+    frequency : real = frequency;
+    amplitude : real = 1;
+    range     : real = 1;
+
+    // return (nproc(p, freq) + (nproc(p, freq * 2) * 0.5)) / 1.5;
+
+    sum := nproc(p, frequency);
+
+    for o := 1; o < octaves; o += 1 {
+        frequency *= lacunarity;
+        amplitude *= persistence;
+        range += amplitude;
+        sum += nproc(p, frequency) * amplitude;
+    }
+
+    return sum / range;
 }
 
 value_noise_1D :: proc(p: Point, frequency: real) -> real {
@@ -59,7 +168,7 @@ value_noise_1D :: proc(p: Point, frequency: real) -> real {
     h0 := hash[i0];
     h1 := hash[i1];
 
-    return lerp(real(h0), real(h1), t) / hash_mask;
+    return lerp(real(h0), real(h1), t) / hash_mask * 2 - 1;
 }
 
 value_noise_2D :: proc(p: Point, frequency: real) -> real {
@@ -84,7 +193,7 @@ value_noise_2D :: proc(p: Point, frequency: real) -> real {
     return lerp(
             lerp(h00, h10, tx),
             lerp(h01, h11, tx),
-            ty) / hash_mask;
+            ty) / hash_mask * 2 - 1;
 }
 
 value_noise_3D :: proc(p: Point, frequency: real) -> real {
@@ -122,7 +231,7 @@ value_noise_3D :: proc(p: Point, frequency: real) -> real {
     return lerp(
             lerp(lerp(h000, h100, tx), lerp(h010, h110, tx), ty),
             lerp(lerp(h001, h101, tx), lerp(h011, h111, tx), ty),
-            tz) / hash_mask;
+            tz) / hash_mask * 2 - 1;
 }
 
 value_noise_4D :: proc(p: Point, w: real, frequency: real) -> real {
@@ -188,7 +297,116 @@ value_noise_4D :: proc(p: Point, w: real, frequency: real) -> real {
                lerp(lerp(h0001, h1001, tx), lerp(h0101, h1101, tx), ty),
                lerp(lerp(h0011, h1011, tx), lerp(h0111, h1111, tx), ty),
                tz),
-             tw) / hash_mask;
+             tw) / hash_mask * 2 - 1;
 
 }
 
+perlin_noise_1D :: proc(p: Point, frequency: real) -> real {
+
+    p := p * frequency;
+    i0 := int(math.floor(p.x));
+    t0 := p.x - real(i0);
+    t1 := t0 - 1;
+    i0 &= hash_mask;
+    i1 := i0 + 1;
+
+    g0 := grad1D[hash[i0] & grad1D_mask];
+    g1 := grad1D[hash[i1] & grad1D_mask];
+
+    v0 := g0 * t0;
+    v1 := g1 * t1;
+
+    t := smooth(t0);
+    return lerp(v0, v1, t) * 2;
+}
+
+perlin_noise_2D :: proc(p: Point, frequency: real) -> real {
+
+    p := p * frequency;
+    i0 := int(math.floor(p.x));
+    j0 := int(math.floor(p.y));
+    tx0 := p.x - real(i0);
+    ty0 := p.y - real(j0);
+    tx1 := tx0 - 1;
+    ty1 := ty0 - 1;
+    i0 &= hash_mask;
+    j0 &= hash_mask;
+    i1 := i0 + 1;
+    j1 := j0 + 1;
+
+    h0 := hash[i0];
+    h1 := hash[i1];
+
+    g00 := grad2D[hash[h0 + j0] & grad2D_mask];
+    g10 := grad2D[hash[h1 + j0] & grad2D_mask];
+    g01 := grad2D[hash[h0 + j1] & grad2D_mask];
+    g11 := grad2D[hash[h1 + j1] & grad2D_mask];
+
+    v00 := dot(g00, tx0, ty0);
+    v10 := dot(g10, tx1, ty0);
+    v01 := dot(g01, tx0, ty1);
+    v11 := dot(g11, tx1, ty1);
+
+    tx := smooth(tx0);
+    ty := smooth(ty0);
+
+    // return v00;
+    return lerp(
+            lerp(v00, v10, tx),
+            lerp(v01, v11, tx),
+            ty) * math.sqrt(real(2));
+}
+
+perlin_noise_3D :: proc(p: Point, frequency: real) -> real {
+
+    p := p * frequency;
+    i0 := int(math.floor(p.x));
+    j0 := int(math.floor(p.y));
+    k0 := int(math.floor(p.z));
+    tx0 := p.x - real(i0);
+    ty0 := p.y - real(j0);
+    tz0 := p.z - real(k0);
+    tx1 := tx0 - 1;
+    ty1 := ty0 - 1;
+    tz1 := tz0 - 1;
+    i0 &= hash_mask;
+    j0 &= hash_mask;
+    k0 &= hash_mask;
+    i1 := i0 + 1;
+    j1 := j0 + 1;
+    k1 := k0 + 1;
+
+    h0 := hash[i0];
+    h1 := hash[i1];
+    h00 := hash[h0 + j0];
+    h10 := hash[h1 + j0];
+    h01 := hash[h0 + j1];
+    h11 := hash[h1 + j1];
+
+    g000 := grad3D[hash[h00 + k0] & grad3D_mask];
+    g100 := grad3D[hash[h10 + k0] & grad3D_mask];
+    g010 := grad3D[hash[h01 + k0] & grad3D_mask];
+    g110 := grad3D[hash[h11 + k0] & grad3D_mask];
+    g001 := grad3D[hash[h00 + k1] & grad3D_mask];
+    g101 := grad3D[hash[h10 + k1] & grad3D_mask];
+    g011 := grad3D[hash[h01 + k1] & grad3D_mask];
+    g111 := grad3D[hash[h11 + k1] & grad3D_mask];
+
+    v000 := dot(g000, tx0, ty0, tz0);
+    v100 := dot(g100, tx1, ty0, tz0);
+    v010 := dot(g010, tx0, ty1, tz0);
+    v110 := dot(g110, tx1, ty1, tz0);
+    v001 := dot(g001, tx0, ty0, tz1);
+    v101 := dot(g101, tx1, ty0, tz1);
+    v011 := dot(g011, tx0, ty1, tz1);
+    v111 := dot(g111, tx1, ty1, tz1);
+
+    tx := smooth(tx0);
+    ty := smooth(ty0);
+    tz := smooth(tz0);
+
+    return lerp(
+            lerp(lerp(v000, v100, tx), lerp(v010, v110, tx), ty),
+            lerp(lerp(v001, v101, tx), lerp(v011, v111, tx), ty),
+            tz);
+}
