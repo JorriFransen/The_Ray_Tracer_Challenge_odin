@@ -399,5 +399,5 @@ Sphere_Glass_Constructor :: proc(t: ^r.Test_Context) {
 
     expect(t, eq(s.inverse_transform, m.matrix4_identity));
     expect(t, eq(s.material.transparency, 1));
-    expect(t, eq(s.material.refractive_index, 1.52));
+    expect(t, eq(s.material.refractive_index, 1.5));
 }

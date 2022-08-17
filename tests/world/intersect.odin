@@ -29,6 +29,9 @@ intersect_suite := r.Test_Suite {
         r.test("Hit_Info_Reflection", Hit_Info_Reflection),
         r.test("Hit_Info_Refractive_Indices", Hit_Info_Refractive_Indices),
         r.test("Hit_Info_Under_Point", Hit_Info_Under_Point),
+        r.test("Schlick_Total_Internal_Reflection", Schlick_Total_Internal_Reflection),
+        r.test("Schlick_Perpendicular", Schlick_Perpendicular),
+        r.test("Schlick_Low_Angle_n2_GT_n1", Schlick_Low_Angle_n2_GT_n1),
     },
 }
 
@@ -350,3 +353,64 @@ Hit_Info_Under_Point :: proc(t: ^r.Test_Context) {
     expect(t, comps.under_point.z > m.FLOAT_EPSILON / 2);
     expect(t, comps.point.z < comps.under_point.z);
 }
+
+@test
+Schlick_Total_Internal_Reflection :: proc(t: ^r.Test_Context) {
+
+    shape := rt.glass_sphere();
+
+    sqrt_2 := math.sqrt(m.real(2));
+    sqrt_2_d2 := sqrt_2 / 2.0;
+
+    r := m.ray(m.point(0, 0, sqrt_2_d2), m.vector(0, 1, 0));
+
+    xs := rt.intersections(
+        rt.intersection(-sqrt_2_d2, &shape),
+        rt.intersection(sqrt_2_d2, &shape),
+    );
+    defer delete(xs);
+
+    comps := rt.hit_info(xs[1], r, xs[:]);
+    reflectance := rt.schlick(&comps);
+
+    expect(t, reflectance == 1.0);
+}
+
+@test
+Schlick_Perpendicular :: proc(t: ^r.Test_Context) {
+
+    shape := rt.glass_sphere();
+    r := m.ray(m.point(0, 0, 0), m.vector(0, 1, 0));
+
+    xs := rt.intersections(
+        rt.intersection(-1, &shape),
+        rt.intersection(1, &shape),
+    );
+    defer delete(xs);
+
+    comps := rt.hit_info(xs[1], r, xs[:]);
+    reflectance := rt.schlick(&comps);
+
+    fmt.println(reflectance);
+
+    expect(t, eq(reflectance, 0.04));
+}
+
+@test
+Schlick_Low_Angle_n2_GT_n1 :: proc(t: ^r.Test_Context) {
+
+    shape := rt.glass_sphere();
+    r := m.ray(m.point(0, 0.99, -2), m.vector(0, 0, 1));
+
+    xs := rt.intersections(rt.intersection(1.8589, &shape));
+    defer delete(xs);
+
+    comps := rt.hit_info(xs[0], r, xs[:]);
+    reflectance := rt.schlick(&comps);
+
+    fmt.println(reflectance);
+
+    expect(t, eq(reflectance, 0.48873));
+}
+
+import "core:fmt"

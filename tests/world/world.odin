@@ -36,6 +36,7 @@ world_suite := r.Test_Suite {
         r.test("Refract_Total_Internal", Refract_Total_Internal),
         r.test("Refracted_Color", Refracted_Color),
         r.test("Shade_Hit_Transparent_Material", Shade_Hit_Transparent_Material),
+        r.test("Shade_Hit_Transparent_Reflective_Material", Shade_Hit_Transparent_Reflective_Material),
     },
 
     child_suites = {
@@ -515,4 +516,38 @@ Shade_Hit_Transparent_Material :: proc(t: ^r.Test_Context) {
     color := rt.shade_hit(w, &comps, true, 5);
 
     expect(t, eq(color, rt.color(0.93642, 0.68642, 0.68642)));
+}
+
+@test
+Shade_Hit_Transparent_Reflective_Material :: proc(t: ^r.Test_Context) {
+
+    w := default_world();
+    defer destroy_default_world(w);
+
+    new_objects := make([dynamic]^rt.Shape, 0, len(w.objects));
+    defer delete(new_objects);
+    for o, i in w.objects do append(&new_objects, o);
+
+    sqrt2 := math.sqrt(m.real(2));
+    sqrt2_d2 := sqrt2 / 2.0;
+
+    r := m.ray(m.point(0, 0, -3), m.vector(0, -sqrt2_d2, sqrt2_d2));
+
+    floor := rt.plane(m.translation(0, -1, 0), rt.material(reflective=0.5, transparency=0.5, refractive_index=1.5));
+    append(&new_objects, &floor);
+
+    ball := rt.sphere(m.translation(0, -3.5, -0.5), rt.material(color=rt.RED, ambient=0.5));
+    append(&new_objects, &ball);
+
+    old_objects := w.objects;
+    w.objects = new_objects[:];
+    defer w.objects = old_objects;
+
+    xs := rt.intersections(rt.intersection(sqrt2, &floor));
+    defer delete(xs);
+
+    comps := rt.hit_info(xs[0], r, xs[:]);
+    color := rt.shade_hit(w, &comps, true, 5);
+
+    expect(t, eq(color, rt.color(0.93391, 0.69643, 0.69243)));
 }

@@ -74,12 +74,12 @@ CH11_2 :: proc(c: rt.Canvas) {
     floor_mat.pattern = &floor_pat;
     floor := rt.plane(floor_mat);
 
-    sphere1_mat := rt.material(color=rt.color(0.2, 0.9, 0.2), reflective=0.01, transparency=.3);
+    sphere1_mat := rt.material(color=rt.color(0.2, 0.9, 0.2), reflective=0.9, transparency=.8, diffuse=.3);
 
     sphere1_tf := m.translation(-1.2, 0.9, 0.8) * m.scaling(0.9, 0.9, 0.9);
     sphere1 := rt.sphere(sphere1_tf, sphere1_mat);
 
-    sphere2_mat := rt.material(reflective=0.1);
+    sphere2_mat := rt.material(reflective=0.5, transparency=0.5, diffuse=.3);
 
     sphere2_tf := m.translation(1.2, 0.5, -0.75) * m.scaling(0.5, 0.5, 0.5);
     sphere2 := rt.sphere(sphere2_tf, sphere2_mat);

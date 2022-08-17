@@ -51,7 +51,17 @@ shade_hit :: proc(w: ^World, hi: ^Hit_Info, shadows := true, remaining := 5) -> 
     reflected := reflected_color(w, hi, remaining);
     refracted := refracted_color(w, hi, remaining);
 
-    result = surface + reflected + refracted;
+    material := hi.object.material;
+    if material.reflective > 0 && material.transparency > 0 {
+        reflectance := schlick(hi);
+
+        result = surface +
+                 reflected * reflectance +
+                 refracted * (1 - reflectance);
+    } else {
+        result = surface + reflected + refracted;
+    }
+
 
     return;
 }

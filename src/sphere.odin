@@ -31,7 +31,7 @@ sphere :: proc {
 }
 
 glass_sphere :: proc() -> Sphere {
-    return sphere(material(transparency=1, refractive_index=1.52));
+    return sphere(material(transparency=1, refractive_index=1.5));
 }
 
 @(private="file")

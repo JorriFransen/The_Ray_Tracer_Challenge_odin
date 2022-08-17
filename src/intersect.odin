@@ -1,5 +1,6 @@
 package raytracer
 
+import "core:math"
 import "core:slice"
 
 import m "raytracer:math"
@@ -137,4 +138,27 @@ intersects :: proc(shape: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
     r := m.ray_transform(r, shape.inverse_transform);
 
     return shape->intersects(r);
+}
+
+schlick :: proc(hit: ^Hit_Info) -> m.real {
+
+    // find the cosine of the angle between the eye and normal vectors
+    cos := m.dot(hit.eye_v, hit.normal_v);
+
+    // total internal reflection can only occur if n1 > n2
+    if hit.n1 > hit.n2 {
+        n := hit.n1 / hit.n2;
+        sin2_t := math.pow(n, 2) * (1 - math.pow(cos, 2));
+
+        if sin2_t > 1 do return 1;
+
+        // Compute cosine of theta_t using trig identity
+        cos_t := math.sqrt(1 - sin2_t);
+
+        // when n1 > n2, use cos(theta_t) instead
+        cos = cos_t;
+    }
+
+    r0 := math.pow((hit.n1 - hit.n2) / (hit.n1 + hit.n2), 2);
+    return r0 + (1 - r0) * math.pow(1 - cos, 5);
 }
