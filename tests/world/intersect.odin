@@ -391,8 +391,6 @@ Schlick_Perpendicular :: proc(t: ^r.Test_Context) {
     comps := rt.hit_info(xs[1], r, xs[:]);
     reflectance := rt.schlick(&comps);
 
-    fmt.println(reflectance);
-
     expect(t, eq(reflectance, 0.04));
 }
 
@@ -408,9 +406,5 @@ Schlick_Low_Angle_n2_GT_n1 :: proc(t: ^r.Test_Context) {
     comps := rt.hit_info(xs[0], r, xs[:]);
     reflectance := rt.schlick(&comps);
 
-    fmt.println(reflectance);
-
     expect(t, eq(reflectance, 0.48873));
 }
-
-import "core:fmt"

@@ -40,6 +40,10 @@ shape_suite := r.Test_Suite {
         r.test("Sphere_Modified_Material", Sphere_Modified_Material),
 
         r.test("Sphere_Glass_Constructor", Sphere_Glass_Constructor),
+
+        r.test("Cube_Intersect", Cube_Intersect),
+        r.test("Cube_Miss", Cube_Miss),
+        r.test("Cube_Normal", Cube_Normal),
     },
 }
 
@@ -400,4 +404,89 @@ Sphere_Glass_Constructor :: proc(t: ^r.Test_Context) {
     expect(t, eq(s.inverse_transform, m.matrix4_identity));
     expect(t, eq(s.material.transparency, 1));
     expect(t, eq(s.material.refractive_index, 1.5));
+}
+
+@test
+Cube_Intersect :: proc(t: ^r.Test_Context) {
+
+    c := rt.cube();
+
+    Example :: struct {
+        origin: m.Point,
+        direction: m.Vector,
+        t1, t2: m.real,
+    }
+
+    examples := [?]Example {
+        { m.point(   5, 0.5,  0), m.vector(-1,  0,  0),  4, 6 },
+        { m.point(  -5, 0.5,  0), m.vector( 1,  0,  0),  4, 6 },
+        { m.point( 0.5,   5,  0), m.vector( 0, -1,  0),  4, 6 },
+        { m.point( 0.5,  -5,  0), m.vector( 0,  1,  0),  4, 6 },
+        { m.point( 0.5,   0,  5), m.vector( 0,  0, -1),  4, 6 },
+        { m.point( 0.5,   0, -5), m.vector( 0,  0,  1),  4, 6 },
+        { m.point(   0, 0.5,  0), m.vector( 0,  0,  1), -1, 1 },
+    }
+
+    for e, i in examples {
+        i := i;
+        r := m.ray(e.origin, e.direction);
+
+        xs, ok := c->intersects(r).?
+
+        expect(t, ok);
+        expect(t, len(xs) == 2);
+        expect(t, xs[0].t == e.t1);
+        expect(t, xs[1].t == e.t2);
+    }
+}
+
+@test
+Cube_Miss :: proc(t: ^r.Test_Context) {
+
+    c := rt.cube();
+
+    examples := [?]m.Ray {
+        m.ray(m.point(-2,  0,  0), m.vector(0.2673, 0.5345, 0.8018)),
+        m.ray(m.point( 0, -2,  0), m.vector(0.8018, 0.2673, 0.5345)),
+        m.ray(m.point( 0,  0, -2), m.vector(0.5345, 0.8018, 0.2673)),
+        m.ray(m.point( 2,  0,  2), m.vector(     0,      0,     -1)),
+        m.ray(m.point( 0,  2,  2), m.vector(     0,     -1,      0)),
+        m.ray(m.point( 2,  2,  0), m.vector(    -1,      0,      0)),
+    };
+
+    for r in examples {
+        xs, ok := c->intersects(r).?;
+
+        expect(t, !ok);
+    }
+}
+
+@test
+Cube_Normal :: proc(t: ^r.Test_Context) {
+
+    c := rt.cube();
+
+    Examle :: struct {
+        p: m.Point,
+        n: m.Vector,
+    }
+
+    examples := [?]Examle {
+        { m.point(   1,  0.5, -0.8), m.vector( 1,  0,  0) },
+        { m.point(  -1, -0.2,  0.9), m.vector(-1,  0,  0) },
+        { m.point(-0.4,    1, -0.1), m.vector( 0,  1,  0) },
+        { m.point( 0.3,   -1, -0.7), m.vector( 0, -1,  0) },
+        { m.point(-0.6,  0.3,    1), m.vector( 0,  0,  1) },
+        { m.point( 0.4,  0.4,   -1), m.vector( 0,  0, -1) },
+        { m.point(   1,    1,    1), m.vector( 1,  0,  0) },
+        { m.point(  -1,   -1,   -1), m.vector(-1,  0,  0) },
+    };
+
+
+    for e in examples {
+
+        normal := c->normal_at(e.p);
+
+        expect(t, normal == e.n);
+    }
 }

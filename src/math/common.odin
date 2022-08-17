@@ -1,8 +1,17 @@
 package rtmath
 
 import "core:intrinsics"
+import "core:math"
 
 real :: f64;
+
+when real == f64 {
+    INFINITY :: math.INF_F64;
+} else when real == f32 {
+    INFINITY :: math.INF_F32;
+} else {
+    #assert(false);
+}
 
 FLOAT_EPSILON :: 0.00001;
 
