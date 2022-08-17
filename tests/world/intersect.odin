@@ -25,9 +25,10 @@ intersect_suite := r.Test_Suite {
         r.test("Hit_Info", Hit_Info),
         r.test("Hit_Info_Outside", Hit_Info_Outside),
         r.test("Hit_Info_Inside", Hit_Info_Inside),
-        r.test("Hit_Info_Point_Offset", Hit_Info_Point_Offset),
+        r.test("Hit_Info_Over_Point", Hit_Info_Over_Point),
         r.test("Hit_Info_Reflection", Hit_Info_Reflection),
         r.test("Hit_Info_Refractive_Indices", Hit_Info_Refractive_Indices),
+        r.test("Hit_Info_Under_Point", Hit_Info_Under_Point),
     },
 }
 
@@ -262,7 +263,7 @@ Hit_Info_Inside :: proc(t: ^r.Test_Context) {
 }
 
 @test
-Hit_Info_Point_Offset :: proc(t: ^r.Test_Context) {
+Hit_Info_Over_Point :: proc(t: ^r.Test_Context) {
 
     shape := rt.sphere(m.translation(0, 0, 1));
 
@@ -329,5 +330,23 @@ Hit_Info_Refractive_Indices :: proc(t: ^r.Test_Context) {
         expect(t, comps.n1 == expected1[i]);
         expect(t, comps.n2 == expected2[i]);
     }
+}
 
+@test
+Hit_Info_Under_Point :: proc(t: ^r.Test_Context) {
+
+    r := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
+
+    shape := rt.glass_sphere();
+    rt.set_transform(&shape, m.translation(0, 0, 1));
+
+    i := rt.intersection(5, &shape);
+
+    xs := rt.intersections(i);
+    defer delete(xs);
+
+    comps := rt.hit_info(i, r, xs[:]);
+
+    expect(t, comps.under_point.z > m.FLOAT_EPSILON / 2);
+    expect(t, comps.point.z < comps.under_point.z);
 }
