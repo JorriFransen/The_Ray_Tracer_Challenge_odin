@@ -27,6 +27,7 @@ intersect_suite := r.Test_Suite {
         r.test("Hit_Info_Inside", Hit_Info_Inside),
         r.test("Hit_Info_Point_Offset", Hit_Info_Point_Offset),
         r.test("Hit_Info_Reflection", Hit_Info_Reflection),
+        r.test("Hit_Info_Refractive_Indices", Hit_Info_Refractive_Indices),
     },
 }
 
@@ -219,7 +220,7 @@ Hit_Info :: proc(t: ^r.Test_Context) {
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
     i := rt.intersection(4, &shape);
 
-    comps := rt.hit_info(i, ray);
+    comps := rt.hit_info(i, ray, nil);
 
     expect(t, comps.t == i.t);
     expect(t, comps.object == i.object);
@@ -236,7 +237,7 @@ Hit_Info_Outside :: proc(t: ^r.Test_Context) {
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
     i := rt.intersection(4, &shape);
 
-    comps := rt.hit_info(i, ray);
+    comps := rt.hit_info(i, ray, nil);
 
     expect(t, comps.inside == false);
 }
@@ -249,7 +250,7 @@ Hit_Info_Inside :: proc(t: ^r.Test_Context) {
     ray := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
     i := rt.intersection(1, &shape);
 
-    comps := rt.hit_info(i, ray);
+    comps := rt.hit_info(i, ray, nil);
 
     expect(t, comps.t == i.t);
     expect(t, comps.object == i.object);
@@ -268,7 +269,7 @@ Hit_Info_Point_Offset :: proc(t: ^r.Test_Context) {
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
     i := rt.intersection(5, &shape);
 
-    hit_info := rt.hit_info(i, ray);
+    hit_info := rt.hit_info(i, ray, nil);
 
     expect(t, hit_info.over_point.z < -m.FLOAT_EPSILON / 2);
     expect(t, hit_info.point.z > hit_info.over_point.z);
@@ -285,7 +286,48 @@ Hit_Info_Reflection :: proc(t: ^r.Test_Context) {
     r := m.ray(m.point(0, 1, -1), m.vector(0, -sqrt_2_d2, sqrt_2_d2));
     i := rt.intersection(sqrt_2, &shape);
 
-    comps := rt.hit_info(i, r);
+    comps := rt.hit_info(i, r, nil);
 
     expect(t, eq(comps.reflect_v, m.vector(0, sqrt_2_d2, sqrt_2_d2)));
+}
+
+@test
+Hit_Info_Refractive_Indices :: proc(t: ^r.Test_Context) {
+
+    A := rt.glass_sphere();
+    rt.set_transform(&A, m.scaling(2, 2, 2));
+    A.material.refractive_index = 1.5;
+
+    B := rt.glass_sphere();
+    rt.set_transform(&B, m.translation(0, 0, -0.25));
+    B.material.refractive_index = 2.0;
+
+    C := rt.glass_sphere();
+    rt.set_transform(&C, m.translation(0, 0, 0.25));
+    C.material.refractive_index = 2.5;
+
+    r := m.ray(m.point(0, 0, -4), m.vector(0, 0, 1));
+
+    xs := rt.intersections(
+        rt.intersection(2, &A),
+        rt.intersection(2.75, &B),
+        rt.intersection(3.25, &C),
+        rt.intersection(4.75, &B),
+        rt.intersection(5.25, &C),
+        rt.intersection(6, &A),
+    );
+    defer delete(xs);
+
+    expect(t, len(xs) == 6);
+
+    expected1 := [6]m.real { 1.0, 1.5, 2.0, 2.5, 2.5, 1.5 };
+    expected2 := [6]m.real { 1.5, 2.0, 2.5, 2.5, 1.5, 1.0 };
+
+    for it, i in xs {
+        comps := rt.hit_info(it, r, xs[:]);
+
+        expect(t, comps.n1 == expected1[i]);
+        expect(t, comps.n2 == expected2[i]);
+    }
+
 }

@@ -38,6 +38,8 @@ shape_suite := r.Test_Suite {
         r.test("S_Scaled_Rotated_Normal", S_Scaled_Rotated_Normal),
         r.test("Sphere_Default_Material", Sphere_Default_Material),
         r.test("Sphere_Modified_Material", Sphere_Modified_Material),
+
+        r.test("Sphere_Glass_Constructor", Sphere_Glass_Constructor),
     },
 }
 
@@ -388,4 +390,14 @@ Sphere_Modified_Material :: proc(t: ^r.Test_Context) {
 
         expect(t, sp.material == m);
     }
+}
+
+@test
+Sphere_Glass_Constructor :: proc(t: ^r.Test_Context) {
+
+    s := rt.glass_sphere();
+
+    expect(t, eq(s.inverse_transform, m.matrix4_identity));
+    expect(t, eq(s.material.transparency, 1));
+    expect(t, eq(s.material.refractive_index, 1.52));
 }

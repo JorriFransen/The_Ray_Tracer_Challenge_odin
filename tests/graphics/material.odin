@@ -24,6 +24,8 @@ Material_Constructor_Default :: proc(t: ^r.Test_Context) {
     expect(t, mat.specular == 0.9);
     expect(t, mat.shininess == 200);
     expect(t, mat.reflective == 0);
+    expect(t, mat.transparency == 0);
+    expect(t, mat.refractive_index == 1.0);
 }
 
 @test

@@ -62,7 +62,7 @@ color_at :: proc(w: ^World, r: m.Ray, remaining := 0, shadows := true, allocator
 
     if hit, ok := hit(xs[:]).?; ok {
 
-        hi := hit_info(hit, r);
+        hi := hit_info(hit, r, xs[:]);
 
         return shade_hit(w, &hi, shadows, remaining);
 

@@ -131,7 +131,7 @@ Shade_Intersection :: proc(t: ^r.Test_Context) {
     shape := w.objects[0];
     i := rt.intersection(4, shape);
 
-    comps := rt.hit_info(i, ray);
+    comps := rt.hit_info(i, ray, nil);
     c := rt.shade_hit(w, &comps);
 
     expect(t, eq(c, rt.color(0.38066, 0.47583, 0.2855)));
@@ -148,7 +148,7 @@ Shade_Intersection_Inside :: proc(t: ^r.Test_Context) {
     shape := w.objects[1];
     i := rt.intersection(0.5, shape);
 
-    comps := rt.hit_info(i, ray);
+    comps := rt.hit_info(i, ray, nil);
     c := rt.shade_hit(w, &comps);
 
     expect(t, eq(c, rt.color(0.90498, 0.90498, 0.90498)));
@@ -255,7 +255,7 @@ Shade_Shadowed_Intersection :: proc(t: ^r.Test_Context) {
     ray := m.ray(m.point(0, 0, 5), m.vector(0, 0, 1));
     i := rt.intersection(4, &s2);
 
-    hit_info := rt.hit_info(i, ray);
+    hit_info := rt.hit_info(i, ray, nil);
 
     c := rt.shade_hit(&w, &hit_info);
 
@@ -273,7 +273,7 @@ Reflected_Color_Non_Reflective_Material :: proc(t: ^r.Test_Context) {
     shape.material.ambient = 1;
     i := rt.intersection(1, shape);
 
-    comps := rt.hit_info(i, r);
+    comps := rt.hit_info(i, r, nil);
     color := rt.reflected_color(w, &comps);
 
     expect(t, eq(color, rt.BLACK));
@@ -297,7 +297,7 @@ Reflected_Color_Reflective_Material :: proc(t: ^r.Test_Context) {
     r := m.ray(m.point(0, 0, -3), m.vector(0, -sqrt2_d2, sqrt2_d2));
     i := rt.intersection(sqrt2, &shape);
 
-    comps := rt.hit_info(i, r);
+    comps := rt.hit_info(i, r, nil);
     color := rt.reflected_color(w, &comps);
 
     expect(t, eq(color, rt.color(0.19033, 0.23791, 0.14274)));
@@ -321,7 +321,7 @@ Shade_Hit_Reflective_Material :: proc(t: ^r.Test_Context) {
     r := m.ray(m.point(0, 0, -3), m.vector(0, -sqrt2_d2, sqrt2_d2));
     i := rt.intersection(sqrt2, &shape);
 
-    comps := rt.hit_info(i, r);
+    comps := rt.hit_info(i, r, nil);
     color := rt.shade_hit(w, &comps)
 
     expect(t, eq(color, rt.color(0.87676, 0.92434, 0.82917)));
@@ -345,7 +345,7 @@ Limit_Reflection_Recursion :: proc(t: ^r.Test_Context) {
     r := m.ray(m.point(0, 0, -3), m.vector(0, -sqrt2_d2, sqrt2_d2));
     i := rt.intersection(sqrt2, &shape);
 
-    comps := rt.hit_info(i, r);
+    comps := rt.hit_info(i, r, nil);
     color := rt.reflected_color(w, &comps, 0)
 
     expect(t, eq(color, rt.BLACK));

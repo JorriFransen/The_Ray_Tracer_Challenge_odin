@@ -49,11 +49,11 @@ main :: proc() {
     // with_canvas(1920, 1080, CH10_4, "CH10.4");
     // fmt.println("\n");
 
-    with_canvas(1920/3, 1080/3, CH10_5, "CH10.5");
-    fmt.println("\n");
-
-    // with_canvas(1920, 1080, CH11_1, "CH11.1");
+    // with_canvas(1920, 1080, CH10_5, "CH10.5");
     // fmt.println("\n");
+
+    with_canvas(1920, 1080, CH11_1, "CH11.1");
+    fmt.println("\n");
 }
 
 With_Canvas_Proc :: proc(c: rt.Canvas);

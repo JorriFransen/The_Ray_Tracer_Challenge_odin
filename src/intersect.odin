@@ -18,6 +18,8 @@ Hit_Info :: struct {
     normal_v: m.Vector,
     reflect_v: m.Vector,
 
+    n1, n2: m.real `Refractive indices`,
+
     inside: bool,
 }
 
@@ -41,10 +43,10 @@ intersections :: proc {
     intersections_from_dyn_arr_and_slice,
 }
 
-hit_info :: proc(i: Intersection, r: m.Ray) -> Hit_Info {
+hit_info :: proc(hit: Intersection, r: m.Ray, xs: []Intersection) -> Hit_Info {
 
-    obj := i.object;
-    point := m.ray_position(r, i.t);
+    obj := hit.object;
+    point := m.ray_position(r, hit.t);
 
 
     eye_v := m.negate(r.direction);
@@ -64,18 +66,51 @@ hit_info :: proc(i: Intersection, r: m.Ray) -> Hit_Info {
 
     assert(m.is_point(over_point));
 
+
+    n1, n2: m.real;
+
+    if len(xs) > 0 {
+        containers := make([dynamic]^Shape, 0, len(xs) / 2, context.temp_allocator);
+
+        for i in xs {
+            if i == hit {
+                if len(containers) < 1 {
+                    n1 = 1.0;
+                } else {
+                    n1 = containers[len(containers) - 1].material.refractive_index;
+                }
+            }
+
+            if idx, found := slice.linear_search(containers[:], i.object); found {
+                unordered_remove(&containers, idx);
+            } else {
+                append(&containers, i.object);
+            }
+
+            if i == hit {
+                if len(containers) < 1 {
+                    n2 = 1.0;
+                } else {
+                    n2 = containers[len(containers) - 1].material.refractive_index;
+                }
+            }
+
+        }
+    }
+
     return Hit_Info {
-        t = i.t,
-        object = i.object,
+        t = hit.t,
+        object = hit.object,
         point = point,
         over_point = over_point,
         eye_v = eye_v,
         normal_v = normal_v,
         reflect_v = reflect_v,
         inside = inside,
+        n1 = n1,
+        n2 = n2,
     };
 }
-
 @private
 intersection_less :: proc(a, b: Intersection) -> bool {
     return a.t < b.t;
