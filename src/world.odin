@@ -49,8 +49,9 @@ shade_hit :: proc(w: ^World, hi: ^Hit_Info, shadows := true, remaining := 5) -> 
     }
 
     reflected := reflected_color(w, hi, remaining);
+    refracted := refracted_color(w, hi, remaining);
 
-    result = surface + reflected;
+    result = surface + reflected + refracted;
 
     return;
 }

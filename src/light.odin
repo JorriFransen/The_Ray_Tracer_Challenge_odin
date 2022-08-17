@@ -64,3 +64,23 @@ reflected_color :: proc(w: ^World, hit: ^Hit_Info, remaining := 5) -> Color {
 
     return color * hit.object.material.reflective;
 }
+
+refracted_color :: proc(w: ^World, hit: ^Hit_Info, remaining: int) -> Color {
+
+    if remaining <= 0 do return BLACK;
+    if hit.object.material.transparency == 0 do return BLACK;
+
+    // Check for total internal reflection
+    n_ratio := hit.n1 / hit.n2;
+    cos_i := m.dot(hit.eye_v, hit.normal_v);
+    sin2_t := n_ratio * n_ratio * (1 - cos_i * cos_i);
+    if sin2_t > 1 do return BLACK;
+
+    cos_t := math.sqrt(1 - sin2_t);
+
+    direction := hit.normal_v * (n_ratio * cos_i - cos_t) - hit.eye_v * n_ratio;
+
+    refract_ray := m.ray(hit.under_point, direction);
+
+    return color_at(w, refract_ray, remaining - 1) * hit.object.material.transparency;
+}

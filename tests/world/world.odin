@@ -31,6 +31,11 @@ world_suite := r.Test_Suite {
         r.test("Shade_Hit_Reflective_Material", Shade_Hit_Reflective_Material),
         r.test("Limit_Reflection_Recursion", Limit_Reflection_Recursion),
         r.test("Avoid_Infinite_Reflection_Recursion", Avoid_Infinite_Reflection_Recursion),
+        r.test("Refract_Opaque_Surface", Refract_Opaque_Surface),
+        r.test("Refract_Max_Recursion", Refract_Max_Recursion),
+        r.test("Refract_Total_Internal", Refract_Total_Internal),
+        r.test("Refracted_Color", Refracted_Color),
+        r.test("Shade_Hit_Transparent_Material", Shade_Hit_Transparent_Material),
     },
 
     child_suites = {
@@ -367,4 +372,147 @@ Avoid_Infinite_Reflection_Recursion :: proc(t: ^r.Test_Context) {
     w := rt.world(objects[:], lights[:]);
 
     rt.color_at(&w, r);
+}
+
+@test
+Refract_Opaque_Surface :: proc(t: ^r.Test_Context) {
+
+    w := default_world();
+    defer destroy_default_world(w);
+
+    shape := w.objects[0];
+    r := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
+
+    xs := rt.intersections(
+        rt.intersection(4, shape),
+        rt.intersection(6, shape),
+    );
+    defer delete(xs);
+
+    comps := rt.hit_info(xs[0], r, xs[:]);
+    c := rt.refracted_color(w, &comps, 5);
+
+    expect(t, c == rt.BLACK);
+
+}
+
+@test
+Refract_Max_Recursion :: proc(t: ^r.Test_Context) {
+
+    w := default_world();
+    defer destroy_default_world(w);
+
+    shape := w.objects[0];
+    shape.material.transparency = 1.0;
+    shape.material.refractive_index = 1.5;
+
+    r := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
+
+    xs := rt.intersections(
+        rt.intersection(4, shape),
+        rt.intersection(6, shape),
+    );
+    defer delete(xs);
+
+    comps := rt.hit_info(xs[0], r, xs[:]);
+    c := rt.refracted_color(w, &comps, 0);
+
+    expect(t, c == rt.BLACK);
+
+}
+
+@test
+Refract_Total_Internal :: proc(t: ^r.Test_Context) {
+
+    w := default_world();
+    defer destroy_default_world(w);
+
+    shape := w.objects[0];
+    shape.material.transparency = 1.0;
+    shape.material.refractive_index = 1.5;
+
+    sqrt2 := math.sqrt(m.real(2));
+    sqrt2_d2 := sqrt2 / 2.0;
+
+    r := m.ray(m.point(0, 0, sqrt2_d2), m.vector(0, 1, 0));
+
+    xs := rt.intersections(
+        rt.intersection(-sqrt2_d2, shape),
+        rt.intersection(sqrt2_d2, shape),
+    );
+    defer delete(xs);
+
+    comps := rt.hit_info(xs[1], r, xs[:]);
+    c := rt.refracted_color(w, &comps, 5);
+
+    expect(t, c == rt.BLACK);
+}
+
+@test
+Refracted_Color :: proc(t: ^r.Test_Context) {
+
+    w := default_world();
+    defer destroy_default_world(w);
+
+    A := w.objects[0];
+    A.material.ambient = 1;
+    A_pat := rt.test_pattern();
+    A.material.pattern = &A_pat;
+
+    B := w.objects[1];
+    B.material.transparency = 1.0;
+    B.material.refractive_index = 1.5;
+
+    r := m.ray(m.point(0, 0, 0.1), m.vector(0, 1, 0));
+
+    xs := rt.intersections(
+        rt.intersection(-0.9899, A),
+        rt.intersection(-0.4899, B),
+        rt.intersection(0.4899, B),
+        rt.intersection(0.9899, A),
+    );
+    defer delete(xs);
+
+    comps := rt.hit_info(xs[2], r, xs[:]);
+    c := rt.refracted_color(w, &comps, 5);
+
+    expect(t, eq(c, rt.color(0, 0.99887, 0.04722)));
+}
+
+@test
+Shade_Hit_Transparent_Material :: proc(t: ^r.Test_Context) {
+
+    w := default_world();
+    defer destroy_default_world(w);
+
+    new_objects := make([dynamic]^rt.Shape, 0, len(w.objects));
+    defer delete(new_objects);
+    for o, i in w.objects do append(&new_objects, o);
+
+    floor := rt.plane(m.translation(0, -1, 0));
+    floor.material.transparency = 0.5;
+    floor.material.refractive_index = 1.5;
+    append(&new_objects, &floor);
+
+    ball := rt.sphere(m.translation(0, -3.5, -0.5));
+    ball.material.color = rt.color(1, 0, 0);
+    ball.material.ambient = 0.5;
+    append(&new_objects, &ball);
+
+    old_objects := w.objects;
+    w.objects = new_objects[:];
+    defer w.objects = old_objects;
+
+    sqrt2 := math.sqrt(m.real(2));
+    sqrt2_d2 := sqrt2 / 2.0;
+
+    r := m.ray(m.point(0, 0, -3), m.vector(0, -sqrt2_d2, sqrt2_d2));
+
+    xs := rt.intersections(rt.intersection(sqrt2, &floor));
+    defer delete(xs);
+
+    comps := rt.hit_info(xs[0], r, xs[:]);
+    color := rt.shade_hit(w, &comps, true, 5);
+
+    expect(t, eq(color, rt.color(0.93642, 0.68642, 0.68642)));
 }
