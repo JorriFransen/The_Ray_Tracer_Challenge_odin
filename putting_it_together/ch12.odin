@@ -38,7 +38,7 @@ CH12_1 :: proc(c: rt.Canvas) {
     cube2 := rt.cube(m.translation(-3, 0.5, 1) * m.rotation_y(0) * m.scaling(0.5, 0.5, 0.5),
                     rt.material(color=rt.color(0.8, 0.2, 0.3), reflective=.1, specular=.5));
 
-    cube3 := rt.cube(m.translation(2.5, 0.5, 1) * m.rotation_y(0) * m.scaling(0.5, 0.5, 0.5),
+    cube3 := rt.cube(m.translation(2.5, 0.4999, 1) * m.rotation_y(0) * m.scaling(0.5, 0.5, 0.5),
                     rt.material(color=rt.color(0.2, 0.75, 0.3), reflective=.77, specular=.9, transparency=.77, diffuse=.1));
 
     shapes := []^rt.Shape { &floor, &sphere1, &sphere2, &cube1, &cube2, &cube3 };
