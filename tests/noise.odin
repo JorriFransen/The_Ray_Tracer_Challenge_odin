@@ -20,13 +20,13 @@ import "core:fmt"
 @test
 Value :: proc(t: ^r.Test_Context) {
 
-    resolution := 200;
+    resolution := 10;
     step_size := 1.0 / m.real(resolution);
 
     c := rt.canvas(resolution, resolution);
     defer rt.canvas_destroy(&c);
 
-    for o in 1..=8 {
+    for o in 1..=4 {
 
         for y in 0..<resolution {
             for x in 0..<resolution {
@@ -58,13 +58,13 @@ Value :: proc(t: ^r.Test_Context) {
 @test
 Perlin :: proc(t: ^r.Test_Context) {
 
-    resolution := 200;
+    resolution := 10;
     step_size := 1.0 / m.real(resolution);
 
     c := rt.canvas(resolution, resolution);
     defer rt.canvas_destroy(&c);
 
-    for o in 1..=8 {
+    for o in 1..=4 {
 
         for y in 0..<resolution {
             for x in 0..<resolution {
