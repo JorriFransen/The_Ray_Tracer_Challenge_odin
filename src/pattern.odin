@@ -365,10 +365,11 @@ noise_pattern :: proc(a, b: ^Pattern, p: m.Noise_Proc, frequency: m.real, octave
 perturbed_at :: proc(pat: ^Pattern, p: m.Point) -> Color {
     pp := transmute(^Perturbed_Pattern)pat;
 
-    p := p;
-    p.x += (m.noise_sum(pp.noise_proc, p, pp.frequency, pp.octaves) * 0.5 + 0.5) * pp.scale;
-    p.y += (m.noise_sum(pp.noise_proc, p, pp.frequency, pp.octaves) * 0.5 + 0.5) * pp.scale;
-    p.z += (m.noise_sum(pp.noise_proc, p, pp.frequency, pp.octaves) * 0.5 + 0.5) * pp.scale;
+    x := m.noise_sum(pp.noise_proc, p,                          pp.frequency, pp.octaves);
+    y := m.noise_sum(pp.noise_proc, m.point(p.x + (x * pp.scale), p.y, p.z), pp.frequency, pp.octaves);
+    z := m.noise_sum(pp.noise_proc, m.point(p.x, p.y + (y * pp.scale), p.z), pp.frequency, pp.octaves);
+
+    p := p + m.point(x, y, z) * pp.scale;
 
     return pattern_at(pp.pattern, p);
 

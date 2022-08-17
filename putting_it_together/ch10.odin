@@ -188,7 +188,7 @@ CH10_5 :: proc(c: rt.Canvas) {
     stripes1_pat := rt.stripe_pattern(rt.RED, rt.WHITE);
     stripes2_pat := rt.stripe_pattern(rt.RED, rt.WHITE, m.rotation_y(PI / 2));
     blend_stripes_pat := rt.blended_pattern(&stripes1_pat, &stripes2_pat, .Multiply);
-    floor_pat := rt.perturbed_pattern(&blend_stripes_pat, m.perlin_noise_3D, 2, 2, 1);
+    floor_pat := rt.perturbed_pattern(&blend_stripes_pat, m.perlin_noise_3D, 2, 2, 0.7);
     floor_pat.inverse_transform = m.matrix_inverse(m.scaling(0.5, 0.5, 0.5));
 
     floor_mat.pattern = &floor_pat;
@@ -197,7 +197,7 @@ CH10_5 :: proc(c: rt.Canvas) {
     sphere1_mat := rt.material(color=rt.color(0.2, 0.9, 0.2));
 
     sphere_ring_pat := rt.stripe_pattern(rt.GREEN, rt.color(0.2, 0.7, 0.2), m.scaling(0.3, 0.2, 0.3) * m.rotation_y(-PI/4) * m.rotation_z(-PI / 4));
-    sphere_pat := rt.perturbed_pattern(&sphere_ring_pat, m.perlin_noise_3D, 3.4, 3, 0.7);
+    sphere_pat := rt.perturbed_pattern(&sphere_ring_pat, m.perlin_noise_3D, 3.4, 3, 0.4);
 
     sphere1_mat.pattern = &sphere_pat;
     sphere1_tf := m.translation(-1.2, 0.9, 0.8) * m.scaling(0.9, 0.9, 0.9);
@@ -205,7 +205,7 @@ CH10_5 :: proc(c: rt.Canvas) {
 
     sphere2_mat := rt.material();
 
-    gradient_pat := rt.gradient_pattern(rt.RED, rt.GREEN,  m.scaling(2, 2, 2) * m.translation(0.5, 0, 0));
+    gradient_pat := rt.gradient_pattern(rt.RED, rt.GREEN,  m.scaling(2, 2, 2) * m.translation(0.3, 0, 0));
     sphere2_pat := rt.perturbed_pattern(&gradient_pat, m.perlin_noise_3D, 4, 2, 0.2);
     sphere2_mat.pattern = &sphere2_pat;
     sphere2_tf := m.translation(1.2, 0.5, -0.75) * m.scaling(0.5, 0.5, 0.5);
