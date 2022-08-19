@@ -15,6 +15,9 @@ point_light :: proc(p: m.Point, i: Color) -> Point_Light {
 
 lighting :: proc(obj: ^Shape, l: Point_Light, p: m.Point, eye_v: m.Vector, normal_v: m.Vector, in_shadow := false) -> Color {
 
+    t := start_timing("Lighting");
+    defer end_timing(&t);
+
     mat := obj.material;
 
     color := mat.color;
