@@ -58,40 +58,52 @@ _cube_vtable := &Shape_VTable {
     intersects = proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
         t := start_timing("Cube intersect");
-        end_timing(&t);
+        defer end_timing(&t);
 
-        xtmin, xtmax := check_axis(r.origin.x, r.direction.x);
-        ytmin, ytmax := check_axis(r.origin.y, r.direction.y);
-        ztmin, ztmax := check_axis(r.origin.z, r.direction.z);
+        inv_dir := r.inverse_direction;
 
-        tmin := max(xtmin, ytmin, ztmin);
-        tmax := min(xtmax, ytmax, ztmax)
+        tmin, tmax : m.real;
 
-        if tmin > tmax do return nil;
+        if inv_dir.x >= 0 {
+            tmin = (-1 - r.origin.x) * inv_dir.x;
+            tmax = ( 1 - r.origin.x) * inv_dir.x;
+        } else {
+            tmin = ( 1 - r.origin.x) * inv_dir.x;
+            tmax = (-1 - r.origin.x) * inv_dir.x;
+        }
+
+        tymin, tymax : m.real;
+
+        if inv_dir.y >= 0 {
+            tymin = (-1 - r.origin.y) * inv_dir.y;
+            tymax = ( 1 - r.origin.y) * inv_dir.y;
+        } else {
+            tymin = ( 1 - r.origin.y) * inv_dir.y;
+            tymax = (-1 - r.origin.y) * inv_dir.y;
+        }
+
+        if tmin > tymax || tymin > tmax do return nil;
+
+        if tymin > tmin do tmin = tymin;
+        if tymax < tmax do tmax = tymax;
+
+        tzmin, tzmax : m.real;
+
+        if inv_dir.z >= 0 {
+            tzmin = (-1 - r.origin.z) * inv_dir.z;
+            tzmax = ( 1 - r.origin.z) * inv_dir.z;
+        } else {
+            tzmin = ( 1 - r.origin.z) * inv_dir.z;
+            tzmax = (-1 - r.origin.z) * inv_dir.z;
+        }
+
+        if tmin > tzmax || tzmin > tmax do return nil;
+
+        if tzmin > tmin do tmin = tzmin;
+        if tzmax < tmax do tmax = tzmax;
 
         return [2]Intersection { intersection(tmin, s), intersection(tmax, s) };
     },
 
     eq = proc(a, b: ^Shape) -> bool { return true },
 };
-
-import "core:fmt"
-
-@(private="file")
-check_axis :: #force_inline proc(origin, direction: m.real) -> (tmin: m.real, tmax: m.real) {
-
-    tmin_num := -1 - origin;
-    tmax_num := 1 - origin;
-
-    if abs(direction) >= m.FLOAT_EPSILON {
-        tmin = tmin_num / direction;
-        tmax = tmax_num / direction;
-    } else {
-        tmin = tmin_num * m.INFINITY;
-        tmax = tmax_num * m.INFINITY;
-    }
-
-    if tmin > tmax do tmin, tmax = tmax, tmin;
-
-    return;
-}
