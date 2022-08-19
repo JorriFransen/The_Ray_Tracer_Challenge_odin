@@ -37,6 +37,10 @@ _plane_vtable := &Shape_VTable {
     },
 
     intersects = proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
+
+        tim := start_timing("Plane intersect");
+        defer end_timing(&tim);
+
         if abs(r.direction.y) < m.FLOAT_EPSILON do return nil;
 
         t := -r.origin.y / r.direction.y;

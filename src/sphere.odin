@@ -42,6 +42,10 @@ _sphere_vtable := &Shape_VTable {
     },
 
     intersects = proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
+
+        t := start_timing("Sphere intersect");
+        defer end_timing(&t);
+
         sphere_to_ray := m.sub(r.origin, m.point(0, 0, 0));
 
         a := m.dot(r.direction, r.direction);

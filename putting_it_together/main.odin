@@ -10,6 +10,8 @@ PI :: m.real(math.PI);
 
 main :: proc() {
 
+    rt.start_timing_system();
+
     // CH01();
     // fmt.println("\n");
 
@@ -58,8 +60,10 @@ main :: proc() {
     // with_canvas(1920, 1080, CH11_2, "CH11.2");
     // fmt.println("\n");
 
-    with_canvas(1920, 1080, CH12_1, "CH12.1");
+    with_canvas(1920/8, 1080/8, CH12_1, "CH12.1");
     fmt.println("\n");
+
+    rt.report_timing();
 }
 
 With_Canvas_Proc :: proc(c: rt.Canvas);
@@ -73,7 +77,7 @@ with_canvas :: proc(width, height: int, p: With_Canvas_Proc, title : cstring = "
 
     p(c);
 
-    rt.display(c, title);
+    // rt.display(c, title);
 }
 
 

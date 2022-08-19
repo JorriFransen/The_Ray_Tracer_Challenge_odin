@@ -1,6 +1,8 @@
 package raytracer
 
 import "core:math"
+import "core:time"
+
 import m "raytracer:math"
 
 Cube :: struct {
@@ -55,6 +57,9 @@ _cube_vtable := &Shape_VTable {
 
     intersects = proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
+        t := start_timing("Cube intersect");
+        end_timing(&t);
+
         xtmin, xtmax := check_axis(r.origin.x, r.direction.x);
         ytmin, ytmax := check_axis(r.origin.y, r.direction.y);
         ztmin, ztmax := check_axis(r.origin.z, r.direction.z);
@@ -69,6 +74,8 @@ _cube_vtable := &Shape_VTable {
 
     eq = proc(a, b: ^Shape) -> bool { return true },
 };
+
+import "core:fmt"
 
 @(private="file")
 check_axis :: #force_inline proc(origin, direction: m.real) -> (tmin: m.real, tmax: m.real) {
