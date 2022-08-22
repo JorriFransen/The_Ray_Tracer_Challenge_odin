@@ -139,7 +139,7 @@ cube_intersects_b :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
         tmin_num := (-1 - origin);
         tmax_num := ( 1 - origin);
 
-        // if abs(dir) > m.FLOAT_EPSILON {
+        if abs(dir) > m.FLOAT_EPSILON {
             if inv_dir >= 0 {
                 tmin = tmin_num * inv_dir;
                 tmax = tmax_num * inv_dir;
@@ -147,10 +147,10 @@ cube_intersects_b :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
                 tmax = tmin_num * inv_dir;
                 tmin = tmax_num * inv_dir;
             }
-        // } else {
-        //     tmin = tmin_num * m.INFINITY;
-        //     tmax = tmax_num * m.INFINITY;
-        // }
+        } else {
+            tmin = tmin_num * m.INFINITY;
+            tmax = tmax_num * m.INFINITY;
+        }
 
         return;
     }

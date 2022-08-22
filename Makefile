@@ -1,6 +1,7 @@
 ODIN=odin
 
-ODINFLAGS := -debug
+# ODINFLAGS := -debug
+ODINFLAGS := -o:speed
 COLLECTION_FLAGS := -collection:raytracer=src
 
 # default: test
