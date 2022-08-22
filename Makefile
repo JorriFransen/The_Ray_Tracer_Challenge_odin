@@ -1,7 +1,7 @@
 ODIN=odin
 
-ODINFLAGS := -debug -o:speed
-# ODINFLAGS := -o:speed -debug -define:TRACY_ENABLE=True
+ODINFLAGS := -debug
+# ODINFLAGS := -o:speed -define:TRACY_ENABLE=True
 
 COLLECTION_FLAGS := -collection:raytracer=src -collection:tracy=tracy
 

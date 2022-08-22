@@ -1,6 +1,9 @@
 package raytracer
 
+import "core:intrinsics"
 import "core:math"
+import "core:mem"
+import "core:thread"
 
 import m "raytracer:math"
 
@@ -74,14 +77,65 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
     assert(canvas.width == c.size.x);
     assert(canvas.height == c.size.y);
 
-    for y in 0..<c.size.y {
-        for x in 0..<c.size.x {
+    TRACY_MAX_PIXEL_COUNT :: 129600; // (480x270)
 
-            ray := camera_ray_for_pixel(c, x, y);
-            color := color_at(w, ray, 5, shadows, allocator);
-            canvas_write_pixel(canvas^, x, y, color);
+    when tracy.ENABLED {
+        if canvas.height * canvas.width > TRACY_MAX_PIXEL_COUNT {
+            panic("Resolution too high (TRACY is enabled).");
         }
     }
+
+    NUM_THREADS :: 16;
+
+    pool: thread.Pool;
+    thread.pool_init(&pool, context.allocator, NUM_THREADS);
+
+
+    Render_Line_Task_Data :: struct {
+        canvas: ^Canvas,
+        camera: ^Camera,
+        world: ^World,
+        shadows: bool,
+        allocator: mem.Allocator,
+    }
+
+    render_line_task :: proc(t: thread.Task) {
+
+        tracy.Zone();
+
+        data := transmute(^Render_Line_Task_Data)t.data;
+
+        for x in 0..<data.camera.size.x {
+
+            ray := camera_ray_for_pixel(data.camera, x, t.user_index);
+            color := color_at(data.world, ray, 5, data.shadows, data.allocator);
+            canvas_write_pixel(data.canvas^, x, t.user_index, color);
+        }
+    }
+
+    data := Render_Line_Task_Data { canvas, c, w, shadows, allocator };
+
+    thread.pool_start(&pool);
+
+    for line in 0..<c.size.y {
+
+        thread.pool_add_task(&pool, context.allocator, render_line_task, &data, line);
+
+        for {
+            num_waiting := thread.pool_num_waiting(&pool);
+            if num_waiting >= NUM_THREADS * 4 {
+
+                task, got_task := thread.pool_pop_waiting(&pool);
+                if got_task {
+                    thread.pool_do_work(&pool, task);
+                }
+
+            } else {
+                break;
+            }
+        }
+    }
+    thread.pool_finish(&pool);
 }
 
 render :: proc {

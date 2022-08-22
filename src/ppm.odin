@@ -8,6 +8,8 @@ import "core:os"
 import m "core:math"
 import ml"core:math/linalg"
 
+import "tracy:."
+
 PPM_MAGIC :: "P3"
 PPM_ELEMENT_RESOLUTION :: 255;
 PPM_MAX_LINE_LENGTH :: 70;
@@ -18,6 +20,8 @@ PPM_Print_State :: struct {
 }
 
 ppm_from_canvas :: proc(c: Canvas, allocator := context.allocator) -> string {
+
+    tracy.Zone();
 
     _sb := strings.builder_make(allocator);
     sb := &_sb;
@@ -51,6 +55,8 @@ ppm_from_canvas :: proc(c: Canvas, allocator := context.allocator) -> string {
 }
 
 ppm_write_to_file :: proc(file_name, ppm: string) -> (success: bool)  {
+
+    tracy.Zone();
 
     assert(ppm[:2] == PPM_MAGIC);
 
