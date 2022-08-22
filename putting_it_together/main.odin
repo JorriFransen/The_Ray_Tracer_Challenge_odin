@@ -10,8 +10,6 @@ PI :: m.real(math.PI);
 
 main :: proc() {
 
-    rt.start_timing_system();
-
     // CH01();
     // fmt.println("\n");
 
@@ -61,9 +59,8 @@ main :: proc() {
     // fmt.println("\n");
 
     with_canvas(1920, 1080, CH12_1, "CH12.1");
+    // with_canvas(50, 50, CH12_1, "CH12.1");
     fmt.println("\n");
-
-    rt.report_timing();
 }
 
 With_Canvas_Proc :: proc(c: rt.Canvas);

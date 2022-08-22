@@ -3,6 +3,8 @@ package raytracer
 import "core:math"
 import "core:time"
 
+import "tracy:."
+
 import m "raytracer:math"
 
 Cube :: struct {
@@ -55,42 +57,16 @@ _cube_vtable := &Shape_VTable {
         return m.Vector{};
     },
 
-    intersects = proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
-        res_c := cube_intersects_c(s, r);
-        res_b := cube_intersects_b(s, r);
-        res_a := cube_intersects_a(s, r);
-
-        a, a_ok := res_a.?;
-        b, b_ok := res_b.?;
-        c, c_ok := res_c.?;
-
-        assert(a_ok == b_ok);
-        assert(a_ok == c_ok);
-
-        if a_ok {
-            assert(len(a) == len(b));
-            assert(len(a) == len(b));
-
-            for it, i in a {
-
-                assert(eq(it.t, b[i].t));
-                assert(eq(it.t, c[i].t));
-
-                assert(it.object == b[i].object);
-                assert(it.object == c[i].object);
-            }
-        }
-
-        return res_a;
-    },
+    intersects = cube_intersects,
 
     eq = proc(a, b: ^Shape) -> bool { return true },
 };
 
+/*
+
 cube_intersects_a :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
-    t := start_timing("cube_instersects_a");
-    defer end_timing(&t);
+    tracy.Zone();
 
     check_axis :: proc(origin, direction: m.real) -> (tmin, tmax: m.real)
     {
@@ -128,8 +104,7 @@ cube_intersects_a :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
 cube_intersects_b :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
-    t := start_timing("cube_instersects_b");
-    defer end_timing(&t);
+    tracy.Zone();
 
     check_axis :: #force_inline proc(origin, dir, inv_dir: m.real) -> (tmin, tmax: m.real)
     {
@@ -173,10 +148,11 @@ cube_intersects_b :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
 }
 
-cube_intersects_c :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
+*/
 
-    t := start_timing("cube_instersects_c");
-    defer end_timing(&t);
+cube_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
+
+    tracy.Zone();
 
     inv_dir := r.inverse_direction;
 

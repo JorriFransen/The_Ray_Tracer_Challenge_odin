@@ -5,6 +5,8 @@ import "core:slice"
 import rt "raytracer:."
 import m "raytracer:math"
 
+import "tracy:."
+
 World :: struct {
     objects: []^rt.Shape,
     lights: []Point_Light,
@@ -25,7 +27,14 @@ world :: proc {
 
 intersect_world :: proc(w: ^World, r: m.Ray, allocator := context.allocator) -> [dynamic]Intersection {
 
-    result := make([dynamic]Intersection, allocator);
+    tracy.Zone();
+
+    result : [dynamic]Intersection = ---;
+
+    {
+        tracy.Zone("intersect_world -- alloc intersections");
+        result = make([dynamic]Intersection, allocator);
+    }
 
     for obj in w.objects {
         if xs, ok := intersects(obj, r).?; ok {
@@ -33,12 +42,18 @@ intersect_world :: proc(w: ^World, r: m.Ray, allocator := context.allocator) -> 
         }
     }
 
-    slice.sort_by(result[:], intersection_less);
+    {
+        tracy.Zone("intersect_world -- sort");
+        slice.sort_by(result[:], intersection_less);
+    }
 
     return result;
 }
 
 shade_hit :: proc(w: ^World, hi: ^Hit_Info, shadows := true, remaining := 5) -> (result: Color) {
+
+    tracy.Zone();
+
     assert(len(w.lights) > 0);
 
     surface := rt.BLACK;
@@ -68,6 +83,8 @@ shade_hit :: proc(w: ^World, hi: ^Hit_Info, shadows := true, remaining := 5) -> 
 
 color_at :: proc(w: ^World, r: m.Ray, remaining := 0, shadows := true, allocator := context.allocator) -> Color {
 
+    tracy.Zone();
+
     xs := intersect_world(w, r, allocator);
     defer delete(xs);
 
@@ -83,6 +100,8 @@ color_at :: proc(w: ^World, r: m.Ray, remaining := 0, shadows := true, allocator
 }
 
 is_shadowed :: proc(w: ^World, p: m.Point, l: ^Point_Light, allocator := context.allocator) -> bool {
+
+    tracy.Zone();
 
     point_to_light := m.sub(l.position, p);
     distance := m.magnitude(point_to_light);

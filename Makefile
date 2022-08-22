@@ -1,8 +1,9 @@
 ODIN=odin
 
-# ODINFLAGS := -debug
-ODINFLAGS := -o:speed
-COLLECTION_FLAGS := -collection:raytracer=src
+ODINFLAGS := -debug -o:speed
+# ODINFLAGS := -o:speed -debug -define:TRACY_ENABLE=True
+
+COLLECTION_FLAGS := -collection:raytracer=src -collection:tracy=tracy
 
 # default: test
 default: putting_it_together

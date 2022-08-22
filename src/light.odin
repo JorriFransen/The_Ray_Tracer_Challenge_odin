@@ -4,6 +4,8 @@ import "core:math"
 
 import m "raytracer:math"
 
+import "tracy:."
+
 Point_Light :: struct {
     position: m.Point,
     intensity : Color,
@@ -15,8 +17,7 @@ point_light :: proc(p: m.Point, i: Color) -> Point_Light {
 
 lighting :: proc(obj: ^Shape, l: Point_Light, p: m.Point, eye_v: m.Vector, normal_v: m.Vector, in_shadow := false) -> Color {
 
-    t := start_timing("Lighting");
-    defer end_timing(&t);
+    tracy.Zone();
 
     mat := obj.material;
 
@@ -58,6 +59,8 @@ lighting :: proc(obj: ^Shape, l: Point_Light, p: m.Point, eye_v: m.Vector, norma
 
 reflected_color :: proc(w: ^World, hit: ^Hit_Info, remaining := 5) -> Color {
 
+    tracy.Zone();
+
     if remaining <= 0 do return BLACK;
     if hit.object.material.reflective == 0 do return BLACK;
 
@@ -69,6 +72,8 @@ reflected_color :: proc(w: ^World, hit: ^Hit_Info, remaining := 5) -> Color {
 }
 
 refracted_color :: proc(w: ^World, hit: ^Hit_Info, remaining: int) -> Color {
+
+    tracy.Zone();
 
     if remaining <= 0 do return BLACK;
     if hit.object.material.transparency == 0 do return BLACK;

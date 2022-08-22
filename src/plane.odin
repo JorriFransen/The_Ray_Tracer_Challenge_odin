@@ -2,6 +2,8 @@ package raytracer
 
 import m "raytracer:math"
 
+import "tracy:."
+
 Plane :: struct {
     using shape: Shape,
 }
@@ -36,10 +38,15 @@ _plane_vtable := &Shape_VTable {
         return m.vector(0, 1, 0);
     },
 
-    intersects = proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
+    intersects = plane_intersects,
 
-        tim := start_timing("Plane intersect");
-        defer end_timing(&tim);
+    eq = proc(a, b: ^Shape) -> bool { assert(false); return true; }
+
+};
+
+plane_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
+
+        tracy.Zone();
 
         if abs(r.direction.y) < m.FLOAT_EPSILON do return nil;
 
@@ -47,9 +54,4 @@ _plane_vtable := &Shape_VTable {
 
         i := intersection(t, s);
         return [2]Intersection { i, i };
-    },
-
-    eq = proc(a, b: ^Shape) -> bool { assert(false); return true; }
-
-};
-
+}

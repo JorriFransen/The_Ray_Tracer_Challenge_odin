@@ -5,6 +5,8 @@ import "core:slice"
 
 import m "raytracer:math"
 
+import "tracy:."
+
 Intersection :: struct {
     t: m.real,
     object: ^Shape,
@@ -46,6 +48,8 @@ intersections :: proc {
 }
 
 hit_info :: proc(hit: Intersection, r: m.Ray, xs: []Intersection) -> Hit_Info {
+
+    tracy.Zone();
 
     obj := hit.object;
     point := m.ray_position(r, hit.t);

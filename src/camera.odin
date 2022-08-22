@@ -4,6 +4,8 @@ import "core:math"
 
 import m "raytracer:math"
 
+import "tracy:."
+
 Camera :: struct {
     size: [2]int,
 
@@ -66,6 +68,8 @@ render_to_new_canvas :: proc(c: ^Camera, w: ^World, allocator := context.allocat
 }
 
 render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true, allocator := context.allocator) {
+
+    tracy.Zone();
 
     assert(canvas.width == c.size.x);
     assert(canvas.height == c.size.y);

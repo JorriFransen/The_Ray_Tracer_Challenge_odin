@@ -3,6 +3,8 @@ package raytracer
 import "core:math"
 import m "raytracer:math"
 
+import "tracy:."
+
 Sphere :: struct {
     using shape: Shape,
 }
@@ -41,10 +43,14 @@ _sphere_vtable := &Shape_VTable {
         return m.sub(p, m.point(0, 0, 0));
     },
 
-    intersects = proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
+    intersects = sphere_intersects,
 
-        t := start_timing("Sphere intersect");
-        defer end_timing(&t);
+    eq = proc(a, b: ^Shape) -> bool { return true },
+};
+
+sphere_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
+
+        tracy.Zone();
 
         sphere_to_ray := m.sub(r.origin, m.point(0, 0, 0));
 
@@ -67,8 +73,4 @@ _sphere_vtable := &Shape_VTable {
         assert(t1 <= t2);
 
         return [?]Intersection { intersection(t1, s), intersection(t2, s) };
-    },
-
-    eq = proc(a, b: ^Shape) -> bool { return true },
-};
-
+}
