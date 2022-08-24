@@ -1,7 +1,8 @@
 package tracy
 
-Zone__ :: #force_inline proc(loc := #caller_location) -> (ctx: Tracy_Zone_Context) {
 
+
+Zone__ :: #force_inline proc(loc := #caller_location) -> (ctx: Tracy_Zone_Context) {
     when ENABLED {
         id := ___tracy_alloc_srcloc(u32(loc.line),
                                     cstring(raw_data(loc.file_path)),
@@ -26,7 +27,6 @@ Zone_ :: #force_inline proc(loc := #caller_location) -> (ctx: Tracy_Zone_Context
 
 @(deferred_out=ZoneEnd)
 ZoneN :: #force_inline proc(name: string,loc := #caller_location) -> (ctx: Tracy_Zone_Context) {
-    
     when ENABLED {
         ctx = Zone__(loc);
         ___tracy_emit_zone_name(ctx, cstring(raw_data(name)), len(name));
@@ -41,5 +41,7 @@ Zone :: proc {
 }
 
 ZoneEnd :: #force_inline proc(ctx: Tracy_Zone_Context) {
-    ___tracy_emit_zone_end(ctx);
+    when ENABLED {
+        ___tracy_emit_zone_end(ctx);
+    }
 }
