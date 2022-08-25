@@ -73,7 +73,7 @@ with_canvas :: proc(width, height: int, p: With_Canvas_Proc, title : cstring = "
 
     p(c);
 
-    // rt.display(c, title);
+    rt.display(c, title);
 }
 
 

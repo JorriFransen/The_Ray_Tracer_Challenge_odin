@@ -29,12 +29,8 @@ intersect_world :: proc(w: ^World, r: m.Ray, allocator := context.allocator) -> 
 
     tracy.Zone();
 
-    result : [dynamic]Intersection = ---;
-
-    {
-        tracy.Zone("intersect_world -- alloc intersections");
-        result = make([dynamic]Intersection, allocator);
-    }
+    result, err := make([dynamic]Intersection, allocator);
+    if err != nil do panic("Allocation failed!");
 
     for obj in w.objects {
         if xs, ok := intersects(obj, r).?; ok {

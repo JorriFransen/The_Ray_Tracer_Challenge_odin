@@ -89,53 +89,78 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
 
     pool: thread.Pool;
     thread.pool_init(&pool, context.allocator, NUM_THREADS);
-
+    defer thread.pool_destroy(&pool)
 
     Render_Line_Task_Data :: struct {
         canvas: ^Canvas,
         camera: ^Camera,
         world: ^World,
         shadows: bool,
-        allocator: mem.Allocator,
+        arena: mem.Arena,
+
+        line_start: int,
+        line_count: int,
+    }
+    thread.pool_start(&pool);
+
+    num_tasks := NUM_THREADS * 4;
+    lines_per_task := int(math.ceil(f64(c.size.y) / f64(num_tasks)));
+    lines_queued := 0;
+
+    task_data := make([]Render_Line_Task_Data, num_tasks);
+    defer delete(task_data);
+
+    mem_per_task := mem.Kilobyte * 32;
+    task_mem := make([]u8, mem_per_task * num_tasks);
+    defer delete(task_mem);
+
+    for _,i in task_data {
+
+        line_count := lines_per_task;
+        if lines_queued + line_count > c.size.y {
+            line_count = c.size.y - lines_queued;
+        }
+
+        task_data[i] = Render_Line_Task_Data { canvas, c, w, shadows, {}, lines_queued, line_count };
+
+        offset := i * mem_per_task;
+        mem.arena_init(&task_data[i].arena, task_mem[offset:offset + mem_per_task]);
+
+        allocator := mem.arena_allocator(&task_data[i].arena);
+
+        lines_queued += line_count;
+
+        thread.pool_add_task(&pool, allocator, render_lines_task, &task_data[i], 0);
     }
 
-    render_line_task :: proc(t: thread.Task) {
+    render_lines_task :: proc(t: thread.Task) {
 
         tracy.Zone();
 
         data := transmute(^Render_Line_Task_Data)t.data;
 
-        for x in 0..<data.camera.size.x {
+        for y in data.line_start..<data.line_start + data.line_count {
+            for x in 0..<data.camera.size.x {
 
-            ray := camera_ray_for_pixel(data.camera, x, t.user_index);
-            color := color_at(data.world, ray, 5, data.shadows, data.allocator);
-            canvas_write_pixel(data.canvas^, x, t.user_index, color);
-        }
-    }
+                tmp := mem.begin_arena_temp_memory(&data.arena);
+                allocator := mem.arena_allocator(tmp.arena);
+                defer mem.end_arena_temp_memory(tmp);
 
-    data := Render_Line_Task_Data { canvas, c, w, shadows, allocator };
-
-    thread.pool_start(&pool);
-
-    for line in 0..<c.size.y {
-
-        thread.pool_add_task(&pool, context.allocator, render_line_task, &data, line);
-
-        for {
-            num_waiting := thread.pool_num_waiting(&pool);
-            if num_waiting >= NUM_THREADS * 4 {
-
-                task, got_task := thread.pool_pop_waiting(&pool);
-                if got_task {
-                    thread.pool_do_work(&pool, task);
-                }
-
-            } else {
-                break;
+                ray := camera_ray_for_pixel(data.camera, x, y);
+                color := color_at(data.world, ray, 5, data.shadows, allocator);
+                canvas_write_pixel(data.canvas^, x, y, color);
             }
         }
     }
+
+
     thread.pool_finish(&pool);
+
+    // peak := 0;
+    // for td in task_data {
+    //     peak = max(peak, td.arena.peak_used);
+    // }
+    // fmt.println(f64(peak) / f64(mem.Kilobyte));
 }
 
 render :: proc {

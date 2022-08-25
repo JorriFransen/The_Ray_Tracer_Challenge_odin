@@ -79,7 +79,9 @@ hit_info :: proc(hit: Intersection, r: m.Ray, xs: []Intersection) -> Hit_Info {
     n1, n2: m.real;
 
     if len(xs) > 0 {
-        containers := make([dynamic]^Shape, 0, len(xs) / 2, context.temp_allocator);
+        containers, err := make([dynamic]^Shape, 0, len(xs) / 2);
+        if err != nil do panic("Allocation failed!");
+        defer delete(containers);
 
         for i in xs {
             if i == hit {
