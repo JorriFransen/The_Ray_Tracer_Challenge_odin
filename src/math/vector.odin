@@ -48,7 +48,8 @@ is_vector :: proc(t: $T/Tuple) -> bool {
 }
 
 tuple_eq :: proc(a, b: $T/[4]real) -> bool {
-    simd_diff := simd.abs(simd.from_array(a - b));
+    diff := a - b;
+    simd_diff := simd.abs(simd.from_array(diff));
     simd_epsilon : #simd[4]real : { FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON, FLOAT_EPSILON };
 
     simd_neq := simd.lanes_ge(simd_diff, simd_epsilon);
