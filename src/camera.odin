@@ -124,7 +124,7 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
         task_data[i] = Render_Line_Task_Data { canvas, c, w, shadows, {}, lines_queued, line_count };
 
         offset := i * mem_per_task;
-        mem.arena_init(&task_data[i].arena, task_mem[offset:offset + mem_per_task]);
+        mem.init_arena(&task_data[i].arena, task_mem[offset:offset + mem_per_task]);
 
         allocator := mem.arena_allocator(&task_data[i].arena);
 
@@ -156,11 +156,6 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
 
     thread.pool_finish(&pool);
 
-    // peak := 0;
-    // for td in task_data {
-    //     peak = max(peak, td.arena.peak_used);
-    // }
-    // fmt.println(f64(peak) / f64(mem.Kilobyte));
 }
 
 render :: proc {
