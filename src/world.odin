@@ -25,25 +25,32 @@ world :: proc {
     world_ol,
 }
 
-intersect_world :: proc(w: ^World, r: m.Ray, allocator := context.allocator) -> [dynamic]Intersection {
+intersect_world :: proc(w: ^World, r: m.Ray, result: ^[]Intersection) -> int {
 
     tracy.Zone();
 
-    result, err := make([dynamic]Intersection, allocator);
-    if err != nil do panic("Allocation failed!");
+    count := 0;
 
     for obj in w.objects {
+
         if xs, ok := intersects(obj, r).?; ok {
-            append(&result, .. xs[:]);
+
+            assert(len(xs) == 2);
+            result[count    ] = xs[0];
+            result[count + 1] = xs[1];
+
+            count += 2;
+
         }
     }
 
     {
         tracy.Zone("intersect_world -- sort");
-        slice.sort_by(result[:], intersection_less);
+        slice.sort_by(result[:count], intersection_less);
     }
 
-    return result;
+    result^ = result[:count];
+    return count;
 }
 
 shade_hit :: proc(w: ^World, hi: ^Hit_Info, shadows := true, remaining := 5) -> (result: Color) {
@@ -77,12 +84,17 @@ shade_hit :: proc(w: ^World, hi: ^Hit_Info, shadows := true, remaining := 5) -> 
     return;
 }
 
-color_at :: proc(w: ^World, r: m.Ray, remaining := 0, shadows := true, allocator := context.allocator) -> Color {
+color_at :: proc(w: ^World, r: m.Ray, remaining := 0, shadows := true) -> Color {
 
     tracy.Zone();
 
-    xs := intersect_world(w, r, allocator);
+    max_intersection_count := len(w.objects) * 2;
+
+    xs, err := make([]Intersection, max_intersection_count);
+    assert(err == nil);
     defer delete(xs);
+
+    intersect_world(w, r, &xs);
 
     if hit, ok := hit(xs[:]).?; ok {
 
@@ -104,8 +116,13 @@ is_shadowed :: proc(w: ^World, p: m.Point, l: ^Point_Light, allocator := context
 
     ray := m.ray(p, m.normalize(point_to_light));
 
-    intersections := intersect_world(w, ray, allocator);
+    max_intersection_count := len(w.objects) * 2;
+
+    intersections, err := make([]Intersection, max_intersection_count);
+    assert(err == nil);
     defer delete(intersections);
+
+    intersect_world(w, ray, &intersections);
 
     if hit, ok := hit(intersections[:]).?; ok {
         return hit.t < distance;

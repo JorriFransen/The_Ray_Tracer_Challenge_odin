@@ -72,5 +72,5 @@ sphere_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
         assert(t1 <= t2);
 
-        return [?]Intersection { intersection(t1, s), intersection(t2, s) };
+        return [2]Intersection { intersection(t1, s), intersection(t2, s) };
 }

@@ -131,6 +131,7 @@ intersection_less :: proc(a, b: Intersection) -> bool {
 hit :: proc(xs: []Intersection) -> Maybe(Intersection) {
 
     for i in xs {
+        assert(i.object != nil);
         if i.t >= 0 do return i;
     }
 

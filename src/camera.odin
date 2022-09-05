@@ -98,6 +98,7 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
         shadows: bool,
         arena: mem.Arena,
 
+        recursion_depth: int,
         line_start: int,
         line_count: int,
     }
@@ -110,7 +111,18 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
     task_data := make([]Render_Line_Task_Data, num_tasks);
     defer delete(task_data);
 
-    mem_per_task := mem.Kilobyte * 32;
+    max_intersection_count := len(w.objects) * 2;
+    recursion_depth := 5;
+
+    main_xs_mem_size := size_of(Intersection) * max_intersection_count;
+    light_xs_mem_size := main_xs_mem_size * len(w.lights);
+    hit_sort_mem_size := size_of(^Shape) * len(w.objects);
+
+    mem_per_task := main_xs_mem_size + light_xs_mem_size + hit_sort_mem_size;
+    mem_per_task = mem_per_task + (mem_per_task * recursion_depth * recursion_depth * 2);
+
+    // fmt.println(mem_per_task);
+
     task_mem := make([]u8, mem_per_task * num_tasks);
     defer delete(task_mem);
 
@@ -121,7 +133,7 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
             line_count = c.size.y - lines_queued;
         }
 
-        task_data[i] = Render_Line_Task_Data { canvas, c, w, shadows, {}, lines_queued, line_count };
+        task_data[i] = Render_Line_Task_Data { canvas, c, w, shadows, {}, recursion_depth, lines_queued, line_count };
 
         offset := i * mem_per_task;
         mem.arena_init(&task_data[i].arena, task_mem[offset:offset + mem_per_task]);
@@ -146,17 +158,26 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
                 allocator := mem.arena_allocator(tmp.arena);
                 defer mem.end_arena_temp_memory(tmp);
 
+                context.allocator = allocator;
                 ray := camera_ray_for_pixel(data.camera, x, y);
-                color := color_at(data.world, ray, 5, data.shadows, allocator);
+                color := color_at(data.world, ray, data.recursion_depth, data.shadows);
                 canvas_write_pixel(data.canvas^, x, y, color);
             }
         }
     }
 
-
     thread.pool_finish(&pool);
 
+    // peak := 0;
+    // for t in task_data {
+    //     if t.arena.peak_used > peak do peak = t.arena.peak_used;
+    // }
+
+    // fmt.println(peak);
+
 }
+
+// import "core:fmt"
 
 render :: proc {
     render_to_new_canvas,
