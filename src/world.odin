@@ -1,6 +1,7 @@
 package raytracer
 
 import "core:slice"
+import "core:mem"
 
 import rt "raytracer:."
 import m "raytracer:math"
@@ -25,9 +26,12 @@ world :: proc {
     world_ol,
 }
 
-intersect_world :: proc(w: ^World, r: m.Ray, result: ^[]Intersection) -> int {
+intersect_world :: proc(w: ^World, r: m.Ray, result: []Intersection) -> []Intersection {
 
     tracy.Zone();
+
+    assert(len(result) >= len(w.objects) * 2);
+    slice.fill(result, Intersection {});
 
     count := 0;
 
@@ -49,11 +53,10 @@ intersect_world :: proc(w: ^World, r: m.Ray, result: ^[]Intersection) -> int {
         slice.sort_by(result[:count], intersection_less);
     }
 
-    result^ = result[:count];
-    return count;
+    return result[:count];
 }
 
-shade_hit :: proc(w: ^World, hi: ^Hit_Info, shadows := true, remaining := 5) -> (result: Color) {
+shade_hit :: proc(w: ^World, hi: ^Hit_Info, xs_mem: []Intersection, hi_mem: []^Shape, shadows := true, remaining := 5) -> (result: Color) {
 
     tracy.Zone();
 
@@ -62,12 +65,12 @@ shade_hit :: proc(w: ^World, hi: ^Hit_Info, shadows := true, remaining := 5) -> 
     surface := rt.BLACK;
 
     for l in &w.lights {
-        is_shadowed :=  shadows && is_shadowed(w, hi.over_point, &l);
+        is_shadowed :=  shadows && is_shadowed(w, hi.over_point, &l, xs_mem);
         surface += lighting(hi.object, l, hi.over_point, hi.eye_v, hi.normal_v, is_shadowed)
     }
 
-    reflected := reflected_color(w, hi, remaining);
-    refracted := refracted_color(w, hi, remaining);
+    reflected := reflected_color(w, hi, xs_mem, hi_mem,  remaining);
+    refracted := refracted_color(w, hi, xs_mem, hi_mem, remaining);
 
     material := hi.object.material;
     if material.reflective > 0 && material.transparency > 0 {
@@ -84,30 +87,24 @@ shade_hit :: proc(w: ^World, hi: ^Hit_Info, shadows := true, remaining := 5) -> 
     return;
 }
 
-color_at :: proc(w: ^World, r: m.Ray, remaining := 0, shadows := true) -> Color {
+color_at :: proc(w: ^World, r: m.Ray, xs_mem: []Intersection, hi_mem: []^Shape, remaining := 0, shadows := true) -> Color {
 
     tracy.Zone();
 
-    max_intersection_count := len(w.objects) * 2;
-
-    xs, err := make([]Intersection, max_intersection_count);
-    assert(err == nil);
-    defer delete(xs);
-
-    intersect_world(w, r, &xs);
+    xs := intersect_world(w, r, xs_mem);
 
     if hit, ok := hit(xs[:]).?; ok {
 
-        hi := hit_info(hit, r, xs[:]);
+        hi := hit_info(hit, r, xs[:], hi_mem);
 
-        return shade_hit(w, &hi, shadows, remaining);
+        return shade_hit(w, &hi, xs_mem, hi_mem, shadows, remaining);
 
     } else {
         return BLACK;
     }
 }
 
-is_shadowed :: proc(w: ^World, p: m.Point, l: ^Point_Light, allocator := context.allocator) -> bool {
+is_shadowed :: proc(w: ^World, p: m.Point, l: ^Point_Light, xs_mem: []Intersection) -> bool {
 
     tracy.Zone();
 
@@ -116,15 +113,9 @@ is_shadowed :: proc(w: ^World, p: m.Point, l: ^Point_Light, allocator := context
 
     ray := m.ray(p, m.normalize(point_to_light));
 
-    max_intersection_count := len(w.objects) * 2;
+    xs := intersect_world(w, ray, xs_mem);
 
-    intersections, err := make([]Intersection, max_intersection_count);
-    assert(err == nil);
-    defer delete(intersections);
-
-    intersect_world(w, ray, &intersections);
-
-    if hit, ok := hit(intersections[:]).?; ok {
+    if hit, ok := hit(xs[:]).?; ok {
         return hit.t < distance;
     }
 

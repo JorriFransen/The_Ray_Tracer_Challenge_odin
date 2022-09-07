@@ -224,7 +224,7 @@ Hit_Info :: proc(t: ^r.Test_Context) {
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
     i := rt.intersection(4, &shape);
 
-    comps := rt.hit_info(i, ray, nil);
+    comps := rt.hit_info(i, ray, nil, nil);
 
     expect(t, comps.t == i.t);
     expect(t, comps.object == i.object);
@@ -241,7 +241,7 @@ Hit_Info_Outside :: proc(t: ^r.Test_Context) {
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
     i := rt.intersection(4, &shape);
 
-    comps := rt.hit_info(i, ray, nil);
+    comps := rt.hit_info(i, ray, nil, nil);
 
     expect(t, comps.inside == false);
 }
@@ -254,7 +254,7 @@ Hit_Info_Inside :: proc(t: ^r.Test_Context) {
     ray := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
     i := rt.intersection(1, &shape);
 
-    comps := rt.hit_info(i, ray, nil);
+    comps := rt.hit_info(i, ray, nil, nil);
 
     expect(t, comps.t == i.t);
     expect(t, comps.object == i.object);
@@ -273,7 +273,7 @@ Hit_Info_Over_Point :: proc(t: ^r.Test_Context) {
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
     i := rt.intersection(5, &shape);
 
-    hit_info := rt.hit_info(i, ray, nil);
+    hit_info := rt.hit_info(i, ray, nil, nil);
 
     expect(t, hit_info.over_point.z < -m.FLOAT_EPSILON / 2);
     expect(t, hit_info.point.z > hit_info.over_point.z);
@@ -290,13 +290,16 @@ Hit_Info_Reflection :: proc(t: ^r.Test_Context) {
     r := m.ray(m.point(0, 1, -1), m.vector(0, -sqrt_2_d2, sqrt_2_d2));
     i := rt.intersection(sqrt_2, &shape);
 
-    comps := rt.hit_info(i, r, nil);
+    comps := rt.hit_info(i, r, nil, nil);
 
     expect(t, eq(comps.reflect_v, m.vector(0, sqrt_2_d2, sqrt_2_d2)));
 }
 
 @test
 Hit_Info_Refractive_Indices :: proc(t: ^r.Test_Context) {
+
+    free_all(context.temp_allocator);
+    context.allocator = context.temp_allocator;
 
     A := rt.glass_sphere();
     rt.set_transform(&A, m.scaling(2, 2, 2));
@@ -327,8 +330,10 @@ Hit_Info_Refractive_Indices :: proc(t: ^r.Test_Context) {
     expected1 := [6]m.real { 1.0, 1.5, 2.0, 2.5, 2.5, 1.5 };
     expected2 := [6]m.real { 1.5, 2.0, 2.5, 2.5, 1.5, 1.0 };
 
+    hi_mem := make([]^rt.Shape, 3, context.temp_allocator);
+
     for it, i in xs {
-        comps := rt.hit_info(it, r, xs[:]);
+        comps := rt.hit_info(it, r, xs[:], hi_mem);
 
         expect(t, comps.n1 == expected1[i]);
         expect(t, comps.n2 == expected2[i]);
@@ -337,6 +342,9 @@ Hit_Info_Refractive_Indices :: proc(t: ^r.Test_Context) {
 
 @test
 Hit_Info_Under_Point :: proc(t: ^r.Test_Context) {
+
+    free_all(context.temp_allocator);
+    context.allocator = context.temp_allocator;
 
     r := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
@@ -348,7 +356,9 @@ Hit_Info_Under_Point :: proc(t: ^r.Test_Context) {
     xs := rt.intersections(i);
     defer delete(xs);
 
-    comps := rt.hit_info(i, r, xs[:]);
+    hi_mem := make([]^rt.Shape, 1, context.temp_allocator);
+
+    comps := rt.hit_info(i, r, xs[:], hi_mem);
 
     expect(t, comps.under_point.z > m.FLOAT_EPSILON / 2);
     expect(t, comps.point.z < comps.under_point.z);
@@ -356,6 +366,9 @@ Hit_Info_Under_Point :: proc(t: ^r.Test_Context) {
 
 @test
 Schlick_Total_Internal_Reflection :: proc(t: ^r.Test_Context) {
+
+    free_all(context.temp_allocator);
+    context.allocator = context.temp_allocator;
 
     shape := rt.glass_sphere();
 
@@ -370,7 +383,9 @@ Schlick_Total_Internal_Reflection :: proc(t: ^r.Test_Context) {
     );
     defer delete(xs);
 
-    comps := rt.hit_info(xs[1], r, xs[:]);
+    hi_mem := make([]^rt.Shape, 1, context.temp_allocator);
+
+    comps := rt.hit_info(xs[1], r, xs[:], hi_mem);
     reflectance := rt.schlick(&comps);
 
     expect(t, reflectance == 1.0);
@@ -378,6 +393,9 @@ Schlick_Total_Internal_Reflection :: proc(t: ^r.Test_Context) {
 
 @test
 Schlick_Perpendicular :: proc(t: ^r.Test_Context) {
+
+    free_all(context.temp_allocator);
+    context.allocator = context.temp_allocator;
 
     shape := rt.glass_sphere();
     r := m.ray(m.point(0, 0, 0), m.vector(0, 1, 0));
@@ -388,7 +406,9 @@ Schlick_Perpendicular :: proc(t: ^r.Test_Context) {
     );
     defer delete(xs);
 
-    comps := rt.hit_info(xs[1], r, xs[:]);
+    hi_mem := make([]^rt.Shape, 1, context.temp_allocator);
+
+    comps := rt.hit_info(xs[1], r, xs[:], hi_mem);
     reflectance := rt.schlick(&comps);
 
     expect(t, eq(reflectance, 0.04));
@@ -397,13 +417,18 @@ Schlick_Perpendicular :: proc(t: ^r.Test_Context) {
 @test
 Schlick_Low_Angle_n2_GT_n1 :: proc(t: ^r.Test_Context) {
 
+    free_all(context.temp_allocator);
+    context.allocator = context.temp_allocator;
+
     shape := rt.glass_sphere();
     r := m.ray(m.point(0, 0.99, -2), m.vector(0, 0, 1));
 
     xs := rt.intersections(rt.intersection(1.8589, &shape));
     defer delete(xs);
 
-    comps := rt.hit_info(xs[0], r, xs[:]);
+    hi_mem := make([]^rt.Shape, 1, context.temp_allocator);
+
+    comps := rt.hit_info(xs[0], r, xs[:], hi_mem);
     reflectance := rt.schlick(&comps);
 
     expect(t, eq(reflectance, 0.48873));

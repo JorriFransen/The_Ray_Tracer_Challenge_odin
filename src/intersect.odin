@@ -47,7 +47,7 @@ intersections :: proc {
     intersections_from_dyn_arr_and_slice,
 }
 
-hit_info :: proc(hit: Intersection, r: m.Ray, xs: []Intersection) -> Hit_Info {
+hit_info :: proc(hit: Intersection, r: m.Ray, xs: []Intersection, hi_mem: []^Shape) -> Hit_Info {
 
     tracy.Zone();
 
@@ -79,30 +79,33 @@ hit_info :: proc(hit: Intersection, r: m.Ray, xs: []Intersection) -> Hit_Info {
     n1, n2: m.real;
 
     if len(xs) > 0 {
-        containers, err := make([dynamic]^Shape, 0, len(xs) / 2);
-        if err != nil do panic("Allocation failed!");
-        defer delete(containers);
+
+        assert(len(hi_mem) >= len(xs) / 2);
+        slice.fill(hi_mem, nil);
+        container_count := 0;
 
         for i in xs {
             if i == hit {
-                if len(containers) < 1 {
+                if container_count < 1 {
                     n1 = 1.0;
                 } else {
-                    n1 = containers[len(containers) - 1].material.refractive_index;
+                    n1 = hi_mem[container_count - 1].material.refractive_index;
                 }
             }
 
-            if idx, found := slice.linear_search(containers[:], i.object); found {
-                unordered_remove(&containers, idx);
+            if idx, found := slice.linear_search(hi_mem[:container_count], i.object); found {
+                slice.swap(hi_mem, idx, container_count - 1);
+                container_count -= 1;
             } else {
-                append(&containers, i.object);
+                hi_mem[container_count] = i.object;
+                container_count += 1;
             }
 
             if i == hit {
-                if len(containers) < 1 {
+                if container_count < 1 {
                     n2 = 1.0;
                 } else {
-                    n2 = containers[len(containers) - 1].material.refractive_index;
+                    n2 = hi_mem[container_count - 1].material.refractive_index;
                 }
             }
 

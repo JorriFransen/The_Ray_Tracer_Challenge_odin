@@ -98,6 +98,9 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
         shadows: bool,
         arena: mem.Arena,
 
+        xs_mem: []Intersection,
+        hi_mem: []^Shape,
+
         recursion_depth: int,
         line_start: int,
         line_count: int,
@@ -115,13 +118,9 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
     recursion_depth := 5;
 
     main_xs_mem_size := size_of(Intersection) * max_intersection_count;
-    light_xs_mem_size := main_xs_mem_size * len(w.lights);
     hit_sort_mem_size := size_of(^Shape) * len(w.objects);
 
-    mem_per_task := main_xs_mem_size + light_xs_mem_size + hit_sort_mem_size;
-    mem_per_task = mem_per_task + (mem_per_task * recursion_depth * recursion_depth * 2);
-
-    // fmt.println(mem_per_task);
+    mem_per_task := main_xs_mem_size + hit_sort_mem_size;
 
     task_mem := make([]u8, mem_per_task * num_tasks);
     defer delete(task_mem);
@@ -133,12 +132,19 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
             line_count = c.size.y - lines_queued;
         }
 
-        task_data[i] = Render_Line_Task_Data { canvas, c, w, shadows, {}, recursion_depth, lines_queued, line_count };
-
         offset := i * mem_per_task;
         mem.arena_init(&task_data[i].arena, task_mem[offset:offset + mem_per_task]);
 
         allocator := mem.arena_allocator(&task_data[i].arena);
+
+        xs_mem, xs_mem_err := make([]Intersection, len(w.objects) * 2, allocator);
+        assert(xs_mem_err == nil);
+
+        hi_mem, hi_mem_err := make([]^Shape, len(w.objects), allocator);
+        assert(hi_mem_err == nil);
+
+        task_data[i] = Render_Line_Task_Data { canvas, c, w, shadows, {}, xs_mem, hi_mem, recursion_depth, lines_queued, line_count };
+
 
         lines_queued += line_count;
 
@@ -152,15 +158,11 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
         data := transmute(^Render_Line_Task_Data)t.data;
 
         for y in data.line_start..<data.line_start + data.line_count {
+
             for x in 0..<data.camera.size.x {
 
-                tmp := mem.begin_arena_temp_memory(&data.arena);
-                allocator := mem.arena_allocator(tmp.arena);
-                defer mem.end_arena_temp_memory(tmp);
-
-                context.allocator = allocator;
                 ray := camera_ray_for_pixel(data.camera, x, y);
-                color := color_at(data.world, ray, data.recursion_depth, data.shadows);
+                color := color_at(data.world, ray, data.xs_mem, data.hi_mem, data.recursion_depth, data.shadows);
                 canvas_write_pixel(data.canvas^, x, y, color);
             }
         }
@@ -168,16 +170,7 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
 
     thread.pool_finish(&pool);
 
-    // peak := 0;
-    // for t in task_data {
-    //     if t.arena.peak_used > peak do peak = t.arena.peak_used;
-    // }
-
-    // fmt.println(peak);
-
 }
-
-// import "core:fmt"
 
 render :: proc {
     render_to_new_canvas,
