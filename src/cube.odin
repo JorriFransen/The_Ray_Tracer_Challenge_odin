@@ -1,7 +1,6 @@
 package raytracer
 
 import "core:math"
-import "core:time"
 
 import "tracy:."
 

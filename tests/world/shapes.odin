@@ -44,6 +44,10 @@ shape_suite := r.Test_Suite {
         r.test("Cube_Intersect", Cube_Intersect),
         r.test("Cube_Miss", Cube_Miss),
         r.test("Cube_Normal", Cube_Normal),
+
+        r.test("Cylinder_Miss", Cylinder_Miss),
+        r.test("Cylinder_Hit", Cylinder_Hit),
+        r.test("Cylinder_Normal", Cylinder_Normal),
     },
 }
 
@@ -488,5 +492,75 @@ Cube_Normal :: proc(t: ^r.Test_Context) {
         normal := c->normal_at(e.p);
 
         expect(t, normal == e.n);
+    }
+}
+
+@test
+Cylinder_Miss :: proc(t: ^r.Test_Context) {
+
+    cyl := rt.cylinder();
+
+    examples := [?]m.Ray {
+        m.ray(m.point(1, 0,  0), m.normalize(m.vector(0, 1, 0))),
+        m.ray(m.point(0, 0,  0), m.normalize(m.vector(0, 1, 0))),
+        m.ray(m.point(0, 0, -5), m.normalize(m.vector(1, 1, 1))),
+    }
+
+    for e in examples {
+
+        xs, ok := cyl->intersects(e).?;
+
+        expect(t, !ok);
+    }
+}
+
+@test
+Cylinder_Hit :: proc(t: ^r.Test_Context) {
+
+    cyl := rt.cylinder();
+
+    Example :: struct {
+        ray: m.Ray,
+        t0, t1: m.real,
+    };
+
+    examples := [?]Example {
+        { m.ray(m.point(  1, 0, -5), m.normalize(m.vector(  0, 0, 1))), 5,       5 },
+        { m.ray(m.point(  0, 0, -5), m.normalize(m.vector(  0, 0, 1))), 4,       6 },
+        { m.ray(m.point(0.5, 0, -5), m.normalize(m.vector(0.1, 1, 1))), 6.80798, 7.08872 },
+    };
+
+    for e in examples {
+
+        xs, ok := cyl->intersects(e.ray).?;
+
+        expect(t, len(xs) == 2);
+        expect(t, eq(xs[0].t, e.t0));
+        expect(t, eq(xs[1].t, e.t1));
+    }
+}
+
+@test
+Cylinder_Normal :: proc(t: ^r.Test_Context) {
+
+    cyl := rt.cylinder();
+
+    Example :: struct {
+        point: m.Point,
+        normal: m.Vector,
+    };
+
+    examples := [?]Example {
+        { m.point(1, 0, 0), m.vector(1, 0, 0) },
+        { m.point(0, 5, -1), m.vector(0, 0, -1) },
+        { m.point(0, -2, 1), m.vector(0, 0, 1) },
+        { m.point(-1, 1, 0), m.vector(-1, 0, 0) },
+    };
+
+    for e in examples {
+
+        n := cyl->normal_at(e.point);
+
+        expect(t, eq(n, e.normal));
     }
 }
