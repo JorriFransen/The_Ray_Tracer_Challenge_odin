@@ -48,6 +48,8 @@ shape_suite := r.Test_Suite {
         r.test("Cylinder_Miss", Cylinder_Miss),
         r.test("Cylinder_Hit", Cylinder_Hit),
         r.test("Cylinder_Normal", Cylinder_Normal),
+        r.test("Cylinder_Bounds", Cylinder_Bounds),
+        r.test("Cylinder_Truncation", Cylinder_Truncation),
     },
 }
 
@@ -562,5 +564,45 @@ Cylinder_Normal :: proc(t: ^r.Test_Context) {
         n := cyl->normal_at(e.point);
 
         expect(t, eq(n, e.normal));
+    }
+}
+
+@test
+Cylinder_Bounds :: proc(t: ^r.Test_Context) {
+
+    cyl := rt.cylinder();
+
+    expect(t, cyl.minimum == -m.INFINITY);
+    expect(t, cyl.maximum == m.INFINITY);
+}
+
+@test
+Cylinder_Truncation :: proc(t: ^r.Test_Context) {
+
+    cyl := rt.cylinder();
+    cyl.minimum = 1;
+    cyl.maximum = 2;
+
+    Example :: struct {
+        ray: m.Ray,
+        count: int,
+    };
+
+    examples := [?]Example {
+        { m.ray(m.point(0, 1.5,  0), m.normalize(m.vector(0.1, 1, 0))), 0 },
+        { m.ray(m.point(0,   3, -5), m.normalize(m.vector(  0, 0, 1))), 0 },
+        { m.ray(m.point(0,   0, -5), m.normalize(m.vector(  0, 0, 1))), 0 },
+        { m.ray(m.point(0,   2, -5), m.normalize(m.vector(  0, 0, 1))), 0 },
+        { m.ray(m.point(0,   1, -5), m.normalize(m.vector(  0, 0, 1))), 0 },
+        { m.ray(m.point(0, 1.5, -2), m.normalize(m.vector(  0, 0, 1))), 2 },
+    };
+
+    for e in examples {
+
+        xs, ok := cyl->intersects(e.ray).?;
+
+        expect(t, e.count > 0 == ok);
+
+        if e.count > 0 do expect(t, e.count == len(xs));
     }
 }

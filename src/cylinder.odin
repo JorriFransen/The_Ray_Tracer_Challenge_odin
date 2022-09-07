@@ -8,10 +8,12 @@ import m "raytracer:math"
 
 Cylinder :: struct {
     using shape: Shape,
+
+    minimum, maximum: m.real,
 }
 
 cylinder_tf_mat :: proc(tf: m.Matrix4, mat: Material) -> Cylinder {
-    return Cylinder { shape(_cylinder_vtable, tf, mat) };
+    return Cylinder { shape(_cylinder_vtable, tf, mat), -m.INFINITY, m.INFINITY };
 }
 
 cylinder_mat :: proc(mat: Material) -> Cylinder {
@@ -37,7 +39,7 @@ cylinder :: proc {
 _cylinder_vtable := &Shape_VTable {
 
     normal_at = proc(s: ^Shape, p: m.Point) -> m.Vector {
-        return m.vector(p.x, 0, p.z); 
+        return m.vector(p.x, 0, p.z);
     },
 
     intersects = cylinder_intersects,
@@ -48,6 +50,8 @@ _cylinder_vtable := &Shape_VTable {
 cylinder_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
     tracy.Zone();
+
+    cyl := transmute(^Cylinder)s;
 
     a := r.direction.x * r.direction.x + r.direction.z * r.direction.z;
 
@@ -66,5 +70,29 @@ cylinder_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
     t0 := (-b - disc_sqrt) / divisor;
     t1 := (-b + disc_sqrt) / divisor;
 
-    return [2]Intersection{ intersection(t0, s), intersection(t1, s) };
+    if t0 > t1 do t0, t1 = t1, t0;
+
+    i0, i1: Intersection;
+    count := 0;
+
+    y0 := r.origin.y + t0 * r.direction.y;
+    if cyl.minimum < y0 && y0 < cyl.maximum {
+        i0 = intersection(t0, cyl);
+        i1 = i0;
+        count += 1;
+    }
+
+    y1 := r.origin.y + t1 * r.direction.y;
+    if cyl.minimum < y1 && y1 < cyl.maximum {
+        i1 = intersection(t1, cyl); 
+        count += 1;
+
+        if count == 1 {
+            i0 = i1;
+        }
+    }
+
+    if count <= 0 do return nil;
+
+    return [2]Intersection{ i0, i1 };
 }
