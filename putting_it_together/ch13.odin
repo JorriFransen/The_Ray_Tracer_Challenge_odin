@@ -23,7 +23,7 @@ CH13_1 :: proc(c: rt.Canvas) {
     floor_mat.pattern = &floor_pat;
     floor := rt.plane(floor_mat);
 
-    cyl_mat := rt.material(color=rt.color(0.2, 0.9, 0.2), reflective=0.9, transparency=.5, diffuse=.1, refractive_index=1);
+    cyl_mat := rt.material(color=rt.color(0.2, 0.9, 0.2), reflective=0.6, transparency=.2, diffuse=.2, refractive_index=1);
 
     cyl_tf := m.translation(-0.7, 0.9, 0.8) * m.scaling(0.7, 0.7, 0.7);
     cyl := rt.cylinder(cyl_tf, cyl_mat);
@@ -40,7 +40,7 @@ CH13_1 :: proc(c: rt.Canvas) {
                     rt.material(color=rt.color(0.8, 0.2, 0.3), reflective=.1, specular=.5));
 
     cube3 := rt.cube(m.translation(2.5, 0.4999, 1) * m.rotation_y(0) * m.scaling(0.5, 0.5, 0.5),
-                    rt.material(color=rt.color(0.2, 0.75, 0.3), reflective=.77, specular=.9, transparency=.77, diffuse=.1));
+                    rt.material(color=rt.color(0., 0.75, 0.3), reflective=.77, specular=.9, transparency=.77, diffuse=.1));
 
     shapes := []^rt.Shape { &floor, &cyl, &sphere1, &cube1, &cube2, &cube3 };
 
