@@ -50,6 +50,9 @@ shape_suite := r.Test_Suite {
         r.test("Cylinder_Normal", Cylinder_Normal),
         r.test("Cylinder_Bounds", Cylinder_Bounds),
         r.test("Cylinder_Truncation", Cylinder_Truncation),
+        r.test("Cylinder_Closed", Cylinder_Closed),
+        r.test("Cylinder_Cap_Intersect", Cylinder_Cap_Intersect),
+        r.test("Cylinder_Cap_Normal", Cylinder_Cap_Normal),
     },
 }
 
@@ -604,5 +607,72 @@ Cylinder_Truncation :: proc(t: ^r.Test_Context) {
         expect(t, e.count > 0 == ok);
 
         if e.count > 0 do expect(t, e.count == len(xs));
+    }
+}
+
+@test
+Cylinder_Closed :: proc(t: ^r.Test_Context) {
+
+    cyl := rt.cylinder();
+
+    expect(t, cyl.closed == false);
+}
+
+@test
+Cylinder_Cap_Intersect :: proc(t: ^r.Test_Context) {
+
+    cyl := rt.cylinder();
+    cyl.minimum = 1;
+    cyl.maximum = 2;
+    cyl.closed = true;
+
+    Example :: struct {
+        ray: m.Ray,
+        count: int,
+    };
+
+    examples := [?]Example {
+        { m.ray(m.point(0,  3,  0), m.normalize(m.vector(0, -1, 0))), 2 },
+        { m.ray(m.point(0,  3, -2), m.normalize(m.vector(0, -1, 2))), 2 },
+        { m.ray(m.point(0,  4, -2), m.normalize(m.vector(0, -1, 1))), 2 },
+        { m.ray(m.point(0,  0, -2), m.normalize(m.vector(0,  1, 2))), 2 },
+        { m.ray(m.point(0, -1, -2), m.normalize(m.vector(0,  1, 1))), 2 },
+    };
+
+    for e in examples {
+
+        xs, ok := cyl->intersects(e.ray).?;
+
+        expect(t, ok);
+        expect(t, len(xs) == e.count);
+    }
+}
+
+@test
+Cylinder_Cap_Normal :: proc(t: ^r.Test_Context) {
+
+    cyl := rt.cylinder();
+    cyl.minimum = 1;
+    cyl.maximum = 2;
+    cyl.closed = true;
+
+    Example :: struct {
+        point: m.Point,
+        normal: m.Vector,
+    }
+
+    examples := [?]Example {
+        { m.point(  0, 1,   0), m.vector(0, -1, 0) },
+        { m.point(0.5, 1,   0), m.vector(0, -1, 0) },
+        { m.point(  0, 1, 0.5), m.vector(0, -1, 0) },
+        { m.point(  0, 2,   0), m.vector(0,  1, 0) },
+        { m.point(0.5, 2,   0), m.vector(0,  1, 0) },
+        { m.point(  0, 2, 0.5), m.vector(0,  1, 0) },
+    };
+
+    for e in examples {
+        n := cyl->normal_at(e.point);
+
+        expect(t, eq(n, e.normal));
     }
 }

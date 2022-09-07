@@ -46,12 +46,12 @@ _plane_vtable := &Shape_VTable {
 
 plane_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
-        tracy.Zone();
+    tracy.Zone();
 
-        if abs(r.direction.y) < m.FLOAT_EPSILON do return nil;
+    if abs(r.direction.y) < m.FLOAT_EPSILON do return nil;
 
-        t := -r.origin.y / r.direction.y;
+    t := -r.origin.y / r.direction.y;
 
-        i := intersection(t, s);
-        return [2]Intersection { i, i };
+    i := intersection(t, s);
+    return [2]Intersection { i, i };
 }

@@ -28,6 +28,7 @@ Hit_Info :: struct {
 }
 
 intersection :: proc(t: m.real, s: ^Shape) -> Intersection {
+    assert(s != nil);
     return Intersection { t, s };
 }
 

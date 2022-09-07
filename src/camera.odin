@@ -85,6 +85,7 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
         }
     }
 
+    // NUM_THREADS :: 1;
     NUM_THREADS :: 16;
 
     pool: thread.Pool;
