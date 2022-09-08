@@ -142,7 +142,7 @@ hit :: proc(xs: []Intersection) -> Maybe(Intersection) {
     return nil;
 }
 
-intersects :: proc(shape: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
+intersects :: proc(shape: ^Shape, r: m.Ray) -> ([4]Intersection, int) {
 
     assert(shape.vtable.intersects != nil);
 

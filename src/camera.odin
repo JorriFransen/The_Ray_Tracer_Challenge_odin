@@ -115,7 +115,7 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
     task_data := make([]Render_Line_Task_Data, num_tasks);
     defer delete(task_data);
 
-    max_intersection_count := len(w.objects) * 2;
+    max_intersection_count := len(w.objects) * 4;
     recursion_depth := 5;
 
     main_xs_mem_size := size_of(Intersection) * max_intersection_count;

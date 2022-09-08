@@ -33,27 +33,26 @@ intersect_world :: proc(w: ^World, r: m.Ray, result: []Intersection) -> []Inters
     assert(len(result) >= len(w.objects) * 2);
     slice.fill(result, Intersection {});
 
-    count := 0;
+    total_count := 0;
 
     for obj in w.objects {
 
-        if xs, ok := intersects(obj, r).?; ok {
+        if xs, count := intersects(obj, r); count > 0 {
 
-            assert(len(xs) == 2);
-            result[count    ] = xs[0];
-            result[count + 1] = xs[1];
-
-            count += 2;
-
+            assert(count >= 0 && count <= 4);
+            for i in 0..<count {
+                result[total_count] = xs[i];
+                total_count += 1;
+            }
         }
     }
 
     {
         tracy.Zone("intersect_world -- sort");
-        slice.sort_by(result[:count], intersection_less);
+        slice.sort_by(result[:total_count], intersection_less);
     }
 
-    return result[:count];
+    return result[:total_count];
 }
 
 shade_hit :: proc(w: ^World, hi: ^Hit_Info, xs_mem: []Intersection, hi_mem: []^Shape, shadows := true, remaining := 5) -> (result: Color) {

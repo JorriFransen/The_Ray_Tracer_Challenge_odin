@@ -60,16 +60,15 @@ _cylinder_vtable := &Shape_VTable {
     eq = proc(a, b: ^Shape) -> bool { return true },
 };
 
-cylinder_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
+cylinder_intersects :: proc(s: ^Shape, r: m.Ray) -> (result: [4]Intersection, count: int) {
 
     tracy.Zone();
 
     cyl := transmute(^Cylinder)s;
 
-    a := r.direction.x * r.direction.x + r.direction.z * r.direction.z;
+    result, count = {}, 0;
 
-    i0, i1: Intersection;
-    count := 0;
+    a := r.direction.x * r.direction.x + r.direction.z * r.direction.z;
 
     if !eq(a, 0) {
 
@@ -78,7 +77,7 @@ cylinder_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
         disc := (b * b) - (4 * a * c);
 
-        if disc < 0 do return nil;
+        if disc < 0 do return;
 
         disc_sqrt := math.sqrt(disc);
         divisor := 2 * a;
@@ -90,50 +89,47 @@ cylinder_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
         y0 := r.origin.y + t0 * r.direction.y;
         if cyl.minimum < y0 && y0 < cyl.maximum {
-            i0 = intersection(t0, cyl);
-            i1 = i0;
+            result[count] = intersection(t0, cyl);
             count += 1;
         }
 
         y1 := r.origin.y + t1 * r.direction.y;
         if cyl.minimum < y1 && y1 < cyl.maximum {
-            i1 = intersection(t1, cyl);
+            result[count] = intersection(t1, cyl);
             count += 1;
-
-            if count == 1 {
-                i0 = i1;
-            }
         }
     }
 
     if cyl.closed && count < 2 {
-        if cap_xs, cap_ok := intersect_caps(cyl, r).?; cap_ok {
-            if count == 0 {
-                return cap_xs;
-            } else if count == 1 {
-                i1 = cap_xs[0];
-            }
+        cap_xs, cap_count := intersect_caps(cyl, r);
+
+        assert(cap_count >= 0 && cap_count <= 2);
+        total_count := count + cap_count;
+        assert(total_count >= 0 && total_count <= 2);
+
+        for i in 0..<cap_count {
+            result[count] = cap_xs[i];
+            count += 1;
         }
     }
 
-    if count <= 0 do return nil;
-
-    return [2]Intersection { i0, i1 };
+    return result, count;
 }
 
-intersect_caps :: #force_inline proc(cyl: ^Cylinder, r: m.Ray) -> Maybe([2]Intersection) {
+@(private="file")
+intersect_caps :: #force_inline proc(cyl: ^Cylinder, r: m.Ray) -> (result: [2]Intersection, count: int) {
 
-    if abs(r.direction.y) < m.FLOAT_EPSILON do return nil;
+    result, count = {}, 0;
+
+    if abs(r.direction.y) < m.FLOAT_EPSILON do return;
 
     i0, i1: Intersection;
-    count := 0;
 
     t0 := (cyl.minimum - r.origin.y) / r.direction.y;
     x0 := r.origin.x + t0 * r.direction.x;
     z0 := r.origin.z + t0 * r.direction.z;
     if x0 * x0 + z0 * z0 <= 1 {
-        i0 = intersection(t0, cyl);
-        i1 = i0;
+        result[count] = intersection(t0, cyl);
         count += 1;
     }
 
@@ -141,16 +137,9 @@ intersect_caps :: #force_inline proc(cyl: ^Cylinder, r: m.Ray) -> Maybe([2]Inter
     x1 := r.origin.x + t1 * r.direction.x;
     z1 := r.origin.z + t1 * r.direction.z;
     if x1 * x1 + z1 * z1 <= 1 {
-        i1 = intersection(t1, cyl);
-
+        result[count] = intersection(t1, cyl);
         count += 1;
-
-        if count == 1 {
-            i0 = i1;
-        }
     }
 
-    if count == 0 do return nil;
-
-    return [2]Intersection { i0, i1 };
+    return result, count;
 }

@@ -37,9 +37,9 @@ CH06 :: proc(c: rt.Canvas) {
             position := m.point(world_x, world_y, wall_z);
 
             r := m.ray(ray_origin, m.normalize(m.sub(position, ray_origin)));
-            xs, did_intersect := rt.intersects(&shape, r).?;
+            xs, xs_count := rt.intersects(&shape, r);
 
-            if !did_intersect do continue;
+            if xs_count == 0 do continue;
 
             if hit, ok : = rt.hit(xs[:]).?; ok {
 

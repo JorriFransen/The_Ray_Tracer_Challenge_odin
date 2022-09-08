@@ -61,97 +61,11 @@ _cube_vtable := &Shape_VTable {
     eq = proc(a, b: ^Shape) -> bool { return true },
 };
 
-/*
-
-cube_intersects_a :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
+cube_intersects :: proc(s: ^Shape, r: m.Ray) -> (result: [4]Intersection, count: int) {
 
     tracy.Zone();
 
-    check_axis :: proc(origin, direction: m.real) -> (tmin, tmax: m.real)
-    {
-        // t := start_timing("check_axis");
-        // defer end_timing(&t);
-
-        tmin_num := (-1 - origin);
-        tmax_num := ( 1 - origin);
-
-        if abs(direction) >= m.FLOAT_EPSILON {
-            tmin = tmin_num / direction;
-            tmax = tmax_num / direction
-        } else {
-            tmin = tmin_num * m.INFINITY;
-            tmax = tmax_num * m.INFINITY;
-        }
-
-        if tmin > tmax do tmin, tmax = tmax, tmin;
-
-        return;
-    }
-
-    xtmin, xtmax := check_axis(r.origin.x, r.direction.x);
-    ytmin, ytmax := check_axis(r.origin.y, r.direction.y);
-    ztmin, ztmax := check_axis(r.origin.z, r.direction.z);
-
-    tmin := max(xtmin, ytmin, ztmin);
-    tmax := min(xtmax, ytmax, ztmax);
-
-    if tmin > tmax do return nil;
-
-    return [2]Intersection { intersection(tmin, s), intersection(tmax, s) };
-
-}
-
-cube_intersects_b :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
-
-    tracy.Zone();
-
-    check_axis :: #force_inline proc(origin, dir, inv_dir: m.real) -> (tmin, tmax: m.real)
-    {
-        // t := start_timing("check_axis_b");
-        // defer end_timing(&t);
-
-        tmin_num := (-1 - origin);
-        tmax_num := ( 1 - origin);
-
-        if abs(dir) > m.FLOAT_EPSILON {
-            if inv_dir >= 0 {
-                tmin = tmin_num * inv_dir;
-                tmax = tmax_num * inv_dir;
-            } else {
-                tmax = tmin_num * inv_dir;
-                tmin = tmax_num * inv_dir;
-            }
-        } else {
-            tmin = tmin_num * m.INFINITY;
-            tmax = tmax_num * m.INFINITY;
-        }
-
-        return;
-    }
-
-    tmin, tmax := check_axis(r.origin.x, r.direction.x, r.inverse_direction.x);
-    ytmin, ytmax := check_axis(r.origin.y, r.direction.y, r.inverse_direction.y);
-    if tmin > ytmax || ytmin > tmax do return nil;
-
-    if ytmin > tmin do tmin = ytmin;
-    if ytmax < tmax do tmax = ytmax;
-
-    ztmin, ztmax := check_axis(r.origin.z, r.direction.z, r.inverse_direction.z);
-
-    if tmin > ztmax || ztmin > tmax do return nil;
-
-    if ztmin > tmin do tmin = ztmin;
-    if ztmax < tmax do tmax = ztmax;
-
-    return [2]Intersection { intersection(tmin, s), intersection(tmax, s) };
-
-}
-
-*/
-
-cube_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
-
-    tracy.Zone();
+    result, count = {}, 0;
 
     inv_dir := r.inverse_direction;
 
@@ -175,7 +89,7 @@ cube_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
         tymax = (-1 - r.origin.y) * inv_dir.y;
     }
 
-    if tmin > tymax || tymin > tmax do return nil;
+    if tmin > tymax || tymin > tmax do return;
 
     if tymin > tmin do tmin = tymin;
     if tymax < tmax do tmax = tymax;
@@ -190,10 +104,13 @@ cube_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
         tzmax = (-1 - r.origin.z) * inv_dir.z;
     }
 
-    if tmin > tzmax || tzmin > tmax do return nil;
+    if tmin > tzmax || tzmin > tmax do return;
 
     if tzmin > tmin do tmin = tzmin;
     if tzmax < tmax do tmax = tzmax;
 
-    return [2]Intersection { intersection(tmin, s), intersection(tmax, s) };
+    result[0] = intersection(tmin, s);
+    result[1] = intersection(tmax, s);
+    count = 2;
+    return;
 }

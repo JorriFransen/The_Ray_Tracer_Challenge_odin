@@ -11,7 +11,7 @@ Shape :: struct {
 }
 
 Shape_Normal_At_Proc :: proc(^Shape, m.Point) -> m.Vector;
-Shape_Intersects_Proc :: proc(^Shape, m.Ray) -> Maybe([2]Intersection);
+Shape_Intersects_Proc :: proc(^Shape, m.Ray) -> ([4]Intersection, int);
 Shape_Eq_Proc :: proc(a, b: ^Shape) -> bool;
 
 Shape_VTable :: struct {

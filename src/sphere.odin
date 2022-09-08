@@ -48,7 +48,7 @@ _sphere_vtable := &Shape_VTable {
     eq = proc(a, b: ^Shape) -> bool { return true },
 };
 
-sphere_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
+sphere_intersects :: proc(s: ^Shape, r: m.Ray) -> ([4]Intersection, int) {
 
     tracy.Zone();
 
@@ -61,7 +61,7 @@ sphere_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
     discriminant := (b * b) - 4 * a * c;
 
     if discriminant < 0 {
-        return nil;
+        return {}, 0;
     }
 
     discriminant_sqrt := math.sqrt(discriminant);
@@ -72,5 +72,5 @@ sphere_intersects :: proc(s: ^Shape, r: m.Ray) -> Maybe([2]Intersection) {
 
     assert(t1 <= t2);
 
-    return [2]Intersection { intersection(t1, s), intersection(t2, s) };
+    return [4]Intersection { intersection(t1, s), intersection(t2, s), {}, {} }, 2;
 }

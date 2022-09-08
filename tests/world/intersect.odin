@@ -41,10 +41,9 @@ R_Intersect_Sphere_2P :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
-    xs, ok := rt.intersects(&sp, ray).?;
+    xs, count := rt.intersects(&sp, ray);
 
-    expect(t, ok);
-    expect(t, len(xs) == 2);
+    expect(t, count == 2);
     expect(t, xs[0].t == 4.0);
     expect(t, xs[1].t == 6.0);
 }
@@ -55,10 +54,9 @@ R_Intersect_Sphere_Tangent :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     ray := m.ray(m.point(0, 1, -5), m.vector(0, 0, 1));
 
-    xs, ok := rt.intersects(&sp, ray).?;
+    xs, count := rt.intersects(&sp, ray);
 
-    expect(t, ok);
-    expect(t, len(xs) == 2);
+    expect(t, count == 2);
     expect(t, xs[0].t == 5.0);
     expect(t, xs[1].t == 5.0);
 }
@@ -69,9 +67,9 @@ R_Misses_Sphere :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     ray := m.ray(m.point(0, 2, -5), m.vector(0, 0, 1));
 
-    xs, ok := rt.intersects(&sp, ray).?;
+    xs, count := rt.intersects(&sp, ray);
 
-    expect(t, !ok);
+    expect(t, count == 0);
 }
 
 @test
@@ -80,10 +78,9 @@ R_Inside_Sphere :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     ray := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
 
-    xs, ok := rt.intersects(&sp, ray).?;
+    xs, count := rt.intersects(&sp, ray);
 
-    expect(t, ok);
-    expect(t, len(xs) == 2);
+    expect(t, count == 2);
     expect(t, xs[0].t == -1.0);
     expect(t, xs[1].t == 1.0);
 }
@@ -94,10 +91,9 @@ R_Sphere_Behind :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     ray := m.ray(m.point(0, 0, 5), m.vector(0, 0, 1));
 
-    xs, ok := rt.intersects(&sp, ray).?;
+    xs, count := rt.intersects(&sp, ray);
 
-    expect(t, ok);
-    expect(t, len(xs) == 2);
+    expect(t, count == 2);
     expect(t, xs[0].t == -6.0);
     expect(t, xs[1].t == -4.0);
 }
@@ -136,10 +132,9 @@ Intersect_Sets_Ojb :: proc(t: ^r.Test_Context) {
 
     sp := rt.sphere();
 
-    xs, ok := rt.intersects(&sp, ray).?;
+    xs, count := rt.intersects(&sp, ray);
 
-    expect(t, ok);
-    expect(t, len(xs) == 2);
+    expect(t, count == 2);
     expect(t, xs[0].object == &sp);
     expect(t, xs[1].object == &sp);
 }

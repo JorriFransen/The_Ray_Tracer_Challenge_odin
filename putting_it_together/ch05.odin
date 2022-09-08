@@ -35,9 +35,9 @@ CH05 :: proc(c: rt.Canvas) {
             position := m.point(world_x, world_y, wall_z);
 
             r := m.ray(ray_origin, m.normalize(m.sub(position, ray_origin)));
-            xs, did_intersect := rt.intersects(&shape, r).?;
+            xs, count := rt.intersects(&shape, r);
 
-            if !did_intersect do continue;
+            if count == 0 do continue;
 
             if i, ok := rt.hit(xs[:]).?; ok {
                 rt.canvas_write_pixel(c, x, y, color);

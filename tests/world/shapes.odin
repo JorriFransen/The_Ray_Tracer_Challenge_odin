@@ -53,6 +53,11 @@ shape_suite := r.Test_Suite {
         r.test("Cylinder_Closed", Cylinder_Closed),
         r.test("Cylinder_Cap_Intersect", Cylinder_Cap_Intersect),
         r.test("Cylinder_Cap_Normal", Cylinder_Cap_Normal),
+
+        r.test("Cone_Intersect", Cone_Intersect),
+        r.test("Cone_Intersect_Parallel", Cone_Intersect_Parallel),
+        r.test("Cone_Cap_Intersect", Cone_Cap_Intersect),
+        r.test("Cone_Normal", Cone_Normal),
     },
 }
 
@@ -109,8 +114,9 @@ Scaled_Intersect :: proc(t: ^r.Test_Context) {
 
     rt.set_transform(&ts, m.scaling(2, 2, 2));
 
-    xs := rt.intersects(&ts, r)
+    xs, count := rt.intersects(&ts, r);
 
+    expect(t, count == 0);
     expect(t, eq(ts.saved_ray.origin, m.point(0, 0, -2.5)));
     expect(t, eq(ts.saved_ray.direction, m.vector(0, 0, 0.5)));
 
@@ -124,8 +130,9 @@ Translated_Intersect :: proc(t: ^r.Test_Context) {
 
     rt.set_transform(&ts, m.translation(5, 0, 0));
 
-    s := rt.intersects(&ts, r);
+    s, count := rt.intersects(&ts, r);
 
+    expect(t, count == 0);
     expect(t, eq(ts.saved_ray.origin, m.point(-5, 0, -5)));
     expect(t, eq(ts.saved_ray.direction, m.vector(0, 0, 1)));
 }
@@ -174,9 +181,9 @@ Plane_Intersects_Parallel :: proc(t: ^r.Test_Context) {
     p := rt.plane();
     r := m.ray(m.point(0, 10, 0), m.vector(0, 0, 1));
 
-    xs, ok := p->intersects(r).?;
+    xs, count := p->intersects(r);
 
-    expect(t, !ok);
+    expect(t, count == 0);
 }
 
 @test
@@ -185,9 +192,9 @@ Plane_Intersects_Coplanar :: proc(t: ^r.Test_Context) {
     p := rt.plane();
     r := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
 
-    xs, ok := p->intersects(r).?;
+    xs, count := p->intersects(r);
 
-    expect(t, !ok);
+    expect(t, count == 0);
 }
 
 @test
@@ -196,13 +203,10 @@ Plane_Intersects_Above :: proc(t: ^r.Test_Context) {
     p := rt.plane();
     r := m.ray(m.point(0, 1, 0), m.vector(0, -1, 0));
 
-    xs, ok := p->intersects(r).?;
+    xs, count := p->intersects(r);
 
-    expect(t, ok);
-    expect(t, len(xs) == 2);
+    expect(t, count == 1);
     expect(t, xs[0].object == &p);
-    expect(t, xs[1].object == &p);
-    expect(t, xs[0] == xs[1]);
 }
 
 @test
@@ -211,13 +215,10 @@ Plane_Intersects_Below :: proc(t: ^r.Test_Context) {
     p := rt.plane();
     r := m.ray(m.point(0, -1, 0), m.vector(0, 1, 0));
 
-    xs, ok := p->intersects(r).?;
+    xs, count := p->intersects(r);
 
-    expect(t, ok);
-    expect(t, len(xs) == 2);
-    expect(t, xs[0] == xs[1]);
+    expect(t, count == 1);
     expect(t, xs[0].object == &p);
-    expect(t, xs[0].t == 1);
 }
 
 @test
@@ -255,10 +256,9 @@ S_Scaled_Intersect_R :: proc(t: ^r.Test_Context) {
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
     sp := rt.sphere(m.scaling(2, 2, 2));
 
-    xs, ok := rt.intersects(&sp, ray).?;
+    xs, count := rt.intersects(&sp, ray);
 
-    expect(t, ok);
-    expect(t, len(xs) == 2);
+    expect(t, count == 2);
     expect(t, xs[0].t == 3);
     expect(t, xs[1].t == 7);
 
@@ -440,10 +440,9 @@ Cube_Intersect :: proc(t: ^r.Test_Context) {
         i := i;
         r := m.ray(e.origin, e.direction);
 
-        xs, ok := c->intersects(r).?
+        xs, count := c->intersects(r)
 
-        expect(t, ok);
-        expect(t, len(xs) == 2);
+        expect(t, count == 2);
         expect(t, xs[0].t == e.t1);
         expect(t, xs[1].t == e.t2);
     }
@@ -464,9 +463,10 @@ Cube_Miss :: proc(t: ^r.Test_Context) {
     };
 
     for r in examples {
-        xs, ok := c->intersects(r).?;
 
-        expect(t, !ok);
+        xs, count := c->intersects(r);
+
+        expect(t, count == 0);
     }
 }
 
@@ -513,9 +513,9 @@ Cylinder_Miss :: proc(t: ^r.Test_Context) {
 
     for e in examples {
 
-        xs, ok := cyl->intersects(e).?;
+        xs, count := cyl->intersects(e);
 
-        expect(t, !ok);
+        expect(t, count == 0);
     }
 }
 
@@ -537,9 +537,9 @@ Cylinder_Hit :: proc(t: ^r.Test_Context) {
 
     for e in examples {
 
-        xs, ok := cyl->intersects(e.ray).?;
+        xs, count := cyl->intersects(e.ray);
 
-        expect(t, len(xs) == 2);
+        expect(t, count == 2);
         expect(t, eq(xs[0].t, e.t0));
         expect(t, eq(xs[1].t, e.t1));
     }
@@ -602,11 +602,9 @@ Cylinder_Truncation :: proc(t: ^r.Test_Context) {
 
     for e in examples {
 
-        xs, ok := cyl->intersects(e.ray).?;
+        xs, count := cyl->intersects(e.ray);
 
-        expect(t, e.count > 0 == ok);
-
-        if e.count > 0 do expect(t, e.count == len(xs));
+        expect(t, count == e.count);
     }
 }
 
@@ -641,10 +639,9 @@ Cylinder_Cap_Intersect :: proc(t: ^r.Test_Context) {
 
     for e in examples {
 
-        xs, ok := cyl->intersects(e.ray).?;
+        xs, count := cyl->intersects(e.ray);
 
-        expect(t, ok);
-        expect(t, len(xs) == e.count);
+        expect(t, count == e.count);
     }
 }
 
@@ -675,4 +672,99 @@ Cylinder_Cap_Normal :: proc(t: ^r.Test_Context) {
 
         expect(t, eq(n, e.normal));
     }
+}
+
+@test
+Cone_Intersect :: proc(t: ^r.Test_Context) {
+
+    shape := rt.cone();
+
+    Example :: struct {
+        ray: m.Ray,
+        t0, t1: m.real,
+    };
+
+    examples := [?]Example {
+        { m.ray(m.point(0, 0, -5), m.normalize(m.vector(   0,  0, 1))), 5, 5 },
+        { m.ray(m.point(0, 0, -5), m.normalize(m.vector(   1,  1, 1))), 8.66025, 8.66025 },
+        { m.ray(m.point(1, 1, -5), m.normalize(m.vector(-0.5, -1, 1))), 4.55006, 49.44994 },
+    };
+
+    for e in examples {
+
+        xs, count := shape->intersects(e.ray);
+
+        expect(t, count == 2);
+
+        expect(t, eq(xs[0].t, e.t0));
+        expect(t, eq(xs[1].t, e.t1));
+    }
+}
+
+@test
+Cone_Intersect_Parallel :: proc(t: ^r.Test_Context) {
+
+    shape := rt.cone();
+    direction := m.normalize(m.vector(0, 1, 1));
+    r := m.ray(m.point(0, 0, -1), direction);
+
+    xs, count := shape->intersects(r);
+
+    expect(t, count == 1);
+
+    expect(t, xs[0].object == &shape);
+    expect(t, eq(xs[0].t, 0.35355));
+}
+
+@test
+Cone_Cap_Intersect :: proc(t: ^r.Test_Context) {
+
+    shape := rt.cone();
+    shape.minimum = -0.5;
+    shape.maximum = 0.5;
+    shape.closed = true;
+
+    Example :: struct {
+        ray: m.Ray,
+        count: int,
+    };
+
+    examples := [?]Example {
+        { m.ray(m.point(0, 0,    -5), m.normalize(m.vector(0, 1, 0))), 0 },
+        { m.ray(m.point(0, 0, -0.25), m.normalize(m.vector(0, 1, 1))), 2 },
+        { m.ray(m.point(0, 0, -0.25), m.normalize(m.vector(0, 1, 0))), 4 },
+    };
+
+    for e in examples {
+
+        xs, count := shape->intersects(e.ray);
+
+        expect(t, count == e.count);
+    }
+
+}
+
+@test
+Cone_Normal :: proc(t: ^r.Test_Context) {
+
+    shape := rt.cone();
+
+    Example :: struct {
+        point: m.Point,
+        normal: m.Vector,
+    };
+
+    examples := [?]Example {
+        { m.point( 0,  0, 0), m.vector( 0,                     0, 0) },
+        { m.point( 1,  1, 1), m.vector( 1, -math.sqrt(m.real(2)), 1) },
+        { m.point(-1, -1, 0), m.vector(-1,                     1, 0) },
+    };
+
+    for e in examples {
+
+        n := shape->normal_at(e.point);
+
+        expect(t, eq(n, e.normal));
+    }
+
 }
