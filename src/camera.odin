@@ -85,7 +85,7 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
         }
     }
 
-    // NUM_THREADS :: 1;
+    // NUM_THREADS :: 8;
     NUM_THREADS :: 16;
 
     pool: thread.Pool;
@@ -116,7 +116,7 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
     defer delete(task_data);
 
     max_intersection_count := len(w.objects) * 4;
-    recursion_depth := 5;
+    recursion_depth := 10;
 
     main_xs_mem_size := size_of(Intersection) * max_intersection_count;
     hit_sort_mem_size := size_of(^Shape) * len(w.objects);

@@ -83,9 +83,11 @@ with_canvas :: proc(width, height: int, p: With_Canvas_Proc, title : cstring = "
     c := rt.canvas(width, height);
     defer rt.canvas_destroy(&c);
 
+    display := rt.start_display(&c, title);
+
     p(c);
 
-    rt.display(c, title);
+    rt.end_display(display);
 }
 
 
