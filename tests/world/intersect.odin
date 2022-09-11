@@ -41,7 +41,9 @@ R_Intersect_Sphere_2P :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
-    xs, count := rt.intersects(&sp, ray);
+    xs_buf := rt.intersection_buffer(nil);
+
+    xs, count := rt.intersects(&sp, ray, &xs_buf);
 
     expect(t, count == 2);
     expect(t, xs[0].t == 4.0);
@@ -54,7 +56,9 @@ R_Intersect_Sphere_Tangent :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     ray := m.ray(m.point(0, 1, -5), m.vector(0, 0, 1));
 
-    xs, count := rt.intersects(&sp, ray);
+    xs_buf := rt.intersection_buffer(nil);
+
+    xs, count := rt.intersects(&sp, ray, &xs_buf);
 
     expect(t, count == 2);
     expect(t, xs[0].t == 5.0);
@@ -67,7 +71,9 @@ R_Misses_Sphere :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     ray := m.ray(m.point(0, 2, -5), m.vector(0, 0, 1));
 
-    xs, count := rt.intersects(&sp, ray);
+    xs_buf := rt.intersection_buffer(nil);
+
+    xs, count := rt.intersects(&sp, ray, &xs_buf);
 
     expect(t, count == 0);
 }
@@ -78,7 +84,9 @@ R_Inside_Sphere :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     ray := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
 
-    xs, count := rt.intersects(&sp, ray);
+    xs_buf := rt.intersection_buffer(nil);
+
+    xs, count := rt.intersects(&sp, ray, &xs_buf);
 
     expect(t, count == 2);
     expect(t, xs[0].t == -1.0);
@@ -91,7 +99,9 @@ R_Sphere_Behind :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     ray := m.ray(m.point(0, 0, 5), m.vector(0, 0, 1));
 
-    xs, count := rt.intersects(&sp, ray);
+    xs_buf := rt.intersection_buffer(nil);
+
+    xs, count := rt.intersects(&sp, ray, &xs_buf);
 
     expect(t, count == 2);
     expect(t, xs[0].t == -6.0);
@@ -132,7 +142,9 @@ Intersect_Sets_Ojb :: proc(t: ^r.Test_Context) {
 
     sp := rt.sphere();
 
-    xs, count := rt.intersects(&sp, ray);
+    xs_buf := rt.intersection_buffer(nil);
+
+    xs, count := rt.intersects(&sp, ray, &xs_buf);
 
     expect(t, count == 2);
     expect(t, xs[0].object == &sp);

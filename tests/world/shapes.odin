@@ -121,7 +121,9 @@ Scaled_Intersect :: proc(t: ^r.Test_Context) {
 
     rt.set_transform(&ts, m.scaling(2, 2, 2));
 
-    xs, count := rt.intersects(&ts, r);
+    xs_buf := rt.intersection_buffer(nil);
+
+    xs, count := rt.intersects(&ts, r, &xs_buf);
 
     expect(t, count == 0);
     expect(t, eq(ts.saved_ray.origin, m.point(0, 0, -2.5)));
@@ -137,7 +139,9 @@ Translated_Intersect :: proc(t: ^r.Test_Context) {
 
     rt.set_transform(&ts, m.translation(5, 0, 0));
 
-    s, count := rt.intersects(&ts, r);
+    xs_buf := rt.intersection_buffer(nil);
+
+    s, count := rt.intersects(&ts, r, &xs_buf);
 
     expect(t, count == 0);
     expect(t, eq(ts.saved_ray.origin, m.point(-5, 0, -5)));
@@ -263,7 +267,9 @@ S_Scaled_Intersect_R :: proc(t: ^r.Test_Context) {
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
     sp := rt.sphere(m.scaling(2, 2, 2));
 
-    xs, count := rt.intersects(&sp, ray);
+    xs_buf := rt.intersection_buffer(nil);
+
+    xs, count := rt.intersects(&sp, ray, &xs_buf);
 
     expect(t, count == 2);
     expect(t, xs[0].t == 3);
@@ -861,7 +867,9 @@ Group_Transformed_Intersect :: proc(t: ^r.Test_Context) {
 
     r := m.ray(m.point(10, 0, -10), m.vector(0, 0, 1));
 
-    xs, count := rt.intersects(&g, r);
+    xs_buf := rt.intersection_buffer(nil);
+
+    xs, count := rt.intersects(&g, r, &xs_buf);
 
     expect(t, count == 2);
     expect(t, xs[0].object == &s);

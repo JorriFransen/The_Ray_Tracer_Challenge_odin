@@ -57,7 +57,7 @@ lighting :: proc(obj: ^Shape, l: Point_Light, p: m.Point, eye_v: m.Vector, norma
     return ambient + diffuse + specular;
 }
 
-reflected_color :: proc(w: ^World, hit: ^Hit_Info, xs_mem: []Intersection, hi_mem: []^Shape, remaining := 5) -> Color {
+reflected_color :: proc(w: ^World, hit: ^Hit_Info, intersections: ^Intersection_Buffer, hi_mem: []^Shape, remaining := 5) -> Color {
 
     tracy.Zone();
 
@@ -66,12 +66,12 @@ reflected_color :: proc(w: ^World, hit: ^Hit_Info, xs_mem: []Intersection, hi_me
 
     reflect_ray := m.ray(hit.over_point, hit.reflect_v);
     remaining := remaining - 1;
-    color := color_at(w, reflect_ray, xs_mem, hi_mem, remaining, true);
+    color := color_at(w, reflect_ray, intersections, hi_mem, remaining, true);
 
     return color * hit.object.material.reflective;
 }
 
-refracted_color :: proc(w: ^World, hit: ^Hit_Info, xs_mem: []Intersection, hi_mem: []^Shape, remaining: int) -> Color {
+refracted_color :: proc(w: ^World, hit: ^Hit_Info, intersections: ^Intersection_Buffer, hi_mem: []^Shape, remaining: int) -> Color {
 
     tracy.Zone();
 
@@ -90,5 +90,5 @@ refracted_color :: proc(w: ^World, hit: ^Hit_Info, xs_mem: []Intersection, hi_me
 
     refract_ray := m.ray(hit.under_point, direction);
 
-    return color_at(w, refract_ray, xs_mem, hi_mem, remaining - 1) * hit.object.material.transparency;
+    return color_at(w, refract_ray, intersections, hi_mem, remaining - 1) * hit.object.material.transparency;
 }

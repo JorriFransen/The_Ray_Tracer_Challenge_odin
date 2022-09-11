@@ -99,7 +99,8 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
         shadows: bool,
         arena: mem.Arena,
 
-        xs_mem: []Intersection,
+        // xs_mem: []Intersection,
+        intersections: Intersection_Buffer,
         hi_mem: []^Shape,
 
         recursion_depth: int,
@@ -138,13 +139,14 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
 
         allocator := mem.arena_allocator(&task_data[i].arena);
 
-        xs_mem, xs_mem_err := make([]Intersection, len(w.objects) * 2, allocator);
+        xs_mem, xs_mem_err := make([]Intersection, max_intersection_count, allocator);
         assert(xs_mem_err == nil);
+        intersections := Intersection_Buffer { xs_mem, 0 };
 
         hi_mem, hi_mem_err := make([]^Shape, len(w.objects), allocator);
         assert(hi_mem_err == nil);
 
-        task_data[i] = Render_Line_Task_Data { canvas, c, w, shadows, {}, xs_mem, hi_mem, recursion_depth, lines_queued, line_count };
+        task_data[i] = Render_Line_Task_Data { canvas, c, w, shadows, {}, intersections, hi_mem, recursion_depth, lines_queued, line_count };
 
 
         lines_queued += line_count;
@@ -163,7 +165,7 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
             for x in 0..<data.camera.size.x {
 
                 ray := camera_ray_for_pixel(data.camera, x, y);
-                color := color_at(data.world, ray, data.xs_mem, data.hi_mem, data.recursion_depth, data.shadows);
+                color := color_at(data.world, ray, &data.intersections, data.hi_mem, data.recursion_depth, data.shadows);
                 canvas_write_pixel(data.canvas^, x, y, color);
             }
         }

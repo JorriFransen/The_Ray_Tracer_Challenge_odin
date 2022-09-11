@@ -48,7 +48,7 @@ _sphere_vtable := &Shape_VTable {
     eq = proc(a, b: ^Shape) -> bool { return true },
 };
 
-sphere_intersects :: proc(s: ^Shape, r: m.Ray) -> ([4]Intersection, int) {
+sphere_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> ([4]Intersection, int) {
 
     tracy.Zone();
 

@@ -118,8 +118,8 @@ World_Intersect_Ray :: proc(t: ^r.Test_Context) {
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
-    xs := rt.intersect_world(w, ray, xs_mem);
+    xs_buf := rt.intersection_buffer(w.objects);
+    xs := rt.intersect_world(w, ray, &xs_buf);
 
     expect(t, len(xs) == 4);
     expect(t, xs[0].t == 4);
@@ -141,11 +141,11 @@ Shade_Intersection :: proc(t: ^r.Test_Context) {
     shape := w.objects[0];
     i := rt.intersection(4, shape);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
     comps := rt.hit_info(i, ray, nil, hi_mem);
-    c := rt.shade_hit(w, &comps, xs_mem, hi_mem);
+    c := rt.shade_hit(w, &comps, &xs_buf, hi_mem);
 
     expect(t, eq(c, rt.color(0.38066, 0.47583, 0.2855)));
 }
@@ -164,11 +164,11 @@ Shade_Intersection_Inside :: proc(t: ^r.Test_Context) {
     shape := w.objects[1];
     i := rt.intersection(0.5, shape);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
     comps := rt.hit_info(i, ray, nil, hi_mem);
-    c := rt.shade_hit(w, &comps, xs_mem, hi_mem);
+    c := rt.shade_hit(w, &comps, &xs_buf, hi_mem);
 
     expect(t, eq(c, rt.color(0.90498, 0.90498, 0.90498)));
 }
@@ -184,10 +184,10 @@ Color_At_Miss :: proc(t: ^r.Test_Context) {
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 1, 0));
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
-    c := rt.color_at(w, ray, xs_mem, hi_mem, 1);
+    c := rt.color_at(w, ray, &xs_buf, hi_mem, 1);
 
     expect(t, eq(c, rt.color(0, 0, 0)));
 }
@@ -203,10 +203,10 @@ Color_At_Hit :: proc(t: ^r.Test_Context) {
 
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
-    c := rt.color_at(w, ray, xs_mem, hi_mem);
+    c := rt.color_at(w, ray, &xs_buf, hi_mem);
 
     expect(t, eq(c, rt.color(0.38066, 0.47583, 0.2855)));
 }
@@ -226,10 +226,10 @@ Color_At_Hit_Behind :: proc(t: ^r.Test_Context) {
     inner.material.ambient = 1;
     ray := m.ray(m.point(0, 0, 0.75), m.vector(0, 0, -1));
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
-    c := rt.color_at(w, ray, xs_mem, hi_mem);
+    c := rt.color_at(w, ray, &xs_buf, hi_mem);
 
     expect(t, eq(c, inner.material.color));
 }
@@ -245,9 +245,9 @@ No_Shadow_Complete_Miss :: proc(t: ^r.Test_Context) {
 
     p := m.point(0, 10, 0);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
 
-    expect(t, rt.is_shadowed(w, p, &w.lights[0], xs_mem) == false);
+    expect(t, rt.is_shadowed(w, p, &w.lights[0], &xs_buf) == false);
 }
 
 @test
@@ -261,9 +261,9 @@ Shadow_Point_Object_Light :: proc(t: ^r.Test_Context) {
 
     p := m.point(10, -10, 10);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
 
-    expect(t, rt.is_shadowed(w, p, &w.lights[0], xs_mem));
+    expect(t, rt.is_shadowed(w, p, &w.lights[0], &xs_buf));
 }
 
 @test
@@ -277,9 +277,9 @@ Shadow_Point_Light_Object :: proc(t: ^r.Test_Context) {
 
     p := m.point(-20, 20, -20);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
 
-    expect(t, rt.is_shadowed(w, p, &w.lights[0], xs_mem) == false);
+    expect(t, rt.is_shadowed(w, p, &w.lights[0], &xs_buf) == false);
 }
 
 @test
@@ -293,9 +293,10 @@ Shadow_Light_Point_Object :: proc(t: ^r.Test_Context) {
 
     p := m.point(-2, 2, -2);
 
+    xs_buf := rt.intersection_buffer(w.objects);
     xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
 
-    expect(t, rt.is_shadowed(w, p, &w.lights[0], xs_mem) == false);
+    expect(t, rt.is_shadowed(w, p, &w.lights[0], &xs_buf) == false);
 }
 
 @test
@@ -315,12 +316,12 @@ Shade_Shadowed_Intersection :: proc(t: ^r.Test_Context) {
     ray := m.ray(m.point(0, 0, 5), m.vector(0, 0, 1));
     i := rt.intersection(4, &s2);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
     hit_info := rt.hit_info(i, ray, nil, hi_mem);
 
-    c := rt.shade_hit(&w, &hit_info, xs_mem, hi_mem);
+    c := rt.shade_hit(&w, &hit_info, &xs_buf, hi_mem);
 
     expect(t, eq(c, rt.color(0.1, 0.1, 0.1)));
 }
@@ -339,11 +340,11 @@ Reflected_Color_Non_Reflective_Material :: proc(t: ^r.Test_Context) {
     shape.material.ambient = 1;
     i := rt.intersection(1, shape);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
     comps := rt.hit_info(i, r, nil, hi_mem);
-    color := rt.reflected_color(w, &comps, xs_mem, hi_mem);
+    color := rt.reflected_color(w, &comps, &xs_buf, hi_mem);
 
     expect(t, eq(color, rt.BLACK));
 }
@@ -369,11 +370,11 @@ Reflected_Color_Reflective_Material :: proc(t: ^r.Test_Context) {
     r := m.ray(m.point(0, 0, -3), m.vector(0, -sqrt2_d2, sqrt2_d2));
     i := rt.intersection(sqrt2, &shape);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
     comps := rt.hit_info(i, r, nil, hi_mem);
-    color := rt.reflected_color(w, &comps, xs_mem, hi_mem);
+    color := rt.reflected_color(w, &comps, &xs_buf, hi_mem);
 
     expect(t, eq(color, rt.color(0.19033, 0.23791, 0.14274)));
 }
@@ -399,11 +400,11 @@ Shade_Hit_Reflective_Material :: proc(t: ^r.Test_Context) {
     r := m.ray(m.point(0, 0, -3), m.vector(0, -sqrt2_d2, sqrt2_d2));
     i := rt.intersection(sqrt2, &shape);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
     comps := rt.hit_info(i, r, nil, hi_mem);
-    color := rt.shade_hit(w, &comps, xs_mem, hi_mem)
+    color := rt.shade_hit(w, &comps, &xs_buf, hi_mem)
 
     expect(t, eq(color, rt.color(0.87676, 0.92434, 0.82917)));
 }
@@ -429,11 +430,11 @@ Limit_Reflection_Recursion :: proc(t: ^r.Test_Context) {
     r := m.ray(m.point(0, 0, -3), m.vector(0, -sqrt2_d2, sqrt2_d2));
     i := rt.intersection(sqrt2, &shape);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
     comps := rt.hit_info(i, r, nil, hi_mem);
-    color := rt.reflected_color(w, &comps,  xs_mem, hi_mem, 0);
+    color := rt.reflected_color(w, &comps,  &xs_buf, hi_mem, 0);
 
     expect(t, eq(color, rt.BLACK));
 }
@@ -456,10 +457,10 @@ Avoid_Infinite_Reflection_Recursion :: proc(t: ^r.Test_Context) {
 
     w := rt.world(objects[:], lights[:]);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
-    rt.color_at(&w, r, xs_mem, hi_mem);
+    rt.color_at(&w, r, &xs_buf, hi_mem);
 }
 
 @test
@@ -480,11 +481,11 @@ Refract_Opaque_Surface :: proc(t: ^r.Test_Context) {
     );
     defer delete(xs);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
     comps := rt.hit_info(xs[0], r, xs[:], hi_mem);
-    c := rt.refracted_color(w, &comps, xs_mem, hi_mem, 5);
+    c := rt.refracted_color(w, &comps, &xs_buf, hi_mem, 5);
 
     expect(t, c == rt.BLACK);
 
@@ -511,11 +512,11 @@ Refract_Max_Recursion :: proc(t: ^r.Test_Context) {
     );
     defer delete(xs);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
     comps := rt.hit_info(xs[0], r, xs[:], hi_mem);
-    c := rt.refracted_color(w, &comps, xs_mem, hi_mem, 0);
+    c := rt.refracted_color(w, &comps, &xs_buf, hi_mem, 0);
 
     expect(t, c == rt.BLACK);
 
@@ -545,11 +546,11 @@ Refract_Total_Internal :: proc(t: ^r.Test_Context) {
     );
     defer delete(xs);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
     comps := rt.hit_info(xs[1], r, xs[:], hi_mem);
-    c := rt.refracted_color(w, &comps, xs_mem, hi_mem, 5);
+    c := rt.refracted_color(w, &comps, &xs_buf, hi_mem, 5);
 
     expect(t, c == rt.BLACK);
 }
@@ -582,11 +583,11 @@ Refracted_Color :: proc(t: ^r.Test_Context) {
     );
     defer delete(xs);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
     comps := rt.hit_info(xs[2], r, xs[:], hi_mem);
-    c := rt.refracted_color(w, &comps, xs_mem, hi_mem, 5);
+    c := rt.refracted_color(w, &comps, &xs_buf, hi_mem, 5);
 
     expect(t, eq(c, rt.color(0, 0.99887, 0.04722)));
 }
@@ -626,11 +627,11 @@ Shade_Hit_Transparent_Material :: proc(t: ^r.Test_Context) {
     xs := rt.intersections(rt.intersection(sqrt2, &floor));
     defer delete(xs);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
     comps := rt.hit_info(xs[0], r, xs[:], hi_mem);
-    color := rt.shade_hit(w, &comps, xs_mem, hi_mem, true, 5);
+    color := rt.shade_hit(w, &comps, &xs_buf, hi_mem, true, 5);
 
     expect(t, eq(color, rt.color(0.93642, 0.68642, 0.68642)));
 }
@@ -666,11 +667,11 @@ Shade_Hit_Transparent_Reflective_Material :: proc(t: ^r.Test_Context) {
     xs := rt.intersections(rt.intersection(sqrt2, &floor));
     defer delete(xs);
 
-    xs_mem := make([]rt.Intersection, len(w.objects) * 2, context.temp_allocator);
+    xs_buf := rt.intersection_buffer(w.objects);
     hi_mem := make([]^rt.Shape, len(w.objects), context.temp_allocator);
 
     comps := rt.hit_info(xs[0], r, xs[:], hi_mem);
-    color := rt.shade_hit(w, &comps, xs_mem, hi_mem, true, 5);
+    color := rt.shade_hit(w, &comps, &xs_buf, hi_mem, true, 5);
 
     expect(t, eq(color, rt.color(0.93391, 0.69643, 0.69243)));
 }

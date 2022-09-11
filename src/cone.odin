@@ -57,7 +57,7 @@ _cone_vtable := &Shape_VTable {
     eq = proc(a, b: ^Shape) -> bool { return true },
 };
 
-cone_intersects :: proc(s: ^Shape, r: m.Ray) -> (result: [4]Intersection, count: int) {
+cone_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> (result: [4]Intersection, count: int) {
 
     tracy.Zone();
 

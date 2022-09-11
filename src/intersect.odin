@@ -12,6 +12,11 @@ Intersection :: struct {
     object: ^Shape,
 }
 
+Intersection_Buffer :: struct {
+    intersections: []Intersection,
+    count: int,
+}
+
 Hit_Info :: struct {
     t: m.real,
     object: ^Shape,
@@ -30,6 +35,12 @@ Hit_Info :: struct {
 intersection :: proc(t: m.real, s: ^Shape) -> Intersection {
     assert(s != nil);
     return Intersection { t, s };
+}
+
+intersection_buffer :: proc(objects: []^Shape, allocator := context.allocator) -> Intersection_Buffer {
+
+    xs_mem := make([]Intersection, len(objects) * 4, allocator);
+    return Intersection_Buffer { xs_mem, 0 };
 }
 
 intersections_from_slice :: proc(intersections: .. Intersection, allocator := context.allocator) -> [dynamic]Intersection {
@@ -142,13 +153,13 @@ hit :: proc(xs: []Intersection) -> Maybe(Intersection) {
     return nil;
 }
 
-intersects :: proc(shape: ^Shape, r: m.Ray) -> ([4]Intersection, int) {
+intersects :: proc(shape: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> ([4]Intersection, int) {
 
     assert(shape.vtable.intersects != nil);
 
     r := m.ray_transform(r, shape.inverse_transform);
 
-    return shape->intersects(r);
+    return shape->intersects(r, xs_buf);
 }
 
 schlick :: proc(hit: ^Hit_Info) -> m.real {
