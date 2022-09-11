@@ -8,6 +8,7 @@ Shape :: struct {
     using vtable: ^Shape_VTable,
     inverse_transform: m.Matrix4,
     material: Material,
+    parent: ^Shape,
 }
 
 Shape_Normal_At_Proc :: proc(^Shape, m.Point) -> m.Vector;
@@ -28,7 +29,7 @@ shape :: proc(vt: ^Shape_VTable, tf: m.Matrix4, mat: Material) -> Shape {
 
     tf := m.matrix_inverse(tf);
 
-    return Shape { vt, tf, mat };
+    return Shape { vt, tf, mat, nil };
 }
 
 shape_eq :: proc(a, b: Shape) -> bool {

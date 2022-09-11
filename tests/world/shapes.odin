@@ -58,6 +58,13 @@ shape_suite := r.Test_Suite {
         r.test("Cone_Intersect_Parallel", Cone_Intersect_Parallel),
         r.test("Cone_Cap_Intersect", Cone_Cap_Intersect),
         r.test("Cone_Normal", Cone_Normal),
+
+        r.test("Group_Constructor", Group_Constructor),
+        r.test("Group_Default_Parent", Group_Default_Parent),
+        r.test("Group_Add_Child", Group_Add_Child),
+        r.test("Group_Empty_Intersect", Group_Empty_Intersect),
+        r.test("Group_Intersect", Group_Intersect),
+        r.test("Group_Transformed_Intersect", Group_Transformed_Intersect),
     },
 }
 
@@ -767,4 +774,96 @@ Cone_Normal :: proc(t: ^r.Test_Context) {
         expect(t, eq(n, e.normal));
     }
 
+}
+
+@test
+Group_Constructor :: proc(t: ^r.Test_Context) {
+
+    g := rt.group();
+
+    expect(t, eq(g.inverse_transform, m.matrix4_identity));
+    expect(t, len(g.shapes) == 0);
+}
+
+@test
+Group_Default_Parent :: proc(t: ^r.Test_Context) {
+
+    s := rt.test_shape();
+
+    expect(t, s.parent == nil);
+}
+
+@test
+Group_Add_Child :: proc(t: ^r.Test_Context) {
+
+    g := rt.group();
+    defer rt.delete_group(&g);
+
+    s := rt.test_shape();
+
+    rt.group_add_child(&g, &s);
+
+    expect(t, len(g.shapes) == 1);
+    expect(t, g.shapes[0] == &s);
+    expect(t, s.parent == &g);
+
+
+}
+
+@test
+Group_Empty_Intersect :: proc(t: ^r.Test_Context) {
+
+    g := rt.group();
+    defer rt.delete_group(&g);
+
+    r := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
+
+    xs, count := g->intersects(r);
+
+    expect(t, count == 0);
+}
+
+@test
+Group_Intersect :: proc(t: ^r.Test_Context) {
+
+    g := rt.group();
+    defer rt.delete_group(&g);
+
+    s1 := rt.sphere();
+    s2 := rt.sphere(m.translation(0, 0, -3));
+    s3 := rt.sphere(m.translation(5, 0, 0));
+
+    rt.group_add_child(&g, &s1);
+    rt.group_add_child(&g, &s2);
+    rt.group_add_child(&g, &s3);
+
+    r := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
+
+    xs, count := g->intersects(r);
+
+    expect(t, count == 4);
+
+    expect(t, xs[0].object == &s2);
+    expect(t, xs[1].object == &s2);
+    expect(t, xs[2].object == &s1);
+    expect(t, xs[3].object == &s1);
+}
+
+@test
+Group_Transformed_Intersect :: proc(t: ^r.Test_Context) {
+
+    g := rt.group(m.scaling(2, 2, 2));
+    defer rt.delete_group(&g);
+
+    s := rt.sphere(m.translation(5, 0, 0));
+
+    rt.group_add_child(&g, &s);
+
+    r := m.ray(m.point(10, 0, -10), m.vector(0, 0, 1));
+
+    xs, count := rt.intersects(&g, r);
+
+    expect(t, count == 2);
+    expect(t, xs[0].object == &s);
+    expect(t, xs[1].object == &s);
 }
