@@ -26,6 +26,9 @@ CH05 :: proc(c: rt.Canvas) {
     // shape := m.sphere(m.rotation_z(PI / 4) * m.scaling(0.5, 1, 1));
     // shape := m.sphere(m.shearing(1, 0, 0, 0, 0, 0) * m.scaling(0.5, 1, 1));
 
+    xs_buf := rt.intersection_buffer(2);
+    defer delete(xs_buf.intersections);
+
     for y in 0..<canvas_pixels {
         world_y := half_wall_size - pixel_size * m.real(y);
 
@@ -35,11 +38,11 @@ CH05 :: proc(c: rt.Canvas) {
             position := m.point(world_x, world_y, wall_z);
 
             r := m.ray(ray_origin, m.normalize(m.sub(position, ray_origin)));
-            xs, count := rt.intersects(&shape, r);
+            xs := rt.intersects(&shape, r, &xs_buf);
 
-            if count == 0 do continue;
+            if len(xs) == 0 do continue;
 
-            if i, ok := rt.hit(xs[:]).?; ok {
+            if i, ok := rt.hit(xs).?; ok {
                 rt.canvas_write_pixel(c, x, y, color);
             }
         }

@@ -123,9 +123,9 @@ Scaled_Intersect :: proc(t: ^r.Test_Context) {
 
     xs_buf := rt.intersection_buffer(nil);
 
-    xs, count := rt.intersects(&ts, r, &xs_buf);
+    xs:= rt.intersects(&ts, r, &xs_buf);
 
-    expect(t, count == 0);
+    expect(t, len(xs) == 0);
     expect(t, eq(ts.saved_ray.origin, m.point(0, 0, -2.5)));
     expect(t, eq(ts.saved_ray.direction, m.vector(0, 0, 0.5)));
 
@@ -141,9 +141,9 @@ Translated_Intersect :: proc(t: ^r.Test_Context) {
 
     xs_buf := rt.intersection_buffer(nil);
 
-    s, count := rt.intersects(&ts, r, &xs_buf);
+    s := rt.intersects(&ts, r, &xs_buf);
 
-    expect(t, count == 0);
+    expect(t, len(s) == 0);
     expect(t, eq(ts.saved_ray.origin, m.point(-5, 0, -5)));
     expect(t, eq(ts.saved_ray.direction, m.vector(0, 0, 1)));
 }
@@ -192,9 +192,11 @@ Plane_Intersects_Parallel :: proc(t: ^r.Test_Context) {
     p := rt.plane();
     r := m.ray(m.point(0, 10, 0), m.vector(0, 0, 1));
 
-    xs, count := p->intersects(r);
+    xs_buf := rt.intersection_buffer(nil);
 
-    expect(t, count == 0);
+    xs := p->intersects(r, &xs_buf);
+
+    expect(t, len(xs) == 0);
 }
 
 @test
@@ -203,9 +205,11 @@ Plane_Intersects_Coplanar :: proc(t: ^r.Test_Context) {
     p := rt.plane();
     r := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
 
-    xs, count := p->intersects(r);
+    xs_buf := rt.intersection_buffer(nil);
 
-    expect(t, count == 0);
+    xs := p->intersects(r, &xs_buf);
+
+    expect(t, len(xs) == 0);
 }
 
 @test
@@ -214,9 +218,11 @@ Plane_Intersects_Above :: proc(t: ^r.Test_Context) {
     p := rt.plane();
     r := m.ray(m.point(0, 1, 0), m.vector(0, -1, 0));
 
-    xs, count := p->intersects(r);
+    xs_buf := rt.intersection_buffer(1, context.temp_allocator);
 
-    expect(t, count == 1);
+    xs := p->intersects(r, &xs_buf);
+
+    expect(t, len(xs) == 1);
     expect(t, xs[0].object == &p);
 }
 
@@ -226,9 +232,11 @@ Plane_Intersects_Below :: proc(t: ^r.Test_Context) {
     p := rt.plane();
     r := m.ray(m.point(0, -1, 0), m.vector(0, 1, 0));
 
-    xs, count := p->intersects(r);
+    xs_buf := rt.intersection_buffer(1, context.temp_allocator);
 
-    expect(t, count == 1);
+    xs := p->intersects(r, &xs_buf);
+
+    expect(t, len(xs) == 1);
     expect(t, xs[0].object == &p);
 }
 
@@ -267,11 +275,11 @@ S_Scaled_Intersect_R :: proc(t: ^r.Test_Context) {
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
     sp := rt.sphere(m.scaling(2, 2, 2));
 
-    xs_buf := rt.intersection_buffer(nil);
+    xs_buf := rt.intersection_buffer(2, context.temp_allocator);
 
-    xs, count := rt.intersects(&sp, ray, &xs_buf);
+    xs := rt.intersects(&sp, ray, &xs_buf);
 
-    expect(t, count == 2);
+    expect(t, len(xs) == 2);
     expect(t, xs[0].t == 3);
     expect(t, xs[1].t == 7);
 
@@ -449,13 +457,16 @@ Cube_Intersect :: proc(t: ^r.Test_Context) {
         { m.point(   0, 0.5,  0), m.vector( 0,  0,  1), -1, 1 },
     }
 
+    xs_buf := rt.intersection_buffer(2, context.temp_allocator);
+
     for e, i in examples {
         i := i;
         r := m.ray(e.origin, e.direction);
 
-        xs, count := c->intersects(r)
+        xs_buf.count = 0;
+        xs := c->intersects(r, &xs_buf)
 
-        expect(t, count == 2);
+        expect(t, len(xs) == 2);
         expect(t, xs[0].t == e.t1);
         expect(t, xs[1].t == e.t2);
     }
@@ -475,11 +486,13 @@ Cube_Miss :: proc(t: ^r.Test_Context) {
         m.ray(m.point( 2,  2,  0), m.vector(    -1,      0,      0)),
     };
 
+    xs_buf := rt.intersection_buffer(nil);
+
     for r in examples {
 
-        xs, count := c->intersects(r);
+        xs := c->intersects(r, &xs_buf);
 
-        expect(t, count == 0);
+        expect(t, len(xs) == 0);
     }
 }
 
@@ -524,11 +537,13 @@ Cylinder_Miss :: proc(t: ^r.Test_Context) {
         m.ray(m.point(0, 0, -5), m.normalize(m.vector(1, 1, 1))),
     }
 
+    xs_buf := rt.intersection_buffer(nil);
+
     for e in examples {
 
-        xs, count := cyl->intersects(e);
+        xs := cyl->intersects(e, &xs_buf);
 
-        expect(t, count == 0);
+        expect(t, len(xs) == 0);
     }
 }
 
@@ -548,11 +563,14 @@ Cylinder_Hit :: proc(t: ^r.Test_Context) {
         { m.ray(m.point(0.5, 0, -5), m.normalize(m.vector(0.1, 1, 1))), 6.80798, 7.08872 },
     };
 
+    xs_buf := rt.intersection_buffer(2, context.temp_allocator);
+
     for e in examples {
 
-        xs, count := cyl->intersects(e.ray);
+        xs_buf.count = 0;
+        xs := cyl->intersects(e.ray, &xs_buf);
 
-        expect(t, count == 2);
+        expect(t, len(xs) == 2);
         expect(t, eq(xs[0].t, e.t0));
         expect(t, eq(xs[1].t, e.t1));
     }
@@ -613,11 +631,13 @@ Cylinder_Truncation :: proc(t: ^r.Test_Context) {
         { m.ray(m.point(0, 1.5, -2), m.normalize(m.vector(  0, 0, 1))), 2 },
     };
 
+    xs_buf := rt.intersection_buffer(2, context.temp_allocator);
+
     for e in examples {
 
-        xs, count := cyl->intersects(e.ray);
+        xs := cyl->intersects(e.ray, &xs_buf);
 
-        expect(t, count == e.count);
+        expect(t, len(xs) == e.count);
     }
 }
 
@@ -650,11 +670,14 @@ Cylinder_Cap_Intersect :: proc(t: ^r.Test_Context) {
         { m.ray(m.point(0, -1, -2), m.normalize(m.vector(0,  1, 1))), 2 },
     };
 
+    xs_buf := rt.intersection_buffer(2, context.temp_allocator);
+
     for e in examples {
 
-        xs, count := cyl->intersects(e.ray);
+        xs_buf.count = 0;
+        xs := cyl->intersects(e.ray, &xs_buf);
 
-        expect(t, count == e.count);
+        expect(t, len(xs) == e.count);
     }
 }
 
@@ -703,11 +726,14 @@ Cone_Intersect :: proc(t: ^r.Test_Context) {
         { m.ray(m.point(1, 1, -5), m.normalize(m.vector(-0.5, -1, 1))), 4.55006, 49.44994 },
     };
 
+    xs_buf := rt.intersection_buffer(2, context.temp_allocator);
+
     for e in examples {
 
-        xs, count := shape->intersects(e.ray);
+        xs_buf.count = 0;
+        xs := shape->intersects(e.ray, &xs_buf);
 
-        expect(t, count == 2);
+        expect(t, len(xs) == 2);
 
         expect(t, eq(xs[0].t, e.t0));
         expect(t, eq(xs[1].t, e.t1));
@@ -721,9 +747,11 @@ Cone_Intersect_Parallel :: proc(t: ^r.Test_Context) {
     direction := m.normalize(m.vector(0, 1, 1));
     r := m.ray(m.point(0, 0, -1), direction);
 
-    xs, count := shape->intersects(r);
+    xs_buf := rt.intersection_buffer(1, context.temp_allocator);
 
-    expect(t, count == 1);
+    xs := shape->intersects(r, &xs_buf);
+
+    expect(t, len(xs) == 1);
 
     expect(t, xs[0].object == &shape);
     expect(t, eq(xs[0].t, 0.35355));
@@ -748,11 +776,14 @@ Cone_Cap_Intersect :: proc(t: ^r.Test_Context) {
         { m.ray(m.point(0, 0, -0.25), m.normalize(m.vector(0, 1, 0))), 4 },
     };
 
+    xs_buf := rt.intersection_buffer(4, context.temp_allocator);
+
     for e in examples {
 
-        xs, count := shape->intersects(e.ray);
+        xs_buf.count = 0;
+        xs := shape->intersects(e.ray, &xs_buf);
 
-        expect(t, count == e.count);
+        expect(t, len(xs) == e.count);
     }
 
 }
@@ -824,9 +855,11 @@ Group_Empty_Intersect :: proc(t: ^r.Test_Context) {
 
     r := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
 
-    xs, count := g->intersects(r);
+    xs_buf := rt.intersection_buffer(nil);
 
-    expect(t, count == 0);
+    xs := g->intersects(r, &xs_buf);
+
+    expect(t, len(xs) == 0);
 }
 
 @test
@@ -845,9 +878,11 @@ Group_Intersect :: proc(t: ^r.Test_Context) {
 
     r := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
-    xs, count := g->intersects(r);
+    xs_buf := rt.intersection_buffer(4, context.temp_allocator);
 
-    expect(t, count == 4);
+    xs := g->intersects(r, &xs_buf);
+
+    expect(t, len(xs) == 4);
 
     expect(t, xs[0].object == &s2);
     expect(t, xs[1].object == &s2);
@@ -867,11 +902,11 @@ Group_Transformed_Intersect :: proc(t: ^r.Test_Context) {
 
     r := m.ray(m.point(10, 0, -10), m.vector(0, 0, 1));
 
-    xs_buf := rt.intersection_buffer(nil);
+    xs_buf := rt.intersection_buffer(2, context.temp_allocator);
 
-    xs, count := rt.intersects(&g, r, &xs_buf);
+    xs := rt.intersects(&g, r, &xs_buf);
 
-    expect(t, count == 2);
+    expect(t, len(xs) == 2);
     expect(t, xs[0].object == &s);
     expect(t, xs[1].object == &s);
 }

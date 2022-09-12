@@ -20,10 +20,10 @@ _test_shape_vtable := &Shape_VTable {
         return m.vector(p.x, p.y, p.z);
     },
 
-    intersects = proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> ([4]Intersection, int) {
+    intersects = proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> []Intersection {
         ts := transmute(^Test_Shape)s;
         ts.saved_ray = r;
-        return {}, 0;
+        return {};
     },
 
     eq = proc(a, b: ^Shape) -> bool { assert(false); return true },

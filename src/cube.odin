@@ -61,11 +61,9 @@ _cube_vtable := &Shape_VTable {
     eq = proc(a, b: ^Shape) -> bool { return true },
 };
 
-cube_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> (result: [4]Intersection, count: int) {
+cube_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> []Intersection {
 
     tracy.Zone();
-
-    result, count = {}, 0;
 
     inv_dir := r.inverse_direction;
 
@@ -89,7 +87,7 @@ cube_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> (r
         tymax = (-1 - r.origin.y) * inv_dir.y;
     }
 
-    if tmin > tymax || tymin > tmax do return;
+    if tmin > tymax || tymin > tmax do return {};
 
     if tymin > tmin do tmin = tymin;
     if tymax < tmax do tmax = tymax;
@@ -104,13 +102,13 @@ cube_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> (r
         tzmax = (-1 - r.origin.z) * inv_dir.z;
     }
 
-    if tmin > tzmax || tzmin > tmax do return;
+    if tmin > tzmax || tzmin > tmax do return {};
 
     if tzmin > tmin do tmin = tzmin;
     if tzmax < tmax do tmax = tzmax;
 
-    result[0] = intersection(tmin, s);
-    result[1] = intersection(tmax, s);
-    count = 2;
-    return;
+    old_count := xs_buf.count;
+    append_xs(xs_buf, intersection(tmin, s));
+    append_xs(xs_buf, intersection(tmax, s));
+    return xs_buf.intersections[old_count:old_count + 2];
 }

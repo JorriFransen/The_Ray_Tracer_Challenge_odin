@@ -50,32 +50,20 @@ _group_vtable := &Shape_VTable {
     eq = proc(a, b: ^Shape) -> bool { assert(false); return false },
 };
 
-group_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> (result: [4]Intersection, count: int) {
+group_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> []Intersection {
 
     group := transmute(^Group)s;
 
-    count = 0;
+    if len(group.shapes) <= 0 do return {};
 
-    if len(group.shapes) <= 0 do return;
-
-    xs_buf := intersection_buffer(nil);
-    assert(false);
+    old_count := xs_buf.count;
 
     for c in group.shapes {
-        xs, child_count := intersects(c, r, &xs_buf);
-
-        assert(count + child_count <= 4);
-
-        if child_count > 0 {
-            for i in 0..<child_count {
-                result[count] = xs[i];
-                count += 1;
-            }
-        }
+        intersects(c, r, xs_buf);
     }
 
-    slice.sort_by(result[:count], intersection_less);
-    return;
+    slice.sort_by(xs_buf.intersections[old_count:xs_buf.count], intersection_less);
+    return xs_buf.intersections[old_count:xs_buf.count];
 }
 
 group_add_child :: proc(group: ^Group, child: ^Shape) {

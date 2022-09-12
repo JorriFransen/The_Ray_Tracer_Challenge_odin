@@ -57,23 +57,25 @@ _cone_vtable := &Shape_VTable {
     eq = proc(a, b: ^Shape) -> bool { return true },
 };
 
-cone_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> (result: [4]Intersection, count: int) {
+cone_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> []Intersection {
 
     tracy.Zone();
 
     cone := transmute(^Cone)s;
 
-    count = 0;
+    old_count := xs_buf.count;
 
     a := r.direction.x * r.direction.x - r.direction.y * r.direction.y + r.direction.z * r.direction.z;
     b := (2 * r.origin.x * r.direction.x) - (2 * r.origin.y * r.direction.y) + (2 * r.origin.z * r.direction.z);
     c := (r.origin.x * r.origin.x) - (r.origin.y * r.origin.y) +  (r.origin.z * r.origin.z);
 
+    count := 0;
+
     if !eq(a, 0) {
 
         disc := (b * b) - (4 * a * c);
 
-        if disc < 0 do return {}, 0;
+        if disc < 0 do return {};
 
         disc_sqrt := math.sqrt(disc);
         divisor := 2 * a;
@@ -85,13 +87,13 @@ cone_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> (r
 
         y0 := r.origin.y + t0 * r.direction.y;
         if cone.minimum < y0 && y0 < cone.maximum {
-            result[count] = intersection(t0, cone);
+            append_xs(xs_buf, intersection(t0, cone));
             count += 1;
         }
 
         y1 := r.origin.y + t1 * r.direction.y;
         if cone.minimum < y1 && y1 < cone.maximum {
-            result[count] = intersection(t1, cone);
+            append_xs(xs_buf, intersection(t1, cone));
             count += 1;
         }
 
@@ -99,7 +101,7 @@ cone_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> (r
 
         // This means the ray is parallel to one of the con's halves
         t := -c / (2 * b);
-        result[count] = intersection(t, cone);
+        append_xs(xs_buf, intersection(t, cone));
         count += 1;
     }
 
@@ -111,12 +113,13 @@ cone_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> (r
         assert(total_count >= 0 && total_count <= 4);
 
         for i in 0..<cap_count {
-            result[count] = cap_xs[i];
+            append_xs(xs_buf, cap_xs[i]);
             count += 1;
         }
     }
 
-    return result, count;
+
+    return xs_buf.intersections[old_count:old_count + count];
 }
 
 @(private="file")

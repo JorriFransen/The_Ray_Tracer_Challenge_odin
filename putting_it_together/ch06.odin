@@ -28,6 +28,9 @@ CH06 :: proc(c: rt.Canvas) {
 
     light := rt.point_light(m.point(-10, 10, -10), rt.color(1, 1, 1));
 
+    xs_buf := rt.intersection_buffer(2);
+    defer delete(xs_buf.intersections);
+
     for y in 0..<canvas_pixels {
         world_y := half_wall_size - pixel_size * m.real(y);
 
@@ -37,11 +40,11 @@ CH06 :: proc(c: rt.Canvas) {
             position := m.point(world_x, world_y, wall_z);
 
             r := m.ray(ray_origin, m.normalize(m.sub(position, ray_origin)));
-            xs, xs_count := rt.intersects(&shape, r);
+            xs:= rt.intersects(&shape, r, &xs_buf);
 
-            if xs_count == 0 do continue;
+            if len(xs) == 0 do continue;
 
-            if hit, ok : = rt.hit(xs[:]).?; ok {
+            if hit, ok : = rt.hit(xs).?; ok {
 
                 hitpoint := m.ray_position(r, hit.t);
                 hitnormal := rt.shape_normal_at(hit.object, hitpoint);

@@ -41,11 +41,11 @@ R_Intersect_Sphere_2P :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     ray := m.ray(m.point(0, 0, -5), m.vector(0, 0, 1));
 
-    xs_buf := rt.intersection_buffer(nil);
+    xs_buf := rt.intersection_buffer(2, context.temp_allocator);
 
-    xs, count := rt.intersects(&sp, ray, &xs_buf);
+    xs := rt.intersects(&sp, ray, &xs_buf);
 
-    expect(t, count == 2);
+    expect(t, len(xs) == 2);
     expect(t, xs[0].t == 4.0);
     expect(t, xs[1].t == 6.0);
 }
@@ -56,11 +56,11 @@ R_Intersect_Sphere_Tangent :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     ray := m.ray(m.point(0, 1, -5), m.vector(0, 0, 1));
 
-    xs_buf := rt.intersection_buffer(nil);
+    xs_buf := rt.intersection_buffer(2, context.temp_allocator);
 
-    xs, count := rt.intersects(&sp, ray, &xs_buf);
+    xs := rt.intersects(&sp, ray, &xs_buf);
 
-    expect(t, count == 2);
+    expect(t, len(xs) == 2);
     expect(t, xs[0].t == 5.0);
     expect(t, xs[1].t == 5.0);
 }
@@ -73,9 +73,9 @@ R_Misses_Sphere :: proc(t: ^r.Test_Context) {
 
     xs_buf := rt.intersection_buffer(nil);
 
-    xs, count := rt.intersects(&sp, ray, &xs_buf);
+    xs := rt.intersects(&sp, ray, &xs_buf);
 
-    expect(t, count == 0);
+    expect(t, len(xs) == 0);
 }
 
 @test
@@ -84,11 +84,11 @@ R_Inside_Sphere :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     ray := m.ray(m.point(0, 0, 0), m.vector(0, 0, 1));
 
-    xs_buf := rt.intersection_buffer(nil);
+    xs_buf := rt.intersection_buffer(2, context.temp_allocator);
 
-    xs, count := rt.intersects(&sp, ray, &xs_buf);
+    xs := rt.intersects(&sp, ray, &xs_buf);
 
-    expect(t, count == 2);
+    expect(t, len(xs) == 2);
     expect(t, xs[0].t == -1.0);
     expect(t, xs[1].t == 1.0);
 }
@@ -99,11 +99,11 @@ R_Sphere_Behind :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     ray := m.ray(m.point(0, 0, 5), m.vector(0, 0, 1));
 
-    xs_buf := rt.intersection_buffer(nil);
+    xs_buf := rt.intersection_buffer(2, context.temp_allocator);
 
-    xs, count := rt.intersects(&sp, ray, &xs_buf);
+    xs := rt.intersects(&sp, ray, &xs_buf);
 
-    expect(t, count == 2);
+    expect(t, len(xs) == 2);
     expect(t, xs[0].t == -6.0);
     expect(t, xs[1].t == -4.0);
 }
@@ -142,11 +142,11 @@ Intersect_Sets_Ojb :: proc(t: ^r.Test_Context) {
 
     sp := rt.sphere();
 
-    xs_buf := rt.intersection_buffer(nil);
+    xs_buf := rt.intersection_buffer(2, context.temp_allocator);
 
-    xs, count := rt.intersects(&sp, ray, &xs_buf);
+    xs := rt.intersects(&sp, ray, &xs_buf);
 
-    expect(t, count == 2);
+    expect(t, len(xs) == 2);
     expect(t, xs[0].object == &sp);
     expect(t, xs[1].object == &sp);
 }

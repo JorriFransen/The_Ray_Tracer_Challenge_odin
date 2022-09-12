@@ -60,15 +60,16 @@ _cylinder_vtable := &Shape_VTable {
     eq = proc(a, b: ^Shape) -> bool { return true },
 };
 
-cylinder_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> (result: [4]Intersection, count: int) {
+cylinder_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> []Intersection {
 
     tracy.Zone();
 
     cyl := transmute(^Cylinder)s;
 
-    result, count = {}, 0;
-
     a := r.direction.x * r.direction.x + r.direction.z * r.direction.z;
+
+    old_count := xs_buf.count;
+    count := 0;
 
     if !eq(a, 0) {
 
@@ -77,7 +78,7 @@ cylinder_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -
 
         disc := (b * b) - (4 * a * c);
 
-        if disc < 0 do return;
+        if disc < 0 do return {};
 
         disc_sqrt := math.sqrt(disc);
         divisor := 2 * a;
@@ -89,13 +90,13 @@ cylinder_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -
 
         y0 := r.origin.y + t0 * r.direction.y;
         if cyl.minimum < y0 && y0 < cyl.maximum {
-            result[count] = intersection(t0, cyl);
+            append_xs(xs_buf, intersection(t0, cyl));
             count += 1;
         }
 
         y1 := r.origin.y + t1 * r.direction.y;
         if cyl.minimum < y1 && y1 < cyl.maximum {
-            result[count] = intersection(t1, cyl);
+            append_xs(xs_buf, intersection(t1, cyl));
             count += 1;
         }
     }
@@ -108,12 +109,12 @@ cylinder_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -
         assert(total_count >= 0 && total_count <= 2);
 
         for i in 0..<cap_count {
-            result[count] = cap_xs[i];
+            append_xs(xs_buf, cap_xs[i]);
             count += 1;
         }
     }
 
-    return result, count;
+    return xs_buf.intersections[old_count:old_count + count];
 }
 
 @(private="file")

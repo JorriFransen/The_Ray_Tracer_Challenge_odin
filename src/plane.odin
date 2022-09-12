@@ -44,14 +44,16 @@ _plane_vtable := &Shape_VTable {
 
 };
 
-plane_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> ([4]Intersection, int) {
+plane_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> []Intersection {
 
     tracy.Zone();
 
-    if abs(r.direction.y) < m.FLOAT_EPSILON do return {}, 0;
+    if abs(r.direction.y) < m.FLOAT_EPSILON do return {};
 
     t := -r.origin.y / r.direction.y;
 
     i := intersection(t, s);
-    return [4]Intersection { i, {}, {}, {} }, 1;
+    append_xs(xs_buf, i);
+
+    return xs_buf.intersections[xs_buf.count - 1:xs_buf.count];
 }

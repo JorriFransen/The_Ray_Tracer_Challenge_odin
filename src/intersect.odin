@@ -37,10 +37,27 @@ intersection :: proc(t: m.real, s: ^Shape) -> Intersection {
     return Intersection { t, s };
 }
 
-intersection_buffer :: proc(objects: []^Shape, allocator := context.allocator) -> Intersection_Buffer {
+intersection_buffer_s :: proc(objects: []^Shape, allocator := context.allocator) -> Intersection_Buffer {
 
     xs_mem := make([]Intersection, len(objects) * 4, allocator);
     return Intersection_Buffer { xs_mem, 0 };
+}
+
+intersection_buffer_i :: proc(cap: int, allocator := context.allocator) -> Intersection_Buffer {
+    
+    return Intersection_Buffer { make([]Intersection, cap, allocator), 0 };
+}
+
+intersection_buffer :: proc {
+    intersection_buffer_s,
+    intersection_buffer_i,
+}
+
+append_xs :: proc(buf: ^Intersection_Buffer, i: Intersection) {
+    assert(buf.count < len(buf.intersections))
+
+    buf.intersections[buf.count] = i;
+    buf.count += 1;
 }
 
 intersections_from_slice :: proc(intersections: .. Intersection, allocator := context.allocator) -> [dynamic]Intersection {
@@ -153,7 +170,7 @@ hit :: proc(xs: []Intersection) -> Maybe(Intersection) {
     return nil;
 }
 
-intersects :: proc(shape: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> ([4]Intersection, int) {
+intersects :: proc(shape: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> []Intersection {
 
     assert(shape.vtable.intersects != nil);
 
