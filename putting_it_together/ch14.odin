@@ -13,39 +13,47 @@ CH14_1 :: proc(c: rt.Canvas) {
 
     _spheres : [dynamic]rt.Shape;
 
-    for i in 0..<2 {
+    rand.set_global_seed(1);
 
-        placed := false;
+    // x := rand.float64_range(-3, 3);
+    // z := rand.float64_range(0, 5);
+    // scale := rand.float64_range(0.2, 0.7);
 
-        for {
+    // fmt.printf("p: %.4f, %.4f\ts: %.4f\n", x, z, scale);
 
-            x := rand.float64_range(-3, 3)
-            z := rand.float64_range(0, 5)
-            scale := rand.float64_range(0.2, 0.5);
+    // transform := m.translation(x, scale, z) * m.scaling(scale, scale, scale);
+    // // transform := m.translation(x, 0, z);
 
-            transform := m.translation(x, scale, z) * m.scaling(scale, scale, scale);
+    // p := transform * m.point(0, 0, 0);
 
-            hit := false;
+    // fmt.println(p);
 
-            for s in &_spheres {
-                my_point := transform * m.point(1, 1, 1);
-                other_point := m.matrix4_mul_tuple(m.matrix_inverse(s.inverse_transform), m.point(1, 1, 1));
+    for i in 0..<3 {
 
-                d := m.magnitude(m.sub(my_point, other_point));
+        x := rand.float64_range(-3, 3)
+        z := rand.float64_range(0, 5)
+        scale := rand.float64_range(0.2, 0.5);
 
-                // Assuming uniform scale
-                if d < abs(scale + s.inverse_transform[0, 0]) {
-                    hit = true;
-                    break;
-                }
-            }
+        transform := m.translation(x, scale, z) * m.scaling(scale, scale, scale);
 
-            if !hit {
-                sphere := rt.sphere(transform);
-                append(&_spheres, sphere);
+        hit := false;
 
+        for s in &_spheres {
+            my_point := transform * m.point(0, 0, 0);
+            other_point := m.matrix4_mul_tuple(m.matrix_inverse(s.inverse_transform), m.point(0, 0, 0));
+
+            d := m.magnitude(m.sub(my_point, other_point));
+
+            // Assuming uniform scale
+            if d < abs(scale + s.inverse_transform[0, 0]) {
+                hit = true;
                 break;
             }
+        }
+
+        if !hit {
+            sphere := rt.sphere(transform);
+            append(&_spheres, sphere);
         }
     }
 
@@ -58,10 +66,6 @@ CH14_1 :: proc(c: rt.Canvas) {
     for i := 0; i < len(_spheres); i += 1 {
         shapes[i + 1] = &_spheres[i];
     }
-
-    // for s, i in &_shapes {
-    //     shapes[i] = &s;
-    // }
 
     lights := []rt.Point_Light {
         rt.point_light(m.point(-10, 10, -10), rt.WHITE),
