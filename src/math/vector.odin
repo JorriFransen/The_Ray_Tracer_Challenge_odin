@@ -5,6 +5,8 @@ import "core:intrinsics"
 import "core:simd"
 import cm "core:math"
 
+import m "raytracer:math"
+
 Tuple :: distinct [4]real;
 Point :: distinct Tuple;
 Vector :: distinct Tuple;
@@ -40,11 +42,11 @@ vector :: proc {
 }
 
 is_point :: proc(t: $T/Tuple) -> bool {
-    return t.w == 1.0;
+    return m.float_eq(t.w, 1.0);
 }
 
 is_vector :: proc(t: $T/Tuple) -> bool {
-    return t.w == 0.0;
+    return m.float_eq(t.w, 0.0);
 }
 
 tuple_eq :: proc(a, b: $T/[4]real) -> bool {

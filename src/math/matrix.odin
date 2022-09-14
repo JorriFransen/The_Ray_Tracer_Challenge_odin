@@ -49,7 +49,7 @@ matrix3_eq :: proc(a, b: Matrix3) -> bool {
 }
 
 matrix2_eq :: proc(a, b: Matrix2) -> bool {
-    Flat_Type :: [4]real;
+    Flat_Type :: [4]real
 
     a_flat := transmute(Flat_Type)a;
     b_flat := transmute(Flat_Type)b;
