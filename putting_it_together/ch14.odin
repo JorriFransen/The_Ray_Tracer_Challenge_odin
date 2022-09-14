@@ -27,11 +27,14 @@ CH14_1 :: proc(c: rt.Canvas) {
     min_dist : m.real = 0.1;
 
     // Without groups:
+    //
     //           100 placement iterations (75 placed)
     // 1,043,592,784 Intersection tests
     //    38,206,970 Hits (3.66%)
 
-    for i in 0..<100 {
+    //          2000 placement iterations (75 placed)
+
+    for i in 0..<2000 {
 
         x := rand.float64_range(-7.5, 7.5)
         z := rand.float64_range(-1, 20)
