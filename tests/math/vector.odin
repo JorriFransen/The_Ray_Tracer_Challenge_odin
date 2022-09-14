@@ -363,7 +363,6 @@ V_Normalize_X1_Y2_Z3 :: proc(t: ^r.Test_Context) {
     expected := rm.vector(0.267271, 0.53452, 0.80178);
     result := rm.normalize(v);
 
-    /*expect(t, result == expected);*/
     r.expect(t, eq(result, expected));
 }
 

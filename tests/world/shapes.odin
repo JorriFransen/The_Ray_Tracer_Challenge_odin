@@ -65,6 +65,7 @@ shape_suite := r.Test_Suite {
         r.test("Group_Empty_Intersect", Group_Empty_Intersect),
         r.test("Group_Intersect", Group_Intersect),
         r.test("Group_Transformed_Intersect", Group_Transformed_Intersect),
+        r.test("Group_Child_Normal", Group_Child_Normal),
     },
 }
 
@@ -909,4 +910,24 @@ Group_Transformed_Intersect :: proc(t: ^r.Test_Context) {
     expect(t, len(xs) == 2);
     expect(t, xs[0].object == &s);
     expect(t, xs[1].object == &s);
+}
+
+@test
+Group_Child_Normal :: proc(t: ^r.Test_Context) {
+
+    g1 := rt.group(m.rotation_y(PI / 2));
+    defer rt.delete_group(&g1);
+
+    g2 := rt.group(m.scaling(1, 2, 3));
+    defer rt.delete_group(&g2);
+
+    rt.group_add_child(&g1, &g2);
+
+    s := rt.sphere(m.translation(5, 0, 0));
+    rt.group_add_child(&g2, &s);
+
+    n := rt.shape_normal_at(&s, m.point(1.7321, 1.1547, -5.5774));
+
+    expect(t, eq(n, m.vector(0.28570, 0.42854, -0.85716)));
+
 }

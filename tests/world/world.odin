@@ -37,6 +37,9 @@ world_suite := r.Test_Suite {
         r.test("Refracted_Color", Refracted_Color),
         r.test("Shade_Hit_Transparent_Material", Shade_Hit_Transparent_Material),
         r.test("Shade_Hit_Transparent_Reflective_Material", Shade_Hit_Transparent_Reflective_Material),
+
+        r.test("World_To_Object_Space", World_To_Object_Space),
+        r.test("Normal_To_World_Space", Normal_To_World_Space),
     },
 
     child_suites = {
@@ -674,4 +677,45 @@ Shade_Hit_Transparent_Reflective_Material :: proc(t: ^r.Test_Context) {
     color := rt.shade_hit(w, &comps, &xs_buf, hi_mem, true, 5);
 
     expect(t, eq(color, rt.color(0.93391, 0.69643, 0.69243)));
+}
+
+@test
+World_To_Object_Space :: proc(t: ^r.Test_Context) {
+
+    g1 := rt.group(m.rotation_y(PI / 2));
+    defer rt.delete_group(&g1);
+
+    g2 := rt.group(m.scaling(2, 2, 2));
+    defer rt.delete_group(&g2);
+
+    rt.group_add_child(&g1, &g2);
+
+    s := rt.sphere(m.translation(5, 0, 0));
+    rt.group_add_child(&g2, &s);
+
+    p := rt.world_to_object(&s, m.point(-2, 0, -10));
+
+    expect(t, eq(p, m.point(0, 0, -1)));
+}
+
+@test
+Normal_To_World_Space :: proc(t: ^r.Test_Context) {
+
+    g1 := rt.group(m.rotation_y(PI / 2));
+    defer rt.delete_group(&g1);
+
+    g2 := rt.group(m.scaling(1, 2, 3));
+    defer rt.delete_group(&g2);
+
+    rt.group_add_child(&g1, &g2);
+
+    s := rt.sphere(m.translation(5, 0, 0));
+    rt.group_add_child(&g2, &s);
+
+    sqrt3_d3 := math.sqrt(m.real(3.0)) / 3.0;
+
+    n := rt.normal_to_world(&s, m.vector(sqrt3_d3, sqrt3_d3, sqrt3_d3));
+
+    expect(t, eq(n, m.vector(0.28571, 0.42857, -0.85714)));
+
 }

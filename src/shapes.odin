@@ -58,16 +58,19 @@ set_material :: proc(s: ^Shape, mat: Material) {
     s.material = mat;
 }
 
-shape_normal_at :: proc(s: ^Shape, p: m.Point) -> m.Vector {
+shape_normal_at :: proc(s: ^Shape, world_point: m.Point) -> m.Vector {
 
-    assert(s.vtable.normal_at != nil);
+    local_point := world_to_object(s, world_point);
+    local_normal := s->normal_at(local_point);
+    return normal_to_world(s, local_normal);
 
-    obj_p := s.inverse_transform * p;
 
-    obj_n := s->normal_at(obj_p);
+    // obj_p := s.inverse_transform * p;
 
-    world_n := m.matrix4_transpose(s.inverse_transform) * obj_n;
-    world_n.w = 0;
+    // obj_n := s->normal_at(obj_p);
 
-    return m.normalize(world_n);
+    // world_n := m.matrix4_transpose(s.inverse_transform) * obj_n;
+    // world_n.w = 0;
+
+    // return m.normalize(world_n);
 }

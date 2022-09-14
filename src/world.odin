@@ -33,17 +33,7 @@ intersect_world :: proc(w: ^World, r: m.Ray, xs_buf: ^Intersection_Buffer) -> []
     xs_buf.count = 0;
 
     for obj in w.objects {
-
         intersects(obj, r, xs_buf);
-
-        // if xs, count := intersects(obj, r, xs_buf); count > 0 {
-
-        //     assert(count >= 0 && count <= 4);
-        //     for i in 0..<count {
-        //         xs_buf.intersections[xs_buf.count] = xs[i];
-        //         xs_buf.count += 1;
-        //     }
-        // }
     }
 
     {
@@ -118,4 +108,28 @@ is_shadowed :: proc(w: ^World, p: m.Point, l: ^Point_Light, intersections: ^Inte
     }
 
     return false;
+}
+
+world_to_object :: proc(s: ^Shape, p: m.Point) -> m.Point {
+
+    point := p;
+
+    if s.parent != nil {
+        point = world_to_object(s.parent, point);
+    }
+
+    return s.inverse_transform * point;
+}
+
+normal_to_world :: proc(s: ^Shape, normal: m.Vector) -> m.Vector {
+
+    normal := m.matrix4_transpose(s.inverse_transform) * normal;
+    normal.w = 0;
+    normal = m.normalize(normal);
+
+    if s.parent != nil {
+        normal = normal_to_world(s.parent, normal);
+    }
+
+    return normal;
 }

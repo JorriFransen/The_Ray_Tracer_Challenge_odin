@@ -15,8 +15,6 @@ noise_suite := r.Test_Suite {
     },
 }
 
-import "core:fmt"
-
 @test
 Value :: proc(t: ^r.Test_Context) {
 

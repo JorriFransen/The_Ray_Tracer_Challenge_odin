@@ -153,7 +153,7 @@ set_pattern_transform :: proc(pat: ^Pattern, tf: m.Matrix4) {
 
 pattern_at_shape :: proc(pat: ^Pattern, shape: ^Shape, p: m.Point) -> Color {
 
-    obj_p := mul(shape.inverse_transform, p);
+    obj_p := world_to_object(shape, p);
     return pattern_at(pat, obj_p);
 }
 
