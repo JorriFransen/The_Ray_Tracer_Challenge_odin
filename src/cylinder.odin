@@ -57,6 +57,11 @@ _cylinder_vtable := &Shape_VTable {
 
     intersects = cylinder_intersects,
 
+    bounds = proc(shape: ^Shape) -> Bounds {
+        cyl := transmute(^Cylinder)shape;
+        return Bounds { m.point(-1, cyl.minimum, -1), m.point(1, cyl.maximum, 1) };
+    },
+
     eq = proc(a, b: ^Shape) -> bool { return true },
 };
 

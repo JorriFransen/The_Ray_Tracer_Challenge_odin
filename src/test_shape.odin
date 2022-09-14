@@ -26,6 +26,8 @@ _test_shape_vtable := &Shape_VTable {
         return {};
     },
 
+    bounds = proc(shape: ^Shape) -> Bounds { return Bounds { m.point(-1, -1, -1), m.point(1, 1, 1) }; },
+
     eq = proc(a, b: ^Shape) -> bool { assert(false); return true },
 
 };

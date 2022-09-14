@@ -11,28 +11,32 @@ CH14_1 :: proc(c: rt.Canvas) {
     c := c;
     fmt.println("Putting it together for chapter 14.1");
 
+    materials := [?]rt.Material {
+        rt.material(color=rt.color(0, 0, 0.2), ambient=0, diffuse=0.4, specular=0.9, shininess=300, reflective=0.9, transparency=0.9, refractive_index=1.5),
+        rt.material(color=rt.color(0, 0.2, 0), ambient=0, diffuse=0.4, specular=0.9, shininess=300, reflective=0.9, transparency=0.9, refractive_index=1.5),
+        rt.material(color=rt.color(0.2, 0, 0), ambient=0.35, diffuse=0.3, specular=0.8, shininess=200, reflective=0.3, transparency=0, refractive_index=1),
+        rt.material(color=rt.color(0, 0, 0.2), ambient=0.5, diffuse=0.3, specular=0.8, shininess=5, reflective=0.1, transparency=0, refractive_index=1),
+    };
+
     _spheres : [dynamic]rt.Shape;
 
     rand.set_global_seed(1);
 
-    // x := rand.float64_range(-3, 3);
-    // z := rand.float64_range(0, 5);
-    // scale := rand.float64_range(0.2, 0.7);
+    placed := 0;
 
-    // fmt.printf("p: %.4f, %.4f\ts: %.4f\n", x, z, scale);
+    min_dist : m.real = 0.1;
 
-    // transform := m.translation(x, scale, z) * m.scaling(scale, scale, scale);
-    // // transform := m.translation(x, 0, z);
+    // Without groups:
+    //           100 placement iterations (75 placed)
+    // 1,043,592,784 Intersection tests
+    //    38,206,970 Hits (3.66%)
 
-    // p := transform * m.point(0, 0, 0);
+    for i in 0..<100 {
 
-    // fmt.println(p);
-
-    for i in 0..<3 {
-
-        x := rand.float64_range(-3, 3)
-        z := rand.float64_range(0, 5)
-        scale := rand.float64_range(0.2, 0.5);
+        x := rand.float64_range(-7.5, 7.5)
+        z := rand.float64_range(-1, 20)
+        scale := rand.float64_range(0.15, 0.6);
+        mat_idx := rand.uint64() % len(materials);
 
         transform := m.translation(x, scale, z) * m.scaling(scale, scale, scale);
 
@@ -40,22 +44,28 @@ CH14_1 :: proc(c: rt.Canvas) {
 
         for s in &_spheres {
             my_point := transform * m.point(0, 0, 0);
-            other_point := m.matrix4_mul_tuple(m.matrix_inverse(s.inverse_transform), m.point(0, 0, 0));
+            other_transform := m.matrix_inverse(s.inverse_transform);
+            other_point := m.matrix4_mul_tuple(other_transform, m.point(0, 0, 0));
 
             d := m.magnitude(m.sub(my_point, other_point));
 
+            other_scale := other_transform[0, 0];
+
             // Assuming uniform scale
-            if d < abs(scale + s.inverse_transform[0, 0]) {
+            if d < (abs(scale + other_scale) + min_dist) {
                 hit = true;
                 break;
             }
         }
 
         if !hit {
-            sphere := rt.sphere(transform);
+            sphere := rt.sphere(transform, materials[mat_idx]);
             append(&_spheres, sphere);
+            placed += 1;
         }
     }
+
+    fmt.printf("Placed %v spheres\n", placed);
 
     shapes := make([]^rt.Shape, len(_spheres) + 1);
     defer delete(shapes);
@@ -77,6 +87,9 @@ CH14_1 :: proc(c: rt.Canvas) {
     camera := rt.camera(c.width, c.height, PI / 3, view_transform)
 
     rt.render(&c, &camera, &world);
+
+    fmt.printf("%12d Intersections\n", rt.total_xs_test);
+    fmt.printf("%12d Hits\n", rt.total_hit);
 
     ppm := rt.ppm_from_canvas(c);
     defer delete(ppm);

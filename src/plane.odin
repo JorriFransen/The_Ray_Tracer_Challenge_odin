@@ -40,6 +40,8 @@ _plane_vtable := &Shape_VTable {
 
     intersects = plane_intersects,
 
+    bounds = proc(plane: ^Shape) -> Bounds { return Bounds { m.point(-m.INFINITY, 0, -m.INFINITY), m.point(m.INFINITY, 0, m.INFINITY) }; },
+
     eq = proc(a, b: ^Shape) -> bool { assert(false); return true; }
 
 };

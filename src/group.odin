@@ -47,6 +47,8 @@ _group_vtable := &Shape_VTable {
 
     intersects = group_intersects,
 
+    bounds = group_bounds,
+
     eq = proc(a, b: ^Shape) -> bool { assert(false); return false },
 };
 
@@ -64,6 +66,11 @@ group_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> [
 
     slice.sort_by(xs_buf.intersections[old_count:xs_buf.count], intersection_less);
     return xs_buf.intersections[old_count:xs_buf.count];
+}
+
+group_bounds :: proc(shape: ^Shape) -> Bounds {
+
+    return Bounds { m.point(0, 0, 0), m.point(0, 0, 0) };
 }
 
 group_add_child :: proc(group: ^Group, child: ^Shape) {

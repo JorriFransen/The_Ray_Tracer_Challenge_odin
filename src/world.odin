@@ -1,7 +1,8 @@
 package raytracer
 
-import "core:slice"
 import "core:mem"
+import "core:slice"
+import "core:sync"
 
 import rt "raytracer:."
 import m "raytracer:math"
@@ -26,6 +27,10 @@ world :: proc {
     world_ol,
 }
 
+total_xs_test_mutex : sync.Mutex;
+total_xs_test := 0;
+total_hit := 0;
+
 intersect_world :: proc(w: ^World, r: m.Ray, xs_buf: ^Intersection_Buffer) -> []Intersection {
 
     tracy.Zone();
@@ -40,6 +45,12 @@ intersect_world :: proc(w: ^World, r: m.Ray, xs_buf: ^Intersection_Buffer) -> []
         tracy.Zone("intersect_world -- sort");
         slice.sort_by(xs_buf.intersections[:xs_buf.count], intersection_less);
     }
+
+    sync.mutex_lock(&total_xs_test_mutex);
+    total_xs_test += len(w.objects);
+    total_hit += xs_buf.count;
+    sync.mutex_unlock(&total_xs_test_mutex);
+
 
     return xs_buf.intersections[:xs_buf.count];
 }

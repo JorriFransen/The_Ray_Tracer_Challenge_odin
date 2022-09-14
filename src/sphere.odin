@@ -45,6 +45,8 @@ _sphere_vtable := &Shape_VTable {
 
     intersects = sphere_intersects,
 
+    bounds = proc(sphere: ^Shape) -> Bounds { return Bounds { m.point(-1, -1, -1), m.point(1, 1, 1) }; },
+
     eq = proc(a, b: ^Shape) -> bool { return true },
 };
 

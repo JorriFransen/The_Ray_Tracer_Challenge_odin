@@ -66,6 +66,10 @@ shape_suite := r.Test_Suite {
         r.test("Group_Intersect", Group_Intersect),
         r.test("Group_Transformed_Intersect", Group_Transformed_Intersect),
         r.test("Group_Child_Normal", Group_Child_Normal),
+
+        r.test("Shape_Bounds", Shape_Bounds),
+        r.test("Bounds_Construction", Bounds_Construction),
+        r.test("Group_Bounds", Group_Bounds),
     },
 }
 
@@ -929,5 +933,108 @@ Group_Child_Normal :: proc(t: ^r.Test_Context) {
     n := rt.shape_normal_at(&s, m.point(1.7321, 1.1547, -5.5774));
 
     expect(t, eq(n, m.vector(0.28570, 0.42854, -0.85716)));
+
+}
+
+@test
+Shape_Bounds :: proc(t: ^r.Test_Context) {
+
+    {
+        s := rt.sphere();
+        assert(s.vtable.bounds != nil);
+        b := s->bounds();
+        expected := rt.Bounds { m.point(-1, -1, -1), m.point(1, 1, 1) };
+        expect(t, b == expected);
+    }
+
+    {
+        p := rt.plane();
+        assert(p.vtable.bounds != nil);
+        b := p->bounds();
+        expected := rt.Bounds { m.point(-m.INFINITY, 0, -m.INFINITY), m.point(m.INFINITY, 0, m.INFINITY) };
+        expect(t, b == expected);
+    }
+
+    {
+        c := rt.cube();
+        assert(c.vtable.bounds != nil);
+        b := c->bounds();
+        expected := rt.Bounds { m.point(-1, -1, -1), m.point(1, 1, 1) };
+        expect(t, b == expected);
+    }
+
+    {
+        cyl1 := rt.cylinder();
+        assert(cyl1.vtable.bounds != nil);
+        b := cyl1->bounds();
+        expected := rt.Bounds { m.point(-1, -m.INFINITY, -1), m.point(1, m.INFINITY, 1) };
+        expect(t, b == expected);
+
+        cyl2 := rt.cylinder();
+        cyl2.minimum = -5;
+        cyl2.maximum = 3;
+        b = cyl2->bounds();
+        expected = rt.Bounds { m.point(-1, -5, -1), m.point(1, 3, 1) };
+        expect(t, b == expected);
+    }
+
+    {
+        cone1 := rt.cone();
+        assert(cone1.vtable.bounds != nil);
+        b := cone1->bounds();
+        expected := rt.Bounds { m.point(-m.INFINITY, -m.INFINITY, -m.INFINITY), m.point(m.INFINITY, m.INFINITY, m.INFINITY) };
+        expect(t, b == expected);
+
+        cone2 := rt.cone();
+        cone2.minimum = -5;
+        cone2.maximum = 3;
+        b = cone2->bounds();
+        expected = rt.Bounds { m.point(-5, -5, -5), m.point(5, 3, 5) };
+        expect(t, b == expected);
+    }
+
+    {
+        ts := rt.test_shape();
+        assert(ts.vtable.bounds != nil);
+        b := ts->bounds();
+        expected := rt.Bounds { m.point(-1, -1, -1), m.point(1, 1, 1) };
+        expect(t, b == expected);
+    }
+}
+
+
+@test
+Bounds_Construction :: proc(t: ^r.Test_Context) {
+
+    {
+        b := rt.bounds();
+
+        expect(t, eq(b.min, m.point(m.INFINITY, m.INFINITY, m.INFINITY)));
+        expect(t, eq(b.max, m.point(-m.INFINITY, -m.INFINITY, -m.INFINITY)));
+    }
+
+    {
+        b := rt.bounds(m.point(-1, -2, -3), m.point(3, 2, 1));
+
+        expect(t, eq(b.min, m.point(-1, -2, -3)));
+        expect(t, eq(b.max, m.point(3, 2, 1)));
+    }
+
+    {
+        b := rt.bounds();
+        b = rt.bounds(b, m.point(-5, 2, 0));
+        b = rt.bounds(b, m.point(7, 0, -3));
+
+        expect(t, eq(b.min, m.point(-5, 0, -3)));
+        expect(t, eq(b.max, m.point(7, 2, 0)));
+    }
+}
+
+@test
+Group_Bounds :: proc(t: ^r.Test_Context) {
+
+    g := rt.group();
+    defer rt.delete_group(&g);
+
 
 }
