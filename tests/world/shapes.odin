@@ -69,7 +69,11 @@ shape_suite := r.Test_Suite {
 
         r.test("Shape_Bounds", Shape_Bounds),
         r.test("Bounds_Construction", Bounds_Construction),
+        r.test("Parent_Space_Bounds", Parent_Space_Bounds),
+        r.test("Bounds_Transform", Bounds_Transform),
         r.test("Group_Bounds", Group_Bounds),
+        r.test("Origin_Bounds_Intersect", Origin_Bounds_Intersect),
+        r.test("Non_Cubic_Bounds_Intersect", Non_Cubic_Bounds_Intersect),
     },
 }
 
@@ -1028,13 +1032,131 @@ Bounds_Construction :: proc(t: ^r.Test_Context) {
         expect(t, eq(b.min, m.point(-5, 0, -3)));
         expect(t, eq(b.max, m.point(7, 2, 0)));
     }
+
+    {
+        b1 := rt.bounds(m.point(-5, -2, 0), m.point(7, 4, 4));
+        b2 := rt.bounds(m.point(8, -7, -2), m.point(14, 2, 8));
+
+        b1 = rt.bounds(b1, b2);
+
+        expect(t, eq(b1.min, m.point(-5, -7, -2)));
+        expect(t, eq(b1.max, m.point(14, 4, 8)));
+    }
+}
+
+@test
+Parent_Space_Bounds :: proc(t: ^r.Test_Context) {
+
+    g := rt.group();
+    defer rt.delete_group(&g);
+
+    shape := rt.sphere(m.translation(1, -3, 5) * m.scaling(0.5, 2, 4));
+    b := rt.parent_space_bounds(&shape);
+
+    expect(t, eq(b.min, m.point(0.5, -5, 1)));
+    expect(t, eq(b.max, m.point(1.5, -1, 9)));
+}
+
+@test
+Bounds_Transform :: proc(t: ^r.Test_Context) {
+
+    b := rt.bounds(m.point(-1, -1, -1), m.point(1, 1, 1));
+    mat := m.rotation_x(PI / 4) * m.rotation_y(PI / 4);
+
+    b2 := rt.bounds_transform(b, mat);
+
+    expect(t, eq(b2.min, m.point(-1.41421, -1.70711, -1.70711)));
+    expect(t, eq(b2.max, m.point(1.41421, 1.70711, 1.70711)));
 }
 
 @test
 Group_Bounds :: proc(t: ^r.Test_Context) {
 
+    s := rt.sphere(m.translation(2, 5, -3) * m.scaling(2, 2, 2));
+    c := rt.cylinder(m.translation(-4, -1, 4) * m.scaling(0.5, 1, 0.5));
+    c.minimum = -2;
+    c.maximum = 2;
+
     g := rt.group();
     defer rt.delete_group(&g);
 
+    rt.group_add_child(&g, &s);
+    rt.group_add_child(&g, &c);
 
+    assert(g.vtable.bounds != nil);
+
+    b := g->bounds();
+
+    expect(t, eq(b.min, m.point(-4.5, -3, -5)));
+    expect(t, eq(b.max, m.point(4, 7, 4.5)));
+}
+
+@test
+Origin_Bounds_Intersect :: proc(t: ^r.Test_Context) {
+
+    Example :: struct {
+        origin: m.Point,
+        direction: m.Vector,
+        result: bool,
+    };
+
+    examples := [?]Example {
+        { m.point(  5, 0.5,  0), m.normalize(m.vector(-1,  0,  0)),  true },
+        { m.point( -5, 0.5,  0), m.normalize(m.vector( 1,  0,  0)),  true },
+        { m.point(0.5,   5,  0), m.normalize(m.vector( 0, -1,  0)),  true },
+        { m.point(0.5,  -5,  0), m.normalize(m.vector( 0,  1,  0)),  true },
+        { m.point(0.5,   0,  5), m.normalize(m.vector( 0,  0, -1)),  true },
+        { m.point(0.5,   0, -5), m.normalize(m.vector( 0,  0,  1)),  true },
+        { m.point(  0, 0.5,  0), m.normalize(m.vector( 0,  0,  1)),  true },
+        { m.point( -2,   0,  0), m.normalize(m.vector( 2,  4,  6)), false },
+        { m.point(  0,  -2,  0), m.normalize(m.vector( 6,  2,  4)), false },
+        { m.point(  0,   0, -2), m.normalize(m.vector( 4,  6,  2)), false },
+        { m.point(  2,   0,  2), m.normalize(m.vector( 0,  0, -1)), false },
+        { m.point(  0,   2,  2), m.normalize(m.vector( 0, -1,  0)), false },
+        { m.point(  2,   2,  0), m.normalize(m.vector(-1,  0,  0)), false },
+    };
+
+    b := rt.bounds(m.point(-1, -1, -1), m.point(1, 1, 1));
+
+    for e in examples {
+
+        r := m.ray(e.origin, e.direction);
+
+        expect(t, rt.bounds_intersect(b, r) == e.result);
+    }
+}
+
+@test
+Non_Cubic_Bounds_Intersect :: proc(t: ^r.Test_Context) {
+
+    Example :: struct {
+        origin: m.Point,
+        direction: m.Vector,
+        result: bool,
+    };
+
+    examples := [?]Example {
+        { m.point(15,  1,   2), m.normalize(m.vector(-1,  0,  0)),  true },
+        { m.point(-5, -1,   4), m.normalize(m.vector( 1,  0,  0)),  true },
+        { m.point( 7,  6,   5), m.normalize(m.vector( 0, -1,  0)),  true },
+        { m.point( 9, -5,   6), m.normalize(m.vector( 0,  1,  0)),  true },
+        { m.point( 8,  2,  12), m.normalize(m.vector( 0,  0, -1)),  true },
+        { m.point( 6,  0,  -5), m.normalize(m.vector( 0,  0,  1)),  true },
+        { m.point( 8,  1, 3.5), m.normalize(m.vector( 0,  0,  1)),  true },
+        { m.point( 9, -1,  -8), m.normalize(m.vector( 2,  4,  6)), false },
+        { m.point( 8,  3,  -4), m.normalize(m.vector( 6,  2,  4)), false },
+        { m.point( 9, -1,  -2), m.normalize(m.vector( 4,  6,  2)), false },
+        { m.point( 4,  0,   9), m.normalize(m.vector( 0,  0, -1)), false },
+        { m.point( 8,  6,  -1), m.normalize(m.vector( 0, -1,  0)), false },
+        { m.point(12,  5,   4), m.normalize(m.vector(-1,  0,  0)), false },
+    };
+
+    b := rt.bounds(m.point(5, -2, 0), m.point(11, 4, 7));
+
+    for e in examples {
+
+        r := m.ray(e.origin, e.direction);
+
+        expect(t, rt.bounds_intersect(b, r) == e.result);
+    }
 }

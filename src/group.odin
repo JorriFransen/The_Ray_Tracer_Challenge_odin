@@ -49,6 +49,21 @@ _group_vtable := &Shape_VTable {
 
     bounds = group_bounds,
 
+    child_count = proc(shape: ^Shape) -> int {
+
+        group := transmute(^Group)shape;
+
+        count := len(group.shapes);
+
+        for o in group.shapes {
+            if o.vtable.child_count != nil {
+                count += o->child_count();
+            }
+        }
+
+        return count;
+    },
+
     eq = proc(a, b: ^Shape) -> bool { assert(false); return false },
 };
 
@@ -58,19 +73,34 @@ group_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> [
 
     if len(group.shapes) <= 0 do return {};
 
-    old_count := xs_buf.count;
+    if bounds_intersect(group->bounds(), r) {
 
-    for c in group.shapes {
-        intersects(c, r, xs_buf);
+        old_count := xs_buf.count;
+
+        for c in group.shapes {
+            intersects(c, r, xs_buf);
+        }
+
+        slice.sort_by(xs_buf.intersections[old_count:xs_buf.count], intersection_less);
+        return xs_buf.intersections[old_count:xs_buf.count];
+
     }
 
-    slice.sort_by(xs_buf.intersections[old_count:xs_buf.count], intersection_less);
-    return xs_buf.intersections[old_count:xs_buf.count];
+    return {};
 }
 
 group_bounds :: proc(shape: ^Shape) -> Bounds {
 
-    return Bounds { m.point(0, 0, 0), m.point(0, 0, 0) };
+    group := transmute(^Group)shape;
+
+    result := bounds();
+
+    for c in group.shapes {
+        c_bounds := parent_space_bounds(c);
+        result = bounds(result, c_bounds);
+    }
+
+    return result;
 }
 
 group_add_child :: proc(group: ^Group, child: ^Shape) {

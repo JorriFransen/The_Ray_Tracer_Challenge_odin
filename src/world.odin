@@ -47,7 +47,7 @@ intersect_world :: proc(w: ^World, r: m.Ray, xs_buf: ^Intersection_Buffer) -> []
     }
 
     sync.mutex_lock(&total_xs_test_mutex);
-    total_xs_test += len(w.objects);
+    total_xs_test += world_object_count(w);
     total_hit += xs_buf.count;
     sync.mutex_unlock(&total_xs_test_mutex);
 
@@ -143,4 +143,17 @@ normal_to_world :: proc(s: ^Shape, normal: m.Vector) -> m.Vector {
     }
 
     return normal;
+}
+
+world_object_count :: proc(w: ^World) -> int {
+
+    count := len(w.objects);
+
+    for o in w.objects {
+        if o.vtable.child_count != nil {
+            count += o->child_count();
+        }
+    }
+
+    return count;
 }

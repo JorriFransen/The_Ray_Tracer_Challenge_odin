@@ -36,11 +36,24 @@ CH14_1 :: proc(c: rt.Canvas) {
     // 8,270,677,440 Intersection tests
     //    99,956,049 Hits (1.21%)
 
+
+
+    DO_GROUPS :: true;
+
+    minx, maxx : m.real = -7.5, 7.5;
+    minz, maxz : m.real = -1, 20;
+    minscale, maxscale := 0.15, 0.6;
+
+    when DO_GROUPS {
+        group := rt.group();
+        defer rt.delete_group(&group);
+    }
+
     for i in 0..<2000 {
 
-        x := rand.float64_range(-7.5, 7.5)
-        z := rand.float64_range(-1, 20)
-        scale := rand.float64_range(0.15, 0.6);
+        x := rand.float64_range(minx, maxx);
+        z := rand.float64_range(minz, maxz);
+        scale := rand.float64_range(minscale, maxscale);
         mat_idx := rand.uint64() % len(materials);
 
         transform := m.translation(x, scale, z) * m.scaling(scale, scale, scale);
@@ -72,14 +85,29 @@ CH14_1 :: proc(c: rt.Canvas) {
 
     fmt.printf("Placed %v spheres\n", placed);
 
-    shapes := make([]^rt.Shape, len(_spheres) + 1);
+    // Always include the floor
+    root_shape_count := 1;
+    when DO_GROUPS {
+        root_shape_count += 1;
+    } else {
+        root_shape_count += placed
+    }
+
+    shapes := make([]^rt.Shape, root_shape_count);
     defer delete(shapes);
 
     floor := rt.plane();
     shapes[0] = &floor;
 
-    for i := 0; i < len(_spheres); i += 1 {
-        shapes[i + 1] = &_spheres[i];
+    when DO_GROUPS {
+        shapes[1] = &group;
+        for c in &_spheres {
+            rt.group_add_child(&group, &c);
+        }
+    } else {
+        for i := 0; i < len(_spheres); i += 1 {
+            shapes[i + 1] = &_spheres[i];
+        }
     }
 
     lights := []rt.Point_Light {
