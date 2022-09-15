@@ -945,62 +945,62 @@ Shape_Bounds :: proc(t: ^r.Test_Context) {
 
     {
         s := rt.sphere();
-        assert(s.vtable.bounds != nil);
-        b := s->bounds();
+        assert(s.vtable.get_bounds != nil);
+        b := s->get_bounds();
         expected := rt.Bounds { m.point(-1, -1, -1), m.point(1, 1, 1) };
         expect(t, b == expected);
     }
 
     {
         p := rt.plane();
-        assert(p.vtable.bounds != nil);
-        b := p->bounds();
+        assert(p.vtable.get_bounds != nil);
+        b := p->get_bounds();
         expected := rt.Bounds { m.point(-m.INFINITY, 0, -m.INFINITY), m.point(m.INFINITY, 0, m.INFINITY) };
         expect(t, b == expected);
     }
 
     {
         c := rt.cube();
-        assert(c.vtable.bounds != nil);
-        b := c->bounds();
+        assert(c.vtable.get_bounds != nil);
+        b := c->get_bounds();
         expected := rt.Bounds { m.point(-1, -1, -1), m.point(1, 1, 1) };
         expect(t, b == expected);
     }
 
     {
         cyl1 := rt.cylinder();
-        assert(cyl1.vtable.bounds != nil);
-        b := cyl1->bounds();
+        assert(cyl1.vtable.get_bounds != nil);
+        b := cyl1->get_bounds();
         expected := rt.Bounds { m.point(-1, -m.INFINITY, -1), m.point(1, m.INFINITY, 1) };
         expect(t, b == expected);
 
         cyl2 := rt.cylinder();
         cyl2.minimum = -5;
         cyl2.maximum = 3;
-        b = cyl2->bounds();
+        b = cyl2->get_bounds();
         expected = rt.Bounds { m.point(-1, -5, -1), m.point(1, 3, 1) };
         expect(t, b == expected);
     }
 
     {
         cone1 := rt.cone();
-        assert(cone1.vtable.bounds != nil);
-        b := cone1->bounds();
+        assert(cone1.vtable.get_bounds != nil);
+        b := cone1->get_bounds();
         expected := rt.Bounds { m.point(-m.INFINITY, -m.INFINITY, -m.INFINITY), m.point(m.INFINITY, m.INFINITY, m.INFINITY) };
         expect(t, b == expected);
 
         cone2 := rt.cone();
         cone2.minimum = -5;
         cone2.maximum = 3;
-        b = cone2->bounds();
+        b = cone2->get_bounds();
         expected = rt.Bounds { m.point(-5, -5, -5), m.point(5, 3, 5) };
         expect(t, b == expected);
     }
 
     {
         ts := rt.test_shape();
-        assert(ts.vtable.bounds != nil);
-        b := ts->bounds();
+        assert(ts.vtable.get_bounds != nil);
+        b := ts->get_bounds();
         expected := rt.Bounds { m.point(-1, -1, -1), m.point(1, 1, 1) };
         expect(t, b == expected);
     }
@@ -1083,9 +1083,9 @@ Group_Bounds :: proc(t: ^r.Test_Context) {
     rt.group_add_child(&g, &s);
     rt.group_add_child(&g, &c);
 
-    assert(g.vtable.bounds != nil);
+    assert(g.vtable.get_bounds != nil);
 
-    b := g->bounds();
+    b := g->get_bounds();
 
     expect(t, eq(b.min, m.point(-4.5, -3, -5)));
     expect(t, eq(b.max, m.point(4, 7, 4.5)));
