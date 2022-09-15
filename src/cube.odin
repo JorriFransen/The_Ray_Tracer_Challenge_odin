@@ -56,7 +56,7 @@ _cube_vtable := &Shape_VTable {
         return m.Vector{};
     },
 
-    bounds = proc(sphere: ^Shape) -> Bounds { return Bounds { m.point(-1, -1, -1), m.point(1, 1, 1) }; },
+    get_bounds = proc(sphere: ^Shape) -> Bounds { return Bounds { m.point(-1, -1, -1), m.point(1, 1, 1) }; },
 
     intersects = cube_intersects,
 

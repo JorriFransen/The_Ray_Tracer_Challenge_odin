@@ -31,19 +31,20 @@ CH14_1 :: proc(c: rt.Canvas) {
     //           100 placement iterations (75 placed)
     // 1,043,592,784 Intersection tests
     //    38,206,970 Hits (3.66%)
-
+    //
     //          2000 placement iterations (327 placed)
     // 8,270,677,440 Intersection tests
     //    99,956,049 Hits (1.21%)
 
-    // With groups
-    // 14,679,094 Intersections
-    //  1,386,078 Hits (9.44%)
-    // Without groups
-    // 49,601,324 Intersections
-    //  1,386,078 Hits (2.79%)
 
-    DO_GROUPS :: false;
+    // With groups
+    //           100 placement iterations (75 placed)
+    // 322,277,995 Intersections
+    //  38,206,970 Hits (11.86%)
+    //
+    //          2000 placement iterations (327 placed)
+
+    DO_GROUPS :: true;
 
     minx, maxx : m.real = -7.5, 7.5;
     minz, maxz : m.real = -1, 20;
@@ -62,7 +63,7 @@ CH14_1 :: proc(c: rt.Canvas) {
 
     }
 
-    for i in 0..<100 {
+    for i in 0..<2000 {
 
         x := rand.float64_range(minx, maxx);
         z := rand.float64_range(minz, maxz);

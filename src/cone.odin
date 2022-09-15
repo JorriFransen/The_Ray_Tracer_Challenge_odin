@@ -54,7 +54,7 @@ _cone_vtable := &Shape_VTable {
 
     intersects = cone_intersects,
 
-    bounds = proc(shape: ^Shape) -> Bounds {
+    get_bounds = proc(shape: ^Shape) -> Bounds {
         cone := transmute(^Cone)shape;
 
         limit := max(abs(cone.minimum), abs(cone.maximum));

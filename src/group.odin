@@ -9,10 +9,11 @@ Group :: struct
 {
     using shape: Shape,
     shapes: [dynamic]^Shape,
+    bounds: Bounds,
 };
 
 group_tf_mat :: proc(tf: m.Matrix4, mat: Material) -> Group {
-    return Group { shape(_group_vtable, tf, mat), {} };
+    return Group { shape(_group_vtable, tf, mat), {}, bounds() };
 }
 
 group_mat :: proc(mat: Material) -> Group {
@@ -48,7 +49,7 @@ _group_vtable := &Shape_VTable {
 
     intersects = group_intersects,
 
-    bounds = group_bounds,
+    get_bounds = get_group_bounds,
 
     child_count = proc(shape: ^Shape) -> int {
 
@@ -74,7 +75,7 @@ group_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> [
 
     if len(group.shapes) <= 0 do return {};
 
-    if bounds_intersect(group->bounds(), r) {
+    if bounds_intersect(group.bounds, r) {
 
         old_count := xs_buf.count;
 
@@ -95,19 +96,12 @@ group_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> [
     return {};
 }
 
-group_bounds :: proc(shape: ^Shape) -> Bounds {
+get_group_bounds :: proc(shape: ^Shape) -> Bounds {
 
     group := transmute(^Group)shape;
 
-    result := bounds();
-
-    for c in group.shapes {
-        c_bounds := parent_space_bounds(c);
-        result = bounds(result, c_bounds);
-    }
-
-    return result;
-}
+    return group.bounds;
+ }
 
 group_add_child :: proc(group: ^Group, child: ^Shape) {
 
@@ -115,4 +109,7 @@ group_add_child :: proc(group: ^Group, child: ^Shape) {
 
     append(&group.shapes, child);
     child.parent = group;
+
+    // Update the group bounds
+    group.bounds = bounds(group.bounds, parent_space_bounds(child));
 }

@@ -76,7 +76,7 @@ bounds_transform :: proc(b: Bounds, tf: m.Matrix4) -> Bounds {
 }
 
 parent_space_bounds :: proc(s: ^Shape) -> Bounds {
-    return bounds_transform(s->bounds(), m.matrix_inverse(s.inverse_transform));
+    return bounds_transform(s->get_bounds(), m.matrix_inverse(s.inverse_transform));
 }
 
 bounds_intersect :: proc(b: Bounds, r: m.Ray) ->  bool {

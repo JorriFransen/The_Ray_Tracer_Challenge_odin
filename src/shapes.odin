@@ -13,14 +13,14 @@ Shape :: struct {
 
 Shape_Normal_At_Proc :: proc(^Shape, m.Point) -> m.Vector;
 Shape_Intersects_Proc :: proc(^Shape, m.Ray, ^Intersection_Buffer) -> []Intersection;
-Shape_Bounds_Proc :: proc(^Shape) -> Bounds;
+Shape_Get_Bounds_Proc :: proc(^Shape) -> Bounds;
 Shape_Child_Cound_Proc :: proc(^Shape) -> int;
 Shape_Eq_Proc :: proc(a, b: ^Shape) -> bool;
 
 Shape_VTable :: struct {
     normal_at: Shape_Normal_At_Proc,
     intersects: Shape_Intersects_Proc,
-    bounds: Shape_Bounds_Proc,
+    get_bounds: Shape_Get_Bounds_Proc,
     child_count: Shape_Child_Cound_Proc,
     eq: Shape_Eq_Proc,
 }
