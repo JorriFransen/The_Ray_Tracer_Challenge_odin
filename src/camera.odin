@@ -98,7 +98,7 @@ render_to_canvas :: proc(canvas: ^Canvas, c: ^Camera, w: ^World, shadows := true
             for x in 0..<canvas.width {
 
                 ray := camera_ray_for_pixel(c, x, y);
-                color := color_at(w, ray, &intersections, hi_mem, 5, true);
+                color := color_at(w, ray, &intersections, hi_mem, RECURSION_DEPTH, true);
                 canvas_write_pixel(canvas^, x, y, color);
             }
         }

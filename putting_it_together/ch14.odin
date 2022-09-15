@@ -32,24 +32,37 @@ CH14_1 :: proc(c: rt.Canvas) {
     // 1,043,592,784 Intersection tests
     //    38,206,970 Hits (3.66%)
 
-    //          2000 placement iterations (75 placed)
+    //          2000 placement iterations (327 placed)
     // 8,270,677,440 Intersection tests
     //    99,956,049 Hits (1.21%)
 
+    // With groups
+    // 14,679,094 Intersections
+    //  1,386,078 Hits (9.44%)
+    // Without groups
+    // 49,601,324 Intersections
+    //  1,386,078 Hits (2.79%)
 
-
-    DO_GROUPS :: true;
+    DO_GROUPS :: false;
 
     minx, maxx : m.real = -7.5, 7.5;
     minz, maxz : m.real = -1, 20;
     minscale, maxscale := 0.15, 0.6;
 
     when DO_GROUPS {
-        group := rt.group();
-        defer rt.delete_group(&group);
+        // group := rt.group();
+        // defer rt.delete_group(&group);
+
+        groups : [16]rt.Group;
+        for i := 0; i < len(groups); i += 1 {
+            groups[i] = rt.group();
+        }
+
+        defer for g in &groups do rt.delete_group(&g);
+
     }
 
-    for i in 0..<2000 {
+    for i in 0..<100 {
 
         x := rand.float64_range(minx, maxx);
         z := rand.float64_range(minz, maxz);
@@ -88,7 +101,7 @@ CH14_1 :: proc(c: rt.Canvas) {
     // Always include the floor
     root_shape_count := 1;
     when DO_GROUPS {
-        root_shape_count += 1;
+        root_shape_count += len(groups);
     } else {
         root_shape_count += placed
     }
@@ -100,15 +113,45 @@ CH14_1 :: proc(c: rt.Canvas) {
     shapes[0] = &floor;
 
     when DO_GROUPS {
-        shapes[1] = &group;
-        for c in &_spheres {
-            rt.group_add_child(&group, &c);
+
+        for g, i in &groups {
+            shapes[i + 1] = &g;
         }
+
+        group_width := abs(minx - maxx) / 4.0;
+        group_height := abs(minz - maxz) / 4.0;
+
+        for s in &_spheres {
+            sphere_tf := m.matrix_inverse(s.inverse_transform);
+            sphere_pos := m.matrix4_mul_tuple(sphere_tf, m.point(0, 0, 0));
+
+            group_x := int(math.floor((sphere_pos.x - minx) / group_width));
+            group_z := int(math.floor((sphere_pos.z - minz) / group_height));
+
+            assert(group_x >= 0 && group_x < 4);
+            assert(group_z >= 0 && group_z < 4);
+
+            rt.group_add_child(&groups[group_x + 4 * group_z], &s);
+        }
+
     } else {
         for i := 0; i < len(_spheres); i += 1 {
             shapes[i + 1] = &_spheres[i];
         }
     }
+
+    // when DO_GROUPS {
+
+    //     total_sphere_count := 0;
+
+    //     for g in &groups {
+    //         fmt.println(g->bounds());
+    //         fmt.println(len(g.shapes));
+    //         total_sphere_count += len(g.shapes);
+    //     }
+
+    //     fmt.println(total_sphere_count);
+    // }
 
     lights := []rt.Point_Light {
         rt.point_light(m.point(-10, 10, -10), rt.WHITE),

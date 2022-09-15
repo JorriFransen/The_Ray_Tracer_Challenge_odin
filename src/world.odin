@@ -47,7 +47,7 @@ intersect_world :: proc(w: ^World, r: m.Ray, xs_buf: ^Intersection_Buffer) -> []
     }
 
     sync.mutex_lock(&total_xs_test_mutex);
-    total_xs_test += world_object_count(w);
+    total_xs_test += len(w.objects);
     total_hit += xs_buf.count;
     sync.mutex_unlock(&total_xs_test_mutex);
 

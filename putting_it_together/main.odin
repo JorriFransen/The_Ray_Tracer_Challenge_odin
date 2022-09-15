@@ -73,7 +73,7 @@ main :: proc() {
     // with_canvas(1920, 1080, CH13_4, "CH13.4");
     // fmt.println("\n");
 
-    with_canvas(1920, 1080, CH14_1, "CH14.1");
+    with_canvas(1920/5, 1080/5, CH14_1, "CH14.1");
     fmt.println("\n");
 }
 

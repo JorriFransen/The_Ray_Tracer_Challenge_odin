@@ -1,6 +1,7 @@
 package raytracer
 
 import "core:slice"
+import "core:sync"
 
 import m "raytracer:math"
 
@@ -80,6 +81,11 @@ group_intersects :: proc(s: ^Shape, r: m.Ray, xs_buf: ^Intersection_Buffer) -> [
         for c in group.shapes {
             intersects(c, r, xs_buf);
         }
+
+        sync.mutex_lock(&total_xs_test_mutex);
+        total_xs_test += len(group.shapes);
+        // total_hit += xs_buf.count - old_count;
+        sync.mutex_unlock(&total_xs_test_mutex);
 
         slice.sort_by(xs_buf.intersections[old_count:xs_buf.count], intersection_less);
         return xs_buf.intersections[old_count:xs_buf.count];
