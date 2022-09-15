@@ -33,6 +33,8 @@ CH14_1 :: proc(c: rt.Canvas) {
     //    38,206,970 Hits (3.66%)
 
     //          2000 placement iterations (75 placed)
+    // 8,270,677,440 Intersection tests
+    //    99,956,049 Hits (1.21%)
 
     for i in 0..<2000 {
 
