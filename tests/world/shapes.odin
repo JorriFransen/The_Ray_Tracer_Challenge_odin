@@ -74,6 +74,14 @@ shape_suite := r.Test_Suite {
         r.test("Group_Bounds", Group_Bounds),
         r.test("Origin_Bounds_Intersect", Origin_Bounds_Intersect),
         r.test("Non_Cubic_Bounds_Intersect", Non_Cubic_Bounds_Intersect),
+
+        r.test("Triangle_Construction", Triangle_Construction),
+        r.test("Triangle_Normal", Triangle_Normal),
+        r.test("Triangle_XS_Miss", Triangle_XS_Miss),
+        r.test("Triangle_XS_Miss_P1P3Edge", Triangle_XS_Miss_P1P3Edge),
+        r.test("Triangle_XS_Miss_P1P2Edge", Triangle_XS_Miss_P1P2Edge),
+        r.test("Triangle_XS_Miss_P2P3Edge", Triangle_XS_Miss_P2P3Edge),
+        r.test("Triangle_XS", Triangle_XS),
     },
 }
 
@@ -1151,6 +1159,7 @@ Non_Cubic_Bounds_Intersect :: proc(t: ^r.Test_Context) {
         { m.point(12,  5,   4), m.normalize(m.vector(-1,  0,  0)), false },
     };
 
+
     b := rt.bounds(m.point(5, -2, 0), m.point(11, 4, 7));
 
     for e in examples {
@@ -1159,4 +1168,104 @@ Non_Cubic_Bounds_Intersect :: proc(t: ^r.Test_Context) {
 
         expect(t, rt.bounds_intersect(b, r) == e.result);
     }
+}
+
+@test
+Triangle_Construction :: proc(t: ^r.Test_Context) {
+
+    p1 := m.point(0, 1, 0);
+    p2 := m.point(-1, 0, 0);
+    p3 := m.point(1, 0, 0);
+
+    tri := rt.triangle(p1, p2, p3);
+
+    expect(t, tri.p1 == p1);
+    expect(t, tri.p2 == p2);
+    expect(t, tri.p3 == p3);
+
+    expect(t, tri.e1 == m.vector(-1, -1, 0));
+    expect(t, tri.e2 == m.vector(1, -1, 0));
+
+    expect(t, eq(tri.normal, m.vector(0, 0, -1)));
+}
+
+@test
+Triangle_Normal :: proc(t: ^r.Test_Context) {
+
+    tri := rt.triangle(m.point(0, 1, 1), m.point(-1, 0, 0), m.point(1, 0, 0));
+
+    n1 := tri->normal_at(m.point(0, 0.5, 0));
+    n2 := tri->normal_at(m.point(-0.5, 0.75, 0));
+    n3 := tri->normal_at(m.point(0.5, 0.25, 0));
+
+    expect(t, eq(tri.normal, n1));
+    expect(t, eq(tri.normal, n2));
+    expect(t, eq(tri.normal, n3));
+
+}
+
+@test
+Triangle_XS_Miss :: proc(t: ^r.Test_Context) {
+
+    tri := rt.triangle(m.point(0, 1, 0), m.point(-1, 0, 0), m.point(1, 0, 0));
+
+    r := m.ray(m.point(0, -1, -2), m.vector(0, 1, 0));
+
+    xs_buf := rt.intersection_buffer(nil);
+    xs := tri->intersects(r, &xs_buf);
+
+    expect(t, len(xs) == 0);
+}
+
+@test
+Triangle_XS_Miss_P1P3Edge :: proc(t: ^r.Test_Context) {
+
+    tri := rt.triangle(m.point(0, 1, 0), m.point(-1, 0, 0), m.point(1, 0, 0));
+
+    r := m.ray(m.point(1, 1, -2), m.vector(0, 0, 1));
+
+    xs_buf := rt.intersection_buffer(nil);
+    xs := tri->intersects(r, &xs_buf);
+
+    expect(t, len(xs) == 0);
+}
+
+@test
+Triangle_XS_Miss_P1P2Edge :: proc(t: ^r.Test_Context) {
+
+    tri := rt.triangle(m.point(0, 1, 0), m.point(-1, 0, 0), m.point(1, 0, 0));
+
+    r := m.ray(m.point(-1, 1, -2), m.vector(0, 0, 1));
+
+    xs_buf := rt.intersection_buffer(nil);
+    xs := tri->intersects(r, &xs_buf);
+
+    expect(t, len(xs) == 0);
+}
+
+@test
+Triangle_XS_Miss_P2P3Edge :: proc(t: ^r.Test_Context) {
+
+    tri := rt.triangle(m.point(0, 1, 0), m.point(-1, 0, 0), m.point(1, 0, 0));
+
+    r := m.ray(m.point(0, -1, -2), m.vector(0, 0, 1));
+
+    xs_buf := rt.intersection_buffer(nil);
+    xs := tri->intersects(r, &xs_buf);
+
+    expect(t, len(xs) == 0);
+}
+
+@test
+Triangle_XS :: proc(t: ^r.Test_Context) {
+
+    tri := rt.triangle(m.point(0, 1, 0), m.point(-1, 0, 0), m.point(1, 0, 0));
+
+    r := m.ray(m.point(0, 0.5, -2), m.vector(0, 0, 1));
+
+    xs_buf := rt.intersection_buffer(1, context.temp_allocator);
+    xs := tri->intersects(r, &xs_buf);
+
+    expect(t, len(xs) == 1);
+    expect(t, xs[0].t == 2);
 }

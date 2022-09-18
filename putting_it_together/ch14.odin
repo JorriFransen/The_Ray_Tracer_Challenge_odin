@@ -216,7 +216,9 @@ CH14_2 :: proc(c: rt.Canvas) {
 
             // Only group has this function
             if c.vtable.child_count != nil {
-                free_group_recursive(transmute(^rt.Group)c);
+                g := transmute(^rt.Group)c;
+                free_group_recursive(g);
+                rt.delete_group(g);
             }
 
             free(c);
