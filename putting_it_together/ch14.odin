@@ -176,3 +176,89 @@ CH14_1 :: proc(c: rt.Canvas) {
         panic("Failed to write ppm file...");
     }
 }
+
+CH14_2 :: proc(c: rt.Canvas) {
+    c := c;
+    fmt.println("Putting it together for chapter 14.2");
+
+
+    floor_mat := rt.material(color=rt.color(.9, .9, .9), specular=0);
+    floor := rt.plane(floor_mat);
+
+    hexagon_corner :: proc() -> ^rt.Sphere {
+        corner := new(rt.Sphere);
+        corner^ = rt.sphere(m.translation(0, 0, -1) * m.scaling(0.25, 0.25, 0.25));
+        return corner;
+    }
+
+    hexagon_edge :: proc() -> ^rt.Cylinder {
+        cyl := new(rt.Cylinder);
+        tf := m.translation(0, 0, -1) * m.rotation_y(-PI / 6) * m.rotation_z(-PI / 2) * m.scaling(0.25, 1, 0.25);
+        cyl^ = rt.cylinder(tf);
+        cyl.minimum = 0;
+        cyl.maximum = 1;
+
+        return cyl;
+    }
+
+    hexagon_side :: proc() -> ^rt.Group {
+        side := new(rt.Group);
+        side^ = rt.group();
+
+        rt.group_add_child(side, hexagon_corner());
+        rt.group_add_child(side, hexagon_edge());
+
+        return side;
+    }
+
+    free_group_recursive :: proc(g: ^rt.Group) {
+        for c in g.shapes {
+
+            // Only group has this function
+            if c.vtable.child_count != nil {
+                free_group_recursive(transmute(^rt.Group)c);
+            }
+
+            free(c);
+        }
+    }
+
+    hexagon :: proc() -> ^rt.Group {
+        hex := new(rt.Group);
+        hex^ = rt.group();
+
+        for n in 0..=5 {
+            side := hexagon_side();
+            rt.set_transform(side, m.rotation_y(m.real(n) * PI / 3));
+            rt.group_add_child(hex, side);
+        }
+
+        return hex;
+    }
+
+    hex := hexagon();
+    defer free_group_recursive(hex);
+    rt.set_transform(hex, m.translation(0, 0.5, 0) * m.rotation_x(-PI / 6.5));
+
+    shapes := []^rt.Shape { hex };
+
+    lights := []rt.Point_Light {
+        rt.point_light(m.point(-10, 10, -10), rt.WHITE),
+    };
+
+    world := rt.world(shapes, lights);
+
+    view_transform := m.view_transform(m.point(0, 1.5, -5), m.point(0, 1, 0), m.vector(0, 1, 0));
+    camera := rt.camera(c.width, c.height, PI / 3, view_transform)
+
+    rt.render(&c, &camera, &world);
+
+    ppm := rt.ppm_from_canvas(c);
+    defer delete(ppm);
+
+    ok := rt.ppm_write_to_file("images/putting_it_together_ch14.2.ppm", ppm);
+    if !ok {
+        panic("Failed to write ppm file...");
+    }
+}
+
