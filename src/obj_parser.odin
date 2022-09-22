@@ -13,7 +13,7 @@ Parsed_Obj_File :: struct {
 
     vertices : []m.Point,
     triangles : []Triangle,
-    group : ^Group,
+    root_group : ^Group,
 };
 
 parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj_File) {
@@ -51,8 +51,8 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 
     if face_count > 0 {
 
-        result.group = new(Group);
-        result.group^ = group();
+        result.root_group = new(Group);
+        result.root_group^ = group();
 
         faces = make([]Face, face_count, context.temp_allocator);
 
@@ -191,7 +191,7 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
                 tri^ = triangle(p0, p1, p2);
                 current_triangle += 1;
 
-                group_add_child(result.group, tri);
+                group_add_child(result.root_group, tri);
 
             } else {
 
@@ -205,7 +205,7 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
                     tri^ = triangle(p0, p1, p2);
                     current_triangle += 1;
 
-                    group_add_child(result.group, tri);
+                    group_add_child(result.root_group, tri);
                 }
             }
         }
@@ -219,8 +219,8 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 free_parsed_obj_file :: proc(obj: ^Parsed_Obj_File) {
     delete(obj.vertices);
     delete(obj.triangles);
-    if obj.group != nil {
-        delete_group(obj.group);
-        free(obj.group);
+    if obj.root_group != nil {
+        delete_group(obj.root_group);
+        free(obj.root_group);
     }
 }

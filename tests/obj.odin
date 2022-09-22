@@ -76,10 +76,10 @@ Parsing_Triangle_Faces :: proc(t: ^r.Test_Context) {
     parsed_obj := rt.parse_obj_string(file_content, true);
     defer rt.free_parsed_obj_file(&parsed_obj);
 
-    expect(t, parsed_obj.group != nil);
-    if parsed_obj.group == nil do return;
+    expect(t, parsed_obj.root_group != nil);
+    if parsed_obj.root_group == nil do return;
 
-    g := parsed_obj.group;
+    g := parsed_obj.root_group;
 
     expect(t, len(g.shapes) == 2);
     if len(g.shapes) != 2 do return;
