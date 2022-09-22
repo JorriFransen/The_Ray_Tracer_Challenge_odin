@@ -10,6 +10,7 @@ obj_suite := r.Test_Suite {
         r.test("Ignore_Invalid_Command", Ignore_Invalid_Command),
         r.test("Vertex_Records", Vertex_Records),
         r.test("Parsing_Triangle_Faces", Parsing_Triangle_Faces),
+        r.test("Triangulating_Polygons", Triangulating_Polygons),
     },
 };
 
@@ -93,4 +94,22 @@ Parsing_Triangle_Faces :: proc(t: ^r.Test_Context) {
     expect(t, t2.p1 == parsed_obj.vertices[0]);
     expect(t, t2.p2 == parsed_obj.vertices[2]);
     expect(t, t2.p3 == parsed_obj.vertices[3]);
+}
+
+@test
+Triangulating_Polygons :: proc(t: ^r.Test_Context) {
+
+//     file_content :: `
+//         v -1 1 0
+//         v -1 0 0
+//         v 1 0 0
+//         v 1 1 0
+//         v 0 2 0
+
+//         f 1 2 3 4 5
+//     `;
+
+//     parsed_obj := rt.parse_obj_string(file_content, true);
+//     defer rt.free_parsed_obj_file(&parsed_obj);
+
 }

@@ -12,6 +12,7 @@ Parsed_Obj_File :: struct {
     valid : bool,
 
     vertices : []m.Point,
+    triangles : []Triangle,
     group : ^Group,
 };
 
@@ -43,16 +44,21 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
     result.vertices = make([]m.Point, vertex_count);
 
     Face :: struct {
-        indices: [3]u64,
-        extra_indices: [dynamic]u64,
+        indices: [dynamic]u64,
     };
 
     faces : []Face;
 
     if face_count > 0 {
+
         result.group = new(Group);
         result.group^ = group();
+
         faces = make([]Face, face_count, context.temp_allocator);
+
+        for f in &faces {
+            f.indices = make([dynamic]u64, 0, 3, context.temp_allocator);
+        }
     }
 
     result.valid = false;
@@ -136,8 +142,7 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
             line = line[2:];
             indices_str := strings.trim_left_space(line);
 
-            face : Face;
-            index_count := 0;
+            face := &faces[current_face];
 
             for index_str in strings.split_iterator(&indices_str, " ") {
 
@@ -147,18 +152,9 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
                     return;
                 }
 
-                if index_count < 3 {
-                    face.indices[index_count] = index;
-                } else {
-                    append(&face.extra_indices, index);
-                }
-
-                index_count += 1;
+                append(&face.indices, index);
             }
 
-            assert(index_count == 3 + len(face.extra_indices));
-
-            faces[current_face] = face;
             current_face += 1;
 
         } else {
@@ -168,22 +164,50 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 
     }
 
+    triangle_count := 0;
+    for f in faces {
+        triangle_count += len(f.indices) - 2;
+    }
+
+    result.triangles = make([]Triangle, triangle_count);
+    current_triangle := 0;
+
     if face_count > 0 {
         assert(len(faces) == face_count);
         assert(current_face == face_count);
 
         for i in 0..<face_count {
 
-            assert(len(faces[i].extra_indices) == 0);
+            face := faces[i];
 
-            p0 := result.vertices[faces[i].indices[0] - 1];
-            p1 := result.vertices[faces[i].indices[1] - 1];
-            p2 := result.vertices[faces[i].indices[2] - 1];
+            assert(len(face.indices) >= 3);
+            if len(face.indices) == 3 {
 
-            tri := new(Triangle);
-            tri^ = triangle(p0, p1, p2);
+                p0 := result.vertices[face.indices[0] - 1];
+                p1 := result.vertices[face.indices[1] - 1];
+                p2 := result.vertices[face.indices[2] - 1];
 
-            group_add_child(result.group, tri);
+                tri := &result.triangles[current_triangle];
+                tri^ = triangle(p0, p1, p2);
+                current_triangle += 1;
+
+                group_add_child(result.group, tri);
+
+            } else {
+
+                for i in 2..<len(face.indices) {
+
+                    p0 := result.vertices[face.indices[0] - 1];
+                    p1 := result.vertices[face.indices[i] - 1];
+                    p2 := result.vertices[face.indices[i + 1] - 1];
+
+                    tri := &result.triangles[current_triangle];
+                    tri^ = triangle(p0, p1, p2);
+                    current_triangle += 1;
+
+                    group_add_child(result.group, tri);
+                }
+            }
         }
     }
 
@@ -194,11 +218,8 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 
 free_parsed_obj_file :: proc(obj: ^Parsed_Obj_File) {
     delete(obj.vertices);
+    delete(obj.triangles);
     if obj.group != nil {
-        for c in obj.group.shapes {
-            free(c);
-        }
-
         delete_group(obj.group);
         free(obj.group);
     }
