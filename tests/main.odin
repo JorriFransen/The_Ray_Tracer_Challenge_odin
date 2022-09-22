@@ -24,6 +24,7 @@ main_suite := r.Test_Suite {
         &world_tests.world_suite,
         &pattern_suite,
         &noise_suite,
+        &obj_suite,
     },
 }
 
