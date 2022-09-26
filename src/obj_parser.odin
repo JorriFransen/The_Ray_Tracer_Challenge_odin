@@ -24,17 +24,61 @@ obj_get_default_group :: proc(parsed_obj: ^Parsed_Obj_File) -> ^Group {
     return &parsed_obj.groups[0];
 }
 
-obj_get_named_group :: proc(parse_obj: ^Parsed_Obj_File, name: string) -> ^Group {
+obj_get_named_group :: proc(parsed_obj: ^Parsed_Obj_File, name: string) -> ^Group {
 
-    if len(parse_obj.group_names) <= 0 do return nil;
+    if len(parsed_obj.group_names) <= 0 do return nil;
 
-    for n, i in parse_obj.group_names {
+    for n, i in parsed_obj.group_names {
         if n == name {
-            return &parse_obj.groups[i + 1];
+            return &parsed_obj.groups[i + 1];
         }
     }
 
     return nil;
+}
+
+obj_to_group_o :: proc(parsed_obj: ^Parsed_Obj_File) -> ^Group {
+
+    return obj_to_group_o_m(parsed_obj, material());
+}
+
+obj_to_group_o_m :: proc(parsed_obj: ^Parsed_Obj_File, material: Material) -> ^Group {
+
+    assert(len(parsed_obj.groups) > 0);
+
+    g := new(Group);
+    g^ = group();
+
+    for i := 0; i < len(parsed_obj.groups); i += 1 {
+
+        if len(parsed_obj.groups[i].shapes) > 0 {
+            group_add_child(g, &parsed_obj.groups[i]);
+            obj_apply_material(&parsed_obj.groups[i], material);
+        }
+
+    }
+
+    return g;
+}
+
+obj_to_group :: proc {
+    obj_to_group_o,
+    obj_to_group_o_m,
+}
+
+@(private="file")
+obj_apply_material :: proc(group: ^Group, material: Material) {
+
+    for c in group.shapes {
+
+        // Only group has this function
+        if c.vtable.child_count != nil {
+            obj_apply_material(group, material);
+        } else {
+            set_material(c, material);
+        }
+
+    }
 }
 
 parse_obj_file :: proc(path: string, warn := false) -> (Parsed_Obj_File, bool) {
@@ -66,7 +110,7 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 
         line = strings.trim_left_space(line);
 
-        if len(line) <= 0 {
+        if len(line) <= 1 {
             continue;
         }
 
@@ -120,7 +164,7 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 
         line = strings.trim_left_space(line);
 
-        if len(line) <= 0 {
+        if len(line) <= 1 {
             continue;
         }
 

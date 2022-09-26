@@ -12,6 +12,7 @@ obj_suite := r.Test_Suite {
         r.test("Parsing_Triangle_Faces", Parsing_Triangle_Faces),
         r.test("Triangulating_Polygons", Triangulating_Polygons),
         r.test("Triangles_In_Groups", Triangles_In_Groups),
+        r.test("OBJ_To_Group", OBJ_To_Group),
     },
 };
 
@@ -162,4 +163,37 @@ Triangles_In_Groups :: proc(t: ^r.Test_Context) {
     expect(t, t2.p1 == parsed_obj.vertices[0]);
     expect(t, t2.p2 == parsed_obj.vertices[2]);
     expect(t, t2.p3 == parsed_obj.vertices[3]);
+}
+
+@test
+OBJ_To_Group :: proc(t: ^r.Test_Context) {
+
+    parsed_obj, parse_ok := rt.parse_obj_file("tests/triangles.obj", true);
+    expect(t, parse_ok);
+    if !parse_ok do return;
+    defer rt.free_parsed_obj_file(&parsed_obj); // The group from 'obj_to_group' references shapes (triangles/groups) owned by the parsed_obj, so we can only free it when we are done with the group from 'obj_to_group'.
+
+    g := rt.obj_to_group(&parsed_obj);
+    defer { rt.delete_group(g); free(g); }
+
+    should_contain := []^rt.Group {
+        rt.obj_get_named_group(&parsed_obj, "FirstGroup"),
+        rt.obj_get_named_group(&parsed_obj, "SecondGroup"),
+    };
+
+    for eg in should_contain {
+        expect(t, eg != nil);
+
+        found := false;
+
+        for c in g.shapes {
+            if c == eg {
+                found = true;
+                break;
+            }
+        }
+
+        expect(t, found);
+    }
+
 }

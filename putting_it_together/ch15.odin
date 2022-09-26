@@ -108,3 +108,52 @@ CH15_1 :: proc(c: rt.Canvas) {
         panic("Failed to write ppm file...");
     }
 }
+
+CH15_2 :: proc(c: rt.Canvas) {
+    c := c;
+    fmt.println("Putting it together for chapter 15.2");
+
+    check_pat := rt.checkers_pattern(rt.color(0.9, 0.9, 0.9), rt.color(0.8, 0.8, 0.8));
+    floor := rt.plane();
+    floor.material.pattern = &check_pat;
+    wall := rt.plane(m.translation(0, 0, 10) * m.rotation_x(PI / 2));
+    wall.material.pattern = &check_pat;
+
+    obj_test, obj_ok := rt.parse_obj_file("tests/suzanne.obj", false);
+    if !obj_ok {
+        panic("Parsing obj file failed...");
+    }
+    defer rt.free_parsed_obj_file(&obj_test);
+
+    fmt.printf("obj group count: %v\n", len(obj_test.groups));
+
+    obj_material := rt.material(color=rt.color(255, 102, 102));
+    obj_group := rt.obj_to_group(&obj_test, obj_material);
+    defer { rt.delete_group(obj_group); free(obj_group); }
+
+    rt.set_transform(obj_group, m.translation(0, 1, 0));
+
+    shapes := []^rt.Shape {
+        &floor, &wall,
+        obj_group,
+    };
+
+    lights := []rt.Point_Light {
+        rt.point_light(m.point(-10, 10, -10), rt.WHITE),
+    };
+
+    world := rt.world(shapes, lights);
+
+    view_transform := m.view_transform(m.point(0, 3, -7), m.point(0, 0, 0), m.vector(0, 1, 0));
+    camera := rt.camera(c.width, c.height, PI / 3, view_transform)
+
+    rt.render(&c, &camera, &world);
+
+    ppm := rt.ppm_from_canvas(c);
+    defer delete(ppm);
+
+    ok := rt.ppm_write_to_file("images/putting_it_together_ch15.2.ppm", ppm);
+    if !ok {
+        panic("Failed to write ppm file...");
+    }
+}
