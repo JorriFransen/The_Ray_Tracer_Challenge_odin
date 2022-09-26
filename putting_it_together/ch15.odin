@@ -119,7 +119,7 @@ CH15_2 :: proc(c: rt.Canvas) {
     wall := rt.plane(m.translation(0, 0, 10) * m.rotation_x(PI / 2));
     wall.material.pattern = &check_pat;
 
-    obj_test, obj_ok := rt.parse_obj_file("tests/triangles.obj", false);
+    obj_test, obj_ok := rt.parse_obj_file("tests/teapot.obj", false);
     if !obj_ok {
         panic("Parsing obj file failed...");
     }
@@ -131,7 +131,7 @@ CH15_2 :: proc(c: rt.Canvas) {
     obj_group := rt.obj_to_group(&obj_test, obj_material);
     defer { rt.delete_group(obj_group); free(obj_group); }
 
-    rt.set_transform(obj_group, m.translation(0, 1, 0));
+    rt.set_transform(obj_group, m.translation(0, .6, -2) * m.scaling(0.1, 0.1, 0.1) * m.rotation_x(-PI / 2));
 
     shapes := []^rt.Shape {
         &floor, &wall,
