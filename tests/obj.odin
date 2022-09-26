@@ -11,6 +11,7 @@ obj_suite := r.Test_Suite {
         r.test("Vertex_Records", Vertex_Records),
         r.test("Parsing_Triangle_Faces", Parsing_Triangle_Faces),
         r.test("Triangulating_Polygons", Triangulating_Polygons),
+        r.test("Triangles_In_Groups", Triangles_In_Groups),
     },
 };
 
@@ -26,12 +27,10 @@ Ignore_Invalid_Command :: proc(t: ^r.Test_Context) {
         in a relative way,
         and came back the preious night.`;
 
-    parsed_obj := rt.parse_obj_string(gibberish);
+    parsed_obj, parse_ok  := rt.parse_obj_string(gibberish);
+    expect(t, parse_ok);
+    if !parse_ok do return;
     defer rt.free_parsed_obj_file(&parsed_obj);
-
-    // Valid means we parsed successfully, not that the file matches the spec.
-    // (We ignore lines that don't start with a valid command.)
-    expect(t, parsed_obj.valid);
 
     expect(t, parsed_obj.ignored_line_count == 5);
 
@@ -47,10 +46,10 @@ Vertex_Records :: proc(t: ^r.Test_Context) {
         v 1 1 0
     `;
 
-    parsed_obj := rt.parse_obj_string(file_content);
+    parsed_obj, parse_ok := rt.parse_obj_string(file_content);
+    expect(t, parse_ok);
+    if !parse_ok do return;
     defer rt.free_parsed_obj_file(&parsed_obj);
-
-    expect(t, parsed_obj.valid);
 
     expect(t, len(parsed_obj.vertices) == 4);
 
@@ -73,13 +72,12 @@ Parsing_Triangle_Faces :: proc(t: ^r.Test_Context) {
         f 1 3 4
     `;
 
-    parsed_obj := rt.parse_obj_string(file_content, true);
+    parsed_obj, parse_ok := rt.parse_obj_string(file_content, true);
+    expect(t, parse_ok);
+    if !parse_ok do return;
     defer rt.free_parsed_obj_file(&parsed_obj);
 
-    expect(t, parsed_obj.root_group != nil);
-    if parsed_obj.root_group == nil do return;
-
-    g := parsed_obj.root_group;
+    g := rt.obj_get_default_group(&parsed_obj);
 
     expect(t, len(g.shapes) == 2);
     if len(g.shapes) != 2 do return;
@@ -109,10 +107,12 @@ Triangulating_Polygons :: proc(t: ^r.Test_Context) {
         f 1 2 3 4 5
     `;
 
-    parsed_obj := rt.parse_obj_string(file_content, true);
+    parsed_obj, parse_ok := rt.parse_obj_string(file_content, true);
+    expect(t, parse_ok);
+    if !parse_ok do return;
     defer rt.free_parsed_obj_file(&parsed_obj);
 
-    g := parsed_obj.root_group;
+    g := rt.obj_get_default_group(&parsed_obj);
 
     expect(t, len(g.shapes) == 3);
     if len(g.shapes) != 3 do return;
@@ -137,4 +137,29 @@ Triangulating_Polygons :: proc(t: ^r.Test_Context) {
 
 @test
 Triangles_In_Groups :: proc(t: ^r.Test_Context) {
+
+    parsed_obj, parse_ok := rt.parse_obj_file("tests/triangles.obj", true);
+    expect(t, parse_ok);
+    if !parse_ok do return;
+    defer rt.free_parsed_obj_file(&parsed_obj);
+
+    g1 := rt.obj_get_named_group(&parsed_obj, "FirstGroup");
+    expect(t, g1 != nil);
+    g2 := rt.obj_get_named_group(&parsed_obj, "SecondGroup");
+    expect(t, g2 != nil);
+
+    expect(t, len(g1.shapes) == 1);
+    if len(g1.shapes) != 1 do return;
+    expect(t, len(g2.shapes) == 1);
+    if len(g2.shapes) != 1 do return;
+
+    t1 := transmute(^rt.Triangle)g1.shapes[0];
+    t2 := transmute(^rt.Triangle)g2.shapes[0];
+
+    expect(t, t1.p1 == parsed_obj.vertices[0]);
+    expect(t, t1.p2 == parsed_obj.vertices[1]);
+    expect(t, t1.p3 == parsed_obj.vertices[2]);
+    expect(t, t2.p1 == parsed_obj.vertices[0]);
+    expect(t, t2.p2 == parsed_obj.vertices[2]);
+    expect(t, t2.p3 == parsed_obj.vertices[3]);
 }

@@ -9,19 +9,55 @@ import m "raytracer:math"
 
 Parsed_Obj_File :: struct {
     ignored_line_count : int,
-    valid : bool,
 
     vertices : []m.Point,
     triangles : []Triangle,
-    root_group : ^Group,
+
+    groups : []Group,
+    group_names : []string,
+
 };
 
-parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj_File) {
+obj_get_default_group :: proc(parsed_obj: ^Parsed_Obj_File) -> ^Group {
+
+    assert(len(parsed_obj.groups) >= 1);
+    return &parsed_obj.groups[0];
+}
+
+obj_get_named_group :: proc(parse_obj: ^Parsed_Obj_File, name: string) -> ^Group {
+
+    if len(parse_obj.group_names) <= 0 do return nil;
+
+    for n, i in parse_obj.group_names {
+        if n == name {
+            return &parse_obj.groups[i + 1];
+        }
+    }
+
+    return nil;
+}
+
+parse_obj_file :: proc(path: string, warn := false) -> (Parsed_Obj_File, bool) {
+
+    if !os.is_file(path) {
+        fmt.fprintf(os.stderr, "OBJ Parse Error: not a file: '%v'\n", path);
+        return {}, false;
+    }
+
+    file_content, read_ok := os.read_entire_file(path);
+    assert(read_ok);
+    defer delete(file_content);
+
+    return parse_obj_string(string(file_content), warn);
+}
+
+parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj_File, ok: bool) {
 
     obj_str := obj_str_;
 
     current_line := 0;
     vertex_count, face_count := 0, 0;
+    group_count := 1; // Always add the root group
 
     // First pass, gather vertex and face count
     for _line in strings.split_lines_iterator(&obj_str) {
@@ -38,33 +74,42 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
             vertex_count += 1;
         } else if line[:2] == "f " {
             face_count += 1;
+        } else if line[:2] == "g " {
+            group_count += 1;
         }
     }
 
+    result.groups = make([]Group, group_count);
+    for g in &result.groups {
+        g = group();
+    }
+
+    result.group_names = make([]string, group_count - 1);
+
+    ok = false;
     result.vertices = make([]m.Point, vertex_count);
 
     Face :: struct {
         indices: [dynamic]u64,
+        group: ^Group,
     };
 
     faces : []Face;
 
     if face_count > 0 {
 
-        result.root_group = new(Group);
-        result.root_group^ = group();
-
         faces = make([]Face, face_count, context.temp_allocator);
 
         for f in &faces {
             f.indices = make([dynamic]u64, 0, 3, context.temp_allocator);
+            f.group = &result.groups[0];
         }
     }
 
-    result.valid = false;
     current_line = 0;
     current_vertex := 0;
     current_face := 0;
+    current_group_name := 0;
 
     // Second pass, store vertices and faces
     obj_str = obj_str_;
@@ -157,6 +202,16 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 
             current_face += 1;
 
+        } else if line[:2] == "g " {
+
+            line = line[2:];
+            group_name := strings.trim_right_space(strings.trim_left_space(line));
+
+            result.group_names[current_group_name] = strings.clone(group_name);
+            current_group_name += 1;
+
+            faces[current_face].group = &result.groups[current_group_name];
+
         } else {
             result.ignored_line_count += 1;
             if warn do fmt.printf("OBJ Parse Warning: ignoring unknown/unhandled command ('%v') on line %v\n", line[:1], current_line);
@@ -191,7 +246,7 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
                 tri^ = triangle(p0, p1, p2);
                 current_triangle += 1;
 
-                group_add_child(result.root_group, tri);
+                group_add_child(face.group, tri);
 
             } else {
 
@@ -205,22 +260,29 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
                     tri^ = triangle(p0, p1, p2);
                     current_triangle += 1;
 
-                    group_add_child(result.root_group, tri);
+                    group_add_child(face.group, tri);
                 }
             }
         }
     }
 
-    result.valid = true;
+    ok = true;
 
     return;
 }
 
 free_parsed_obj_file :: proc(obj: ^Parsed_Obj_File) {
+
     delete(obj.vertices);
     delete(obj.triangles);
-    if obj.root_group != nil {
-        delete_group(obj.root_group);
-        free(obj.root_group);
+
+    for g in &obj.groups {
+        delete_group(&g);
     }
+    delete(obj.groups)
+
+    for gn in obj.group_names {
+        delete(gn);
+    }
+    delete(obj.group_names);
 }
