@@ -127,7 +127,7 @@ CH15_2 :: proc(c: rt.Canvas) {
 
     fmt.printf("obj group count: %v\n", len(obj_test.groups));
 
-    obj_material := rt.material(color=rt.color_u8(255, 102, 102));
+    obj_material := rt.material(color=rt.color_u8(255, 102, 102), reflective=0.4, ambient=0.2, diffuse=0.3, specular=0.3);
     obj_group := rt.obj_to_group(&obj_test, obj_material);
     defer { rt.delete_group(obj_group); free(obj_group); }
 
