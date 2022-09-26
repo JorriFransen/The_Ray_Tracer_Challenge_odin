@@ -99,17 +99,42 @@ Parsing_Triangle_Faces :: proc(t: ^r.Test_Context) {
 @test
 Triangulating_Polygons :: proc(t: ^r.Test_Context) {
 
-//     file_content :: `
-//         v -1 1 0
-//         v -1 0 0
-//         v 1 0 0
-//         v 1 1 0
-//         v 0 2 0
+    file_content :: `
+        v -1 1 0
+        v -1 0 0
+        v 1 0 0
+        v 1 1 0
+        v 0 2 0
 
-//         f 1 2 3 4 5
-//     `;
+        f 1 2 3 4 5
+    `;
 
-//     parsed_obj := rt.parse_obj_string(file_content, true);
-//     defer rt.free_parsed_obj_file(&parsed_obj);
+    parsed_obj := rt.parse_obj_string(file_content, true);
+    defer rt.free_parsed_obj_file(&parsed_obj);
 
+    g := parsed_obj.root_group;
+
+    expect(t, len(g.shapes) == 3);
+    if len(g.shapes) != 3 do return;
+
+    t1 := transmute(^rt.Triangle)g.shapes[0];
+    t2 := transmute(^rt.Triangle)g.shapes[1];
+    t3 := transmute(^rt.Triangle)g.shapes[2];
+
+    expect(t, t1.p1 == parsed_obj.vertices[0]);
+    expect(t, t1.p2 == parsed_obj.vertices[1]);
+    expect(t, t1.p3 == parsed_obj.vertices[2]);
+
+    expect(t, t2.p1 == parsed_obj.vertices[0]);
+    expect(t, t2.p2 == parsed_obj.vertices[2]);
+    expect(t, t2.p3 == parsed_obj.vertices[3]);
+
+    expect(t, t3.p1 == parsed_obj.vertices[0]);
+    expect(t, t3.p2 == parsed_obj.vertices[3]);
+    expect(t, t3.p3 == parsed_obj.vertices[4]);
+
+}
+
+@test
+Triangles_In_Groups :: proc(t: ^r.Test_Context) {
 }

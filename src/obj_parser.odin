@@ -197,9 +197,9 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 
                 for i in 2..<len(face.indices) {
 
-                    p0 := result.vertices[face.indices[0] - 1];
-                    p1 := result.vertices[face.indices[i] - 1];
-                    p2 := result.vertices[face.indices[i + 1] - 1];
+                    p0 := result.vertices[face.indices[0]     - 1];
+                    p1 := result.vertices[face.indices[i - 1] - 1];
+                    p2 := result.vertices[face.indices[i]     - 1];
 
                     tri := &result.triangles[current_triangle];
                     tri^ = triangle(p0, p1, p2);
