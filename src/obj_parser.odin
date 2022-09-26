@@ -233,15 +233,28 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 
             face := &faces[current_face];
 
-            for index_str in strings.split_iterator(&indices_str, " ") {
+            for index_tuple_str_ in strings.split_iterator(&indices_str, " ") {
 
-                index, index_ok := strconv.parse_u64(index_str);
-                if !index_ok {
-                    fmt.fprintf(os.stderr, "OBJ Parse Error: Failed to parse index '%v', on line %v.\n", index_str, current_line);
-                    return;
+                index_tuple_str := index_tuple_str_;
+
+                index_in_tuple := 0; // vertex_index/texture_index/normal_index
+                for index_str in strings.split_iterator(&index_tuple_str, "/") {
+
+                    if len(index_str) <= 0 do continue;
+
+                    index, index_ok := strconv.parse_u64(index_str);
+                    if !index_ok {
+                        fmt.fprintf(os.stderr, "OBJ Parse Error: Failed to parse index '%v', on line %v.\n", index_str, current_line);
+                        return;
+                    }
+
+                    if index_in_tuple == 0 {
+                        append(&face.indices, index);
+                    }
+
+                    index_in_tuple += 1;
                 }
 
-                append(&face.indices, index);
             }
 
             current_face += 1;

@@ -18,7 +18,7 @@ Material_Constructor_Default :: proc(t: ^r.Test_Context) {
 
     mat := rt.material();
 
-    expect(t, eq(mat.color, rt.color(1, 1, 1)));
+    expect(t, eq(mat.color, rt.WHITE));
     expect(t, mat.ambient == 0.1);
     expect(t, mat.diffuse == 0.9);
     expect(t, mat.specular == 0.9);

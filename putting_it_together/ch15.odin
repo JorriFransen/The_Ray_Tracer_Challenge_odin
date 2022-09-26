@@ -119,7 +119,7 @@ CH15_2 :: proc(c: rt.Canvas) {
     wall := rt.plane(m.translation(0, 0, 10) * m.rotation_x(PI / 2));
     wall.material.pattern = &check_pat;
 
-    obj_test, obj_ok := rt.parse_obj_file("tests/suzanne.obj", false);
+    obj_test, obj_ok := rt.parse_obj_file("tests/triangles.obj", false);
     if !obj_ok {
         panic("Parsing obj file failed...");
     }
@@ -127,7 +127,7 @@ CH15_2 :: proc(c: rt.Canvas) {
 
     fmt.printf("obj group count: %v\n", len(obj_test.groups));
 
-    obj_material := rt.material(color=rt.color(255, 102, 102));
+    obj_material := rt.material(color=rt.color_u8(255, 102, 102));
     obj_group := rt.obj_to_group(&obj_test, obj_material);
     defer { rt.delete_group(obj_group); free(obj_group); }
 

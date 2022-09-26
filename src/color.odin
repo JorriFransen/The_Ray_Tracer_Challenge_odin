@@ -13,19 +13,14 @@ BLUE    :: Color { 0, 0, 1, 0 };
 YELLOW  :: Color { 1, 1, 0, 0 };
 
 
-color_rgb_r :: proc(r, g, b: rm.real) -> Color {
+color :: proc(r, g, b: rm.real) -> Color {
     return Color  { r, g, b, 0.0 };
 }
 
-color_rgb_u8 :: proc(r_, g_, b_: u8) -> Color {
+color_u8 :: proc(r_, g_, b_: u8) -> Color {
     r, g, b := rm.real(r_), rm.real(g_), rm.real(b_);
     m : rm.real : 1.0/255;
     return Color { r * m, g * m, b * m, 0.0 };
-}
-
-color :: proc {
-    color_rgb_r,
-    color_rgb_u8,
 }
 
 add :: #force_inline proc(a, b: Color) -> Color {
