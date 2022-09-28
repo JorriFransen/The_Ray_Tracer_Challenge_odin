@@ -119,7 +119,7 @@ CH15_2 :: proc(c: rt.Canvas) {
     wall := rt.plane(m.translation(0, 0, 10) * m.rotation_x(PI / 2));
     wall.material.pattern = &check_pat;
 
-    obj_test, obj_ok := rt.parse_obj_file("tests/teapot-low.obj", false);
+    obj_test, obj_ok := rt.parse_obj_file("tests/teapot.obj", false);
     if !obj_ok {
         panic("Parsing obj file failed...");
     }

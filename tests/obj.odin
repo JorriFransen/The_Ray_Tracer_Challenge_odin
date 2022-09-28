@@ -355,15 +355,9 @@ Faces_With_Normals :: proc(t: ^r.Test_Context) {
     expect(t, t1.p2 == parsed_obj.vertices[1]);
     expect(t, t1.p3 == parsed_obj.vertices[2]);
 
-    fmt.println(t1.n1);
-    fmt.println(t1.n2);
-    fmt.println(t1.n3);
-
-    expect(t, t1.n1 == parsed_obj.normals[0]);
-    expect(t, t1.n2 == parsed_obj.normals[1]);
-    expect(t, t1.n3 == parsed_obj.normals[2]);
+    expect(t, t1.n1 == parsed_obj.normals[2]);
+    expect(t, t1.n2 == parsed_obj.normals[0]);
+    expect(t, t1.n3 == parsed_obj.normals[1]);
 
     expect(t, t1^ == t2^);
 }
-
-import "core:fmt"

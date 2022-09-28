@@ -220,7 +220,10 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 
                     index_str := index_str_;
 
-                    if len(index_str) <= 0 do continue;
+                    if len(index_str) <= 0 {
+                        index_in_tuple += 1;
+                        continue;
+                    }
 
                     index, index_ok := strconv.parse_u64(index_str);
                     if !index_ok {
@@ -266,7 +269,7 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 
     for f in faces {
         count := len(f.indices) - 2;
-        if len(f.normals) > 0 {
+        if len(f.normals) == len(f.indices) {
             smooth_triangle_count += count;
         } else {
             triangle_count += count;
@@ -284,26 +287,13 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 
             face := &faces[i];
 
-            has_normals := len(face.normals) > 0;
-
             assert(len(face.indices) >= 3);
+
             if len(face.indices) == 3 {
-
                 add_triangle(&result, &pc, face, 0, 1, 2);
-
             } else {
-
                 for i in 2..<len(face.indices) {
-
-                    p0 := result.vertices[face.indices[0]     - 1];
-                    p1 := result.vertices[face.indices[i - 1] - 1];
-                    p2 := result.vertices[face.indices[i]     - 1];
-
-                    tri := &result.triangles[pc.current_triangle];
-                    tri^ = triangle(p0, p1, p2);
-                    pc.current_triangle += 1;
-
-                    group_add_child(face.group, tri);
+                    add_triangle(&result, &pc, face, 0, i - 1, i);
                 }
             }
         }
@@ -317,7 +307,7 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 @(private="file")
 add_triangle :: proc(obj: ^Parsed_Obj_File, pc: ^Obj_Parse_Context, face: ^Face, i0, i1, i2: int) {
 
-    is_smooth := len(face.normals) > 0;
+    is_smooth := len(face.normals) == len(face.indices)
 
     p0 := obj.vertices[face.indices[i0] - 1];
     p1 := obj.vertices[face.indices[i1] - 1];
@@ -432,6 +422,7 @@ free_parsed_obj_file :: proc(obj: ^Parsed_Obj_File) {
     delete(obj.vertices);
     delete(obj.normals);
     delete(obj.triangles);
+    delete(obj.smooth_triangles);
 
     for g in &obj.groups {
         delete_group(&g);
