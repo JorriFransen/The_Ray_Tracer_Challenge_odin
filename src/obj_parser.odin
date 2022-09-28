@@ -11,11 +11,26 @@ Parsed_Obj_File :: struct {
     ignored_line_count : int,
 
     vertices : []m.Point,
+    normals : []m.Vector,
     triangles : []Triangle,
+    smooth_triangles : []Smooth_Triangle,
 
     groups : []Group,
     group_names : []string,
 
+};
+
+@(private="file")
+Obj_Parse_Context :: struct {
+    current_triangle: int,
+    current_smooth_triangle: int,
+}
+
+@(private="file")
+Face :: struct {
+    indices: [dynamic]u64,
+    normals: [dynamic]u64,
+    group: ^Group,
 };
 
 obj_get_default_group :: proc(parsed_obj: ^Parsed_Obj_File) -> ^Group {
@@ -100,8 +115,10 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
     obj_str := obj_str_;
 
     current_line := 0;
-    vertex_count, face_count := 0, 0;
+    vertex_count, vertex_normal_count, face_count := 0, 0, 0;
     group_count := 1; // Always add the root group
+
+    pc := Obj_Parse_Context {};
 
     // First pass, gather vertex and face count
     for _line in strings.split_lines_iterator(&obj_str) {
@@ -114,11 +131,13 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
             continue;
         }
 
-        if line[:2] == "v " {
+        if strings.has_prefix(line, "v ") {
             vertex_count += 1;
-        } else if line[:2] == "f " {
+        } else if strings.has_prefix(line, "vn ") {
+            vertex_normal_count += 1;
+        } else if strings.has_prefix(line, "f ") {
             face_count += 1;
-        } else if line[:2] == "g " {
+        } else if strings.has_prefix(line, "g ") {
             group_count += 1;
         }
     }
@@ -132,11 +151,7 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 
     ok = false;
     result.vertices = make([]m.Point, vertex_count);
-
-    Face :: struct {
-        indices: [dynamic]u64,
-        group: ^Group,
-    };
+    result.normals = make([]m.Vector, vertex_normal_count);
 
     faces : []Face;
 
@@ -146,12 +161,14 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 
         for f in &faces {
             f.indices = make([dynamic]u64, 0, 3, context.temp_allocator);
+            f.normals = make([dynamic]u64, 0, 3, context.temp_allocator);
             f.group = &result.groups[0];
         }
     }
 
     current_line = 0;
     current_vertex := 0;
+    current_normal := 0;
     current_face := 0;
     current_group_name := 0;
 
@@ -168,65 +185,26 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
             continue;
         }
 
-        if line[:2] == "v " {
+        if strings.has_prefix(line, "v ") {
             line = line[2:];
             vertex_coords := strings.trim_left_space(line);
 
-            x_str, x_str_ok := strings.split_iterator(&vertex_coords, " ");
-            if !x_str_ok {
-                fmt.fprintf(os.stderr, "OBJ Parse Error: Expected x coord after 'v' command\n");
-                return;
-            }
-
-            y_str, y_str_ok := strings.split_iterator(&vertex_coords, " ");
-            if !y_str_ok {
-                fmt.fprintf(os.stderr, "OBJ Parse Error: Expected y coord after 'v' command\n");
-                return;
-            }
-
-            z_str, z_str_ok := strings.split_iterator(&vertex_coords, " ");
-            if !z_str_ok {
-                fmt.fprintf(os.stderr, "OBJ Parse Error: Expected z coord after 'v' command\n");
-                return;
-            }
-
-            w_str, w_str_ok := strings.split_iterator(&vertex_coords, " ");
-
-            x, x_ok := strconv.parse_f64(x_str);
-            if !x_ok {
-                fmt.fprintf(os.stderr, "OBJ Parse Error: Failed to parse float '%v' on line %v.\n", x_str, current_line);
-                return;
-            }
-
-            y, y_ok := strconv.parse_f64(y_str);
-            if !y_ok {
-                fmt.fprintf(os.stderr, "OBJ Parse Error: Failed to parse float '%v' on line %v.\n", y_str, current_line);
-                return;
-            }
-
-            z, z_ok := strconv.parse_f64(z_str);
-            if !z_ok {
-                fmt.fprintf(os.stderr, "OBJ Parse Error: Failed to parse float '%v' on line %v.\n", z_str, current_line);
-                return;
-            }
-
-            w : f64;
-            if w_str_ok {
-                w_ok : bool;
-                w, w_ok = strconv.parse_f64(w_str);
-                if !w_ok {
-                    fmt.fprintf(os.stderr, "OBJ Parse Error: Failed to parse float '%v' on line %v.\n", w_str, current_line);
-                    return;
-                }
-            }
-
-            vertex := m.point(x, y, z);
-            if w_str_ok do vertex.w = w;
+            vertex := parse_point(vertex_coords, &current_line) or_return;
 
             result.vertices[current_vertex] = vertex;
             current_vertex += 1;
 
-        } else if line[:2] == "f " {
+        } else if strings.has_prefix(line, "vn ") {
+
+            line = line[3:];
+            vertex_normals := strings.trim_left_space(line);
+
+            normal := parse_vector(vertex_normals, &current_line) or_return;
+
+            result.normals[current_normal] = normal;
+            current_normal += 1;
+
+        } else if strings.has_prefix(line, "f ") {
 
             line = line[2:];
             indices_str := strings.trim_left_space(line);
@@ -238,7 +216,9 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
                 index_tuple_str := index_tuple_str_;
 
                 index_in_tuple := 0; // vertex_index/texture_index/normal_index
-                for index_str in strings.split_iterator(&index_tuple_str, "/") {
+                for index_str_ in strings.split_iterator(&index_tuple_str, "/") {
+
+                    index_str := index_str_;
 
                     if len(index_str) <= 0 do continue;
 
@@ -248,8 +228,13 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
                         return;
                     }
 
-                    if index_in_tuple == 0 {
-                        append(&face.indices, index);
+                    switch index_in_tuple {
+                        case 0: // Vertex index
+                            append(&face.indices, index);
+                        case 1: // Texture index
+                            // Ignored
+                        case 2: // Normal_Index
+                            append(&face.normals, index);
                     }
 
                     index_in_tuple += 1;
@@ -259,7 +244,7 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 
             current_face += 1;
 
-        } else if line[:2] == "g " {
+        } else if strings.has_prefix(line, "g ") {
 
             line = line[2:];
             group_name := strings.trim_right_space(strings.trim_left_space(line));
@@ -277,12 +262,19 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
     }
 
     triangle_count := 0;
+    smooth_triangle_count := 0;
+
     for f in faces {
-        triangle_count += len(f.indices) - 2;
+        count := len(f.indices) - 2;
+        if len(f.normals) > 0 {
+            smooth_triangle_count += count;
+        } else {
+            triangle_count += count;
+        }
     }
 
     result.triangles = make([]Triangle, triangle_count);
-    current_triangle := 0;
+    result.smooth_triangles = make([]Smooth_Triangle, smooth_triangle_count);
 
     if face_count > 0 {
         assert(len(faces) == face_count);
@@ -290,20 +282,14 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
 
         for i in 0..<face_count {
 
-            face := faces[i];
+            face := &faces[i];
+
+            has_normals := len(face.normals) > 0;
 
             assert(len(face.indices) >= 3);
             if len(face.indices) == 3 {
 
-                p0 := result.vertices[face.indices[0] - 1];
-                p1 := result.vertices[face.indices[1] - 1];
-                p2 := result.vertices[face.indices[2] - 1];
-
-                tri := &result.triangles[current_triangle];
-                tri^ = triangle(p0, p1, p2);
-                current_triangle += 1;
-
-                group_add_child(face.group, tri);
+                add_triangle(&result, &pc, face, 0, 1, 2);
 
             } else {
 
@@ -313,9 +299,9 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
                     p1 := result.vertices[face.indices[i - 1] - 1];
                     p2 := result.vertices[face.indices[i]     - 1];
 
-                    tri := &result.triangles[current_triangle];
+                    tri := &result.triangles[pc.current_triangle];
                     tri^ = triangle(p0, p1, p2);
-                    current_triangle += 1;
+                    pc.current_triangle += 1;
 
                     group_add_child(face.group, tri);
                 }
@@ -328,9 +314,123 @@ parse_obj_string :: proc(obj_str_: string, warn := false) -> (result: Parsed_Obj
     return;
 }
 
+@(private="file")
+add_triangle :: proc(obj: ^Parsed_Obj_File, pc: ^Obj_Parse_Context, face: ^Face, i0, i1, i2: int) {
+
+    is_smooth := len(face.normals) > 0;
+
+    p0 := obj.vertices[face.indices[i0] - 1];
+    p1 := obj.vertices[face.indices[i1] - 1];
+    p2 := obj.vertices[face.indices[i2] - 1];
+
+    if is_smooth {
+
+        n0 := obj.normals[face.normals[i0] - 1];
+        n1 := obj.normals[face.normals[i1] - 1];
+        n2 := obj.normals[face.normals[i2] - 1];
+
+        tri := &obj.smooth_triangles[pc.current_smooth_triangle];
+        tri^ = smooth_triangle(p0, p1, p2, n0, n1, n2);
+        pc.current_smooth_triangle += 1;
+
+        group_add_child(face.group, tri);
+
+    } else {
+        tri := &obj.triangles[pc.current_triangle];
+        tri^ = triangle(p0, p1, p2);
+        pc.current_triangle += 1;
+
+        group_add_child(face.group, tri);
+    }
+
+}
+
+@(private="file")
+parse_point :: proc(tuple_str: string, current_line: ^int) -> (result: m.Point, success: bool) {
+
+    success = false;
+
+    t := parse_tuple(tuple_str, current_line) or_return;
+    t.w = 1.0;
+
+    return m.Point(t), true;
+}
+
+@(private="file")
+parse_vector :: proc(tuple_str: string, current_line: ^int) -> (result: m.Vector, success: bool) {
+
+    success = false;
+
+    t := parse_tuple(tuple_str, current_line) or_return;
+    t.w = 0.0;
+
+    return m.Vector(t), true;
+}
+@(private="file")
+parse_tuple :: proc(tuple_str: string, current_line: ^int) -> (result: m.Tuple, success: bool) {
+
+    tuple_str := tuple_str;
+
+    success = false;
+
+    x_str, x_str_ok := strings.split_iterator(&tuple_str, " ");
+    if !x_str_ok {
+        fmt.fprintf(os.stderr, "OBJ Parse Error: Expected x coord after 'v' command\n");
+        return;
+    }
+
+    y_str, y_str_ok := strings.split_iterator(&tuple_str, " ");
+    if !y_str_ok {
+        fmt.fprintf(os.stderr, "OBJ Parse Error: Expected y coord after 'v' command\n");
+        return;
+    }
+
+    z_str, z_str_ok := strings.split_iterator(&tuple_str, " ");
+    if !z_str_ok {
+        fmt.fprintf(os.stderr, "OBJ Parse Error: Expected z coord after 'v' command\n");
+        return;
+    }
+
+    w_str, w_str_ok := strings.split_iterator(&tuple_str, " ");
+
+    x, x_ok := strconv.parse_f64(x_str);
+    if !x_ok {
+        fmt.fprintf(os.stderr, "OBJ Parse Error: Failed to parse float '%v' on line %v.\n", x_str, current_line^);
+        return;
+    }
+
+    y, y_ok := strconv.parse_f64(y_str);
+    if !y_ok {
+        fmt.fprintf(os.stderr, "OBJ Parse Error: Failed to parse float '%v' on line %v.\n", y_str, current_line^);
+        return;
+    }
+
+    z, z_ok := strconv.parse_f64(z_str);
+    if !z_ok {
+        fmt.fprintf(os.stderr, "OBJ Parse Error: Failed to parse float '%v' on line %v.\n", z_str, current_line^);
+        return;
+    }
+
+    w : f64;
+    if w_str_ok {
+        w_ok : bool;
+        w, w_ok = strconv.parse_f64(w_str);
+        if !w_ok {
+            fmt.fprintf(os.stderr, "OBJ Parse Error: Failed to parse float '%v' on line %v.\n", w_str, current_line^);
+            return;
+        }
+    }
+
+    result = m.tuple(x, y, z, w);
+    success = true;
+
+    return;
+}
+
 free_parsed_obj_file :: proc(obj: ^Parsed_Obj_File) {
 
     delete(obj.vertices);
+    delete(obj.normals);
     delete(obj.triangles);
 
     for g in &obj.groups {

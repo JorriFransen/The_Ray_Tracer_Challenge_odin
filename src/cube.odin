@@ -36,7 +36,7 @@ cube :: proc {
 @(private="file")
 _cube_vtable := &Shape_VTable {
 
-    normal_at = proc(s: ^Shape, p: m.Point) -> m.Vector {
+    normal_at = proc(s: ^Shape, p: m.Point, u, v: m.real) -> m.Vector {
 
         absx := abs(p.x);
         absy := abs(p.y);

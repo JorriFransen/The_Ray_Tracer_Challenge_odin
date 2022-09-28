@@ -39,7 +39,7 @@ glass_sphere :: proc() -> Sphere {
 @(private="file")
 _sphere_vtable := &Shape_VTable {
 
-    normal_at = proc(s: ^Shape, p: m.Point) -> m.Vector {
+    normal_at = proc(s: ^Shape, p: m.Point, u, v: m.real) -> m.Vector {
         return m.sub(p, m.point(0, 0, 0));
     },
 

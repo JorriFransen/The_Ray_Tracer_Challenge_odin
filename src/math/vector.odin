@@ -91,7 +91,12 @@ add_vp :: #force_inline proc(a: Vector, b: Point) -> Point {
     return add_pv(b, a);
 }
 
-add :: proc { add_t, add_v, add_pv, add_vp };
+add :: proc {
+    add_t,
+    add_v,
+    add_pv,
+    add_vp,
+}
 
 sub_t :: #force_inline proc(a, b: Tuple) -> Tuple  {
     return a - b;

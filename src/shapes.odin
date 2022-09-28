@@ -11,7 +11,7 @@ Shape :: struct {
     parent: ^Shape,
 }
 
-Shape_Normal_At_Proc :: proc(^Shape, m.Point) -> m.Vector;
+Shape_Normal_At_Proc :: proc(^Shape, m.Point, m.real, m.real) -> m.Vector;
 Shape_Intersects_Proc :: proc(^Shape, m.Ray, ^Intersection_Buffer) -> []Intersection;
 Shape_Get_Bounds_Proc :: proc(^Shape) -> Bounds;
 Shape_Child_Cound_Proc :: proc(^Shape) -> int;
@@ -62,10 +62,10 @@ set_material :: proc(s: ^Shape, mat: Material) {
     s.material = mat;
 }
 
-shape_normal_at :: proc(s: ^Shape, world_point: m.Point) -> m.Vector {
+shape_normal_at :: proc(s: ^Shape, world_point: m.Point, u, v: m.real) -> m.Vector {
 
     local_point := world_to_object(s, world_point);
-    local_normal := s->normal_at(local_point);
+    local_normal := s->normal_at(local_point, u, v);
     return normal_to_world(s, local_normal);
 
 

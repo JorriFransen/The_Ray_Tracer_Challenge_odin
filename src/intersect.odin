@@ -4,12 +4,14 @@ import "core:math"
 import "core:slice"
 
 import m "raytracer:math"
+import rt "raytracer:."
 
 import "tracy:."
 
 Intersection :: struct {
     t: m.real,
     object: ^Shape,
+    u, v: m.real,
 }
 
 Intersection_Buffer :: struct {
@@ -32,9 +34,19 @@ Hit_Info :: struct {
     inside: bool,
 }
 
-intersection :: proc(t: m.real, s: ^Shape) -> Intersection {
+intersection_ :: proc(t: m.real, s: ^Shape) -> Intersection {
     assert(s != nil);
-    return Intersection { t, s };
+    return Intersection { t, s, 0, 0 };
+}
+
+intersection_uv :: proc(t: m.real, s: ^Shape, u, v: m.real) -> Intersection {
+    assert(s != nil);
+    return Intersection { t, s, u, v };
+}
+
+intersection :: proc {
+    intersection_,
+    intersection_uv,
 }
 
 intersection_buffer_s :: proc(objects: []^Shape, allocator := context.allocator) -> Intersection_Buffer {
@@ -44,7 +56,7 @@ intersection_buffer_s :: proc(objects: []^Shape, allocator := context.allocator)
 }
 
 intersection_buffer_i :: proc(cap: int, allocator := context.allocator) -> Intersection_Buffer {
-    
+
     return Intersection_Buffer { make([]Intersection, cap, allocator), 0 };
 }
 
@@ -85,7 +97,7 @@ hit_info :: proc(hit: Intersection, r: m.Ray, xs: []Intersection, hi_mem: []^Sha
 
 
     eye_v := m.negate(r.direction);
-    normal_v := shape_normal_at(obj, point);
+    normal_v := shape_normal_at(obj, point, hit.u, hit.v);
 
     reflect_v := m.reflect(r.direction, normal_v);
 
@@ -97,7 +109,7 @@ hit_info :: proc(hit: Intersection, r: m.Ray, xs: []Intersection, hi_mem: []^Sha
 
     offset := mul(normal_v, m.FLOAT_EPSILON);
 
-    over_point := m.add(point, offset);
+    over_point := rt.add(point, offset);
     over_point.w = 1.0;
     assert(m.is_point(over_point));
 

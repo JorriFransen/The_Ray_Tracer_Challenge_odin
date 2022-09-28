@@ -105,7 +105,7 @@ T_Add :: proc(t: ^r.Test_Context) {
 
     expected := rm.tuple(1, 1, 6, 1);
     result1 := a1 + a2;
-    result2 := rm.add(a1, a2);
+    result2 := rt.add(a1, a2);
 
     r.expect(t, result1 == expected);
     r.expect(t, eq(result1, expected));
@@ -120,7 +120,7 @@ P_Add_Vector :: proc(t: ^r.Test_Context) {
     v := rm.vector(-2, 3, 1);
 
     expected := rm.point(1, 1, 6);
-    result : rm.Point = rm.add(p, v);
+    result : rm.Point = rt.add(p, v);
 
     r.expect(t, rm.is_point(result));
     r.expect(t, result == expected);
@@ -134,7 +134,7 @@ V_Add_Point :: proc(t: ^r.Test_Context) {
     p := rm.point(-2, 3, 1);
 
     expected := rm.point(1, 1, 6);
-    result : rm.Point = rm.add(v, p);
+    result : rm.Point = rt.add(v, p);
 
     r.expect(t, rm.is_point(result));
     r.expect(t, result == expected);
@@ -148,7 +148,7 @@ V_Add :: proc(t: ^r.Test_Context) {
     v2 := rm.vector(-2, 3, 1);
 
     expected := rm.vector(1, 1, 6);
-    result : rm.Vector = rm.add(v1, v2);
+    result : rm.Vector = rt.add(v1, v2);
 
     r.expect(t, rm.is_vector(result));
     r.expect(t, result == expected);

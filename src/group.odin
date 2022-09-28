@@ -42,7 +42,7 @@ delete_group :: proc(g: ^Group) {
 @(private="file")
 _group_vtable := &Shape_VTable {
 
-    normal_at = proc(s: ^Shape, p: m.Point) -> m.Vector {
+    normal_at = proc(s: ^Shape, p: m.Point, u, v: m.real) -> m.Vector {
         assert(false);
         return {};
     },

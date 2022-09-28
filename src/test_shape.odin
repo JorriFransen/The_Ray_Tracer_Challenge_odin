@@ -16,7 +16,7 @@ test_shape :: proc() -> Test_Shape {
 
 _test_shape_vtable := &Shape_VTable {
 
-    normal_at = proc(s: ^Shape, p: m.Point) -> m.Vector {
+    normal_at = proc(s: ^Shape, p: m.Point, u, v: m.real) -> m.Vector {
         return m.vector(p.x, p.y, p.z);
     },
 

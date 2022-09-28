@@ -2,6 +2,15 @@ package raytracer
 
 import rtmath "raytracer:math"
 
+add :: proc {
+    rtmath.add_t,
+    rtmath.add_v,
+    rtmath.add_pv,
+    rtmath.add_vp,
+
+    color_add,
+}
+
 mul :: proc {
     rtmath.mul_t,
     rtmath.mul_v,

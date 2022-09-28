@@ -171,7 +171,7 @@ Translated_Normal :: proc(t: ^r.Test_Context) {
     ts := rt.test_shape();
 
     rt.set_transform(&ts, m.translation(0, 1, 0));
-    n := rt.shape_normal_at(&ts, m.point(0, 1.70711, -0.70711));
+    n := rt.shape_normal_at(&ts, m.point(0, 1.70711, -0.70711), 0, 0);
 
     expect(t, eq(n, m.vector(0, 0.70711, -0.70711)));
 }
@@ -184,7 +184,7 @@ Transformed_Normal :: proc(t: ^r.Test_Context) {
     sqrt2_over_2 := math.sqrt(m.real(2.0)) / 2;
 
     rt.set_transform(&ts, m.scaling(1, 0.5, 1) * m.rotation_z( PI / 5));
-    n := rt.shape_normal_at(&ts, m.point(0, sqrt2_over_2, -sqrt2_over_2));
+    n := rt.shape_normal_at(&ts, m.point(0, sqrt2_over_2, -sqrt2_over_2), 0, 0);
 
     expect(t, eq(n, m.vector(0, 0.97014, -0.24254)));
 }
@@ -194,9 +194,9 @@ Plane_Normal :: proc(t: ^r.Test_Context) {
 
     p := rt.plane();
 
-    n1 := p->normal_at(m.point(0, 0, 0));
-    n2 := p->normal_at(m.point(10, 0, -10));
-    n3 := p->normal_at(m.point(-5, 0, 150));
+    n1 := p->normal_at(m.point(0, 0, 0), 0, 0);
+    n2 := p->normal_at(m.point(10, 0, -10), 0, 0);
+    n3 := p->normal_at(m.point(-5, 0, 150), 0, 0);
 
     expect(t, eq(n1, m.vector(0, 1, 0)));
     expect(t, eq(n2, m.vector(0, 1, 0)));
@@ -309,7 +309,7 @@ S_Normal_X_Axis :: proc(t: ^r.Test_Context) {
     p := m.point(1, 0, 0);
 
     // n := rt.normal_at(&sp, p);
-    n := sp->normal_at(p);
+    n := sp->normal_at(p, 0, 0);
 
     expected := m.vector(1, 0, 0);
 
@@ -322,7 +322,7 @@ S_Normal_Y_Axis :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     p := m.point(0, 1, 0);
 
-    n := sp->normal_at(p);
+    n := sp->normal_at(p, 0, 0);
 
     expected := m.vector(0, 1, 0);
 
@@ -335,7 +335,7 @@ S_Normal_Z_Axis :: proc(t: ^r.Test_Context) {
     sp := rt.sphere();
     p := m.point(0, 0, 1);
 
-    n := sp->normal_at(p);
+    n := sp->normal_at(p, 0, 0);
 
     expected := m.vector(0, 0, 1);
 
@@ -350,7 +350,7 @@ S_Normal_Nonaxial :: proc(t: ^r.Test_Context) {
     v := math.sqrt(m.real(3.0)) / 3;
     p := m.point(v, v, v);
 
-    n := sp->normal_at(p);
+    n := sp->normal_at(p, 0, 0);
 
     expected := m.vector(v, v, v);
 
@@ -365,7 +365,7 @@ S_Normal_Normalized :: proc(t: ^r.Test_Context) {
     v := math.sqrt(m.real(3.0)) / 3;
     p := m.point(v, v, v);
 
-    n := sp->normal_at(p);
+    n := sp->normal_at(p, 0, 0);
 
     expected := m.normalize(n);
 
@@ -379,7 +379,7 @@ S_Translated_Normal :: proc(t: ^r.Test_Context) {
 
     p := m.point(0, 1.70711, -0.70711);
 
-    n := rt.shape_normal_at(&sp, p);
+    n := rt.shape_normal_at(&sp, p, 0, 0);
 
     expected := m.vector(0, 0.70711, -0.70711);
 
@@ -394,7 +394,7 @@ S_Scaled_Rotated_Normal :: proc(t: ^r.Test_Context) {
     sqrt2_over_2 := math.sqrt(m.real(2.0)) / 2;
     p := m.point(0, sqrt2_over_2, -sqrt2_over_2);
 
-    n := rt.shape_normal_at(&sp, p);
+    n := rt.shape_normal_at(&sp, p, 0, 0);
 
     expected := m.vector(0, 0.97014, -0.24254);
 
@@ -537,7 +537,7 @@ Cube_Normal :: proc(t: ^r.Test_Context) {
 
     for e in examples {
 
-        normal := c->normal_at(e.p);
+        normal := c->normal_at(e.p, 0, 0);
 
         expect(t, normal == e.n);
     }
@@ -612,7 +612,7 @@ Cylinder_Normal :: proc(t: ^r.Test_Context) {
 
     for e in examples {
 
-        n := cyl->normal_at(e.point);
+        n := cyl->normal_at(e.point, 0, 0);
 
         expect(t, eq(n, e.normal));
     }
@@ -721,7 +721,7 @@ Cylinder_Cap_Normal :: proc(t: ^r.Test_Context) {
     };
 
     for e in examples {
-        n := cyl->normal_at(e.point);
+        n := cyl->normal_at(e.point, 0, 0);
 
         expect(t, eq(n, e.normal));
     }
@@ -823,7 +823,7 @@ Cone_Normal :: proc(t: ^r.Test_Context) {
 
     for e in examples {
 
-        n := shape->normal_at(e.point);
+        n := shape->normal_at(e.point, 0, 0);
 
         expect(t, eq(n, e.normal));
     }
@@ -942,7 +942,7 @@ Group_Child_Normal :: proc(t: ^r.Test_Context) {
     s := rt.sphere(m.translation(5, 0, 0));
     rt.group_add_child(&g2, &s);
 
-    n := rt.shape_normal_at(&s, m.point(1.7321, 1.1547, -5.5774));
+    n := rt.shape_normal_at(&s, m.point(1.7321, 1.1547, -5.5774), 0, 0);
 
     expect(t, eq(n, m.vector(0.28570, 0.42854, -0.85716)));
 
@@ -1194,9 +1194,9 @@ Triangle_Normal :: proc(t: ^r.Test_Context) {
 
     tri := rt.triangle(m.point(0, 1, 1), m.point(-1, 0, 0), m.point(1, 0, 0));
 
-    n1 := tri->normal_at(m.point(0, 0.5, 0));
-    n2 := tri->normal_at(m.point(-0.5, 0.75, 0));
-    n3 := tri->normal_at(m.point(0.5, 0.25, 0));
+    n1 := tri->normal_at(m.point(0, 0.5, 0), 0, 0);
+    n2 := tri->normal_at(m.point(-0.5, 0.75, 0), 0, 0);
+    n3 := tri->normal_at(m.point(0.5, 0.25, 0), 0, 0);
 
     expect(t, eq(tri.normal, n1));
     expect(t, eq(tri.normal, n2));

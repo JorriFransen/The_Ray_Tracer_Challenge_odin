@@ -23,7 +23,7 @@ color_u8 :: proc(r_, g_, b_: u8) -> Color {
     return Color { r * m, g * m, b * m, 0.0 };
 }
 
-add :: #force_inline proc(a, b: Color) -> Color {
+color_add :: #force_inline proc(a, b: Color) -> Color {
     return a + b;
 }
 

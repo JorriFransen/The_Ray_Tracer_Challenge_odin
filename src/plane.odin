@@ -34,7 +34,7 @@ plane :: proc {
 @(private="file")
 _plane_vtable := &Shape_VTable {
 
-    normal_at = proc(s: ^Shape, p: m.Point) -> m.Vector {
+    normal_at = proc(s: ^Shape, p: m.Point, u, v: m.real) -> m.Vector {
         return m.vector(0, 1, 0);
     },
 

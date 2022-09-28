@@ -47,7 +47,7 @@ CH06 :: proc(c: rt.Canvas) {
             if hit, ok : = rt.hit(xs).?; ok {
 
                 hitpoint := m.ray_position(r, hit.t);
-                hitnormal := rt.shape_normal_at(hit.object, hitpoint);
+                hitnormal := rt.shape_normal_at(hit.object, hitpoint, 0, 0);
                 eye_v := m.negate(r.direction);
 
 
